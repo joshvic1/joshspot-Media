@@ -1,0 +1,89 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+/* CARD */
+
+.card {
+  width: 100%;
+  max-width: 420px;
+
+  padding: 32px 28px;
+
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.03);
+
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+
+  text-align: center;
+}
+
+/* TITLE */
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+
+  color: white;
+
+  margin-bottom: 20px;
+}
+
+/* DESCRIPTION BOX */
+
+.desc {
+  background: rgba(255, 255, 255, 0.03);
+
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  border-radius: 12px;
+
+  padding: 16px;
+
+  font-size: 14px;
+  line-height: 1.6;
+
+  color: #d6d6d6;
+
+  margin-bottom: 28px;
+}
+
+/* PRICE */
+
+.price {
+  font-size: 24px;
+  font-weight: 600;
+
+  color: #f5c543;
+
+  margin-bottom: 22px;
+}
+
+/* BUTTON */
+
+.book {
+  width: 100%;
+
+  padding: 13px;
+
+  border-radius: 10px;
+  border: none;
+
+  background: #f5c543;
+  color: #0a1a44;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.book:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,46 @@
+.services {
+  padding: 120px 8%;
+  background: #ffffff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* HEADER */
+
+.header {
+  margin-bottom: 30px;
+  max-width: 650px;
+
+  align-items: center;
+}
+
+.label {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #6c63ff;
+}
+
+.header h2 {
+  font-size: 40px;
+  margin-top: 10px;
+  margin-bottom: 14px;
+  line-height: 1.2;
+}
+
+.header p {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* GRID */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}

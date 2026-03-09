@@ -1,0 +1,109 @@
+/* OVERLAY */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 5000;
+
+  animation: fadeIn 0.3s ease;
+}
+
+/* MODAL BOX */
+
+.modal {
+  position: relative;
+
+  max-width: 700px;
+
+  padding: 10px;
+  margin: 0 20px;
+  border-radius: 20px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(20, 30, 70, 0.95),
+    rgba(10, 15, 40, 0.95)
+  );
+
+  backdrop-filter: blur(25px);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+
+  color: white;
+
+  animation: modalEnter 0.35s ease;
+}
+
+/* CLOSE BUTTON */
+
+.close {
+  position: absolute;
+
+  top: 18px;
+  right: 18px;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 10px;
+
+  border: none;
+
+  background: #ff4d6d;
+  color: white;
+
+  font-size: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.close:hover {
+  transform: scale(1.1);
+}
+
+/* ANIMATIONS */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .modal {
+    padding: 30px 22px;
+  }
+}

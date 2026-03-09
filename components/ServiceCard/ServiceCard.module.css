@@ -1,0 +1,203 @@
+.card {
+  position: relative;
+  height: 380px;
+  border-radius: 24px;
+  overflow: hidden;
+
+  cursor: pointer;
+
+  transform-style: preserve-3d;
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+
+  background: black;
+}
+
+/* 3D HOVER */
+
+.card:hover {
+  transform: scale(1.04) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.25);
+}
+
+/* IMAGE */
+
+.image {
+  object-fit: cover;
+}
+
+/* DARK OVERLAY */
+.overlay {
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75),
+    rgba(0, 0, 0, 0.25),
+    transparent
+  );
+
+  pointer-events: none;
+}
+
+/* MOUSE SPOTLIGHT */
+
+.card::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: radial-gradient(
+    circle at var(--x) var(--y),
+    rgba(255, 255, 255, 0.25),
+    transparent 40%
+  );
+
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* NUMBER */
+
+.number {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 700;
+}
+
+/* CONTENT */
+
+.content {
+  position: absolute;
+  bottom: 0;
+  padding: 28px;
+  color: white;
+  z-index: 2;
+}
+
+/* TITLE */
+
+.content h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+/* DESCRIPTION */
+
+.content p {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 18px;
+}
+
+/* BOTTOM */
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* PRICE */
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+  padding-bottom: 10px;
+}
+
+/* BUTTONS */
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+.buttons button {
+  transition: all 0.25s ease;
+}
+.details {
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+
+  color: white;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.details:hover {
+  background: white;
+  color: black;
+  transform: translateY(-2px);
+}
+
+.book {
+  background: white;
+  color: black;
+  border: none;
+
+  padding: 8px 40px;
+  border-radius: 8px;
+
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.book:hover {
+  transform: translateY(-2px) scale(1.05);
+  background: #f3f3f3;
+}
+
+/* YELLOW LIGHT WASH */
+
+.card::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: -120px;
+  left: -120px;
+
+  width: 320px;
+  height: 320px;
+
+  background: radial-gradient(
+    circle at center,
+    rgba(245, 197, 67, 0.55) 0%,
+    rgba(245, 197, 67, 0.35) 85%,
+    rgba(245, 197, 67, 0.15) 55%,
+    transparent 70%
+  );
+
+  filter: blur(70px);
+
+  pointer-events: none;
+
+  z-index: 0;
+}
