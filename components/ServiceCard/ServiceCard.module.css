@@ -78,8 +78,8 @@
 
   border-radius: 50%;
 
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
+  background: gold;
+  color: black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,7 +124,7 @@
 /* PRICE */
 
 .price {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
   padding-bottom: 8px;
 }
@@ -145,7 +145,7 @@
 .details {
   background: rgba(255, 255, 255, 0.25);
   border: none;
-  padding: 6px 11px;
+  padding: 12px 15px;
   border-radius: 8px;
 
   color: white;
@@ -167,7 +167,7 @@
   color: black;
   border: none;
 
-  padding: 6px 32px;
+  padding: 12px 32px;
   border-radius: 8px;
 
   font-weight: 600;
