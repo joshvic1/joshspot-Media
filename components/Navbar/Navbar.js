@@ -4,7 +4,15 @@ import { FaBars, FaTimes } from "react-icons/fa";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
 
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+
+    setMenuOpen(false); // close menu after click
+  };
   return (
     <>
       <nav className={styles.navbar}>
@@ -47,13 +55,18 @@ export default function Navbar() {
         </div>
 
         <ul>
-          <li>Home</li>
-          <li>Services</li>
-          <li>About</li>
-          <li>Contact</li>
+          <li onClick={() => scrollToSection("home")}>Home</li>
+          <li onClick={() => scrollToSection("services")}>Services</li>
+          <li onClick={() => scrollToSection("about")}>About</li>
+          <li onClick={() => scrollToSection("contact")}>Contact</li>
         </ul>
 
-        <button className={styles.mobileCTA}>Book Consultation</button>
+        <button
+          className={styles.mobileCTA}
+          onClick={() => scrollToSection("services")}
+        >
+          Book Consultation
+        </button>
       </div>
     </>
   );

@@ -28,7 +28,7 @@ You can use this time to:
 
 Perfect if you need fast direction or expert answers.
 `,
-    image: "/images/consultation.jpg",
+    image: "/images/consult.jpg",
   },
 
   {

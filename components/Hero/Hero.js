@@ -33,7 +33,7 @@ export default function Hero() {
         {/* LEFT SIDE */}
         <div className={styles.textArea}>
           <div className={styles.badge}>
-            <span>NEW</span> JoshspotMedia
+            <span>HELLO!</span> WELCOME
           </div>
 
           <h1
@@ -71,10 +71,10 @@ export default function Hero() {
         <div className={styles.imageArea}>
           <div className={styles.imageCard}>
             <Image
-              src="/images/josh.png"
-              width={420}
-              height={420}
+              src="/images/joshua.png"
               alt="Joshspot Media"
+              fill
+              className={styles.image}
               priority
             />
           </div>

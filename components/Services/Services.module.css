@@ -1,6 +1,13 @@
 .services {
-  padding: 120px 8%;
+  padding: 96px 5%;
+
   background: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .services {
+    padding: 48px 5%;
+  }
 }
 
 .container {
@@ -11,29 +18,34 @@
 /* HEADER */
 
 .header {
-  margin-bottom: 30px;
-  max-width: 650px;
-
-  align-items: center;
+  margin-bottom: 24px;
+  text-align: center;
+  color: #333;
 }
 
 .label {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: 1px;
-  color: #6c63ff;
+  color: #333;
+}
+
+@media (max-width: 900px) {
+  .label {
+    font-size: 16px;
+  }
 }
 
 .header h2 {
-  font-size: 40px;
-  margin-top: 10px;
-  margin-bottom: 14px;
+  font-size: 32px;
+  margin-top: 8px;
+  margin-bottom: 11px;
   line-height: 1.2;
 }
 
 .header p {
   color: #666;
-  font-size: 16px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -42,5 +54,5 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  gap: 24px;
 }

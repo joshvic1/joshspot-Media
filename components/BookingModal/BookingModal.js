@@ -32,13 +32,18 @@ export default function BookingModal({ service, closeModal }) {
     setTotalPrice(total);
   };
   const handleBudgetChange = (value) => {
-    const amount = Number(value);
+    const numbersOnly = value.replace(/\D/g, "");
 
-    setAdBudget(amount);
+    setAdBudget(numbersOnly);
 
-    if (amount < 15000) {
+    const amount = Number(numbersOnly);
+
+    if (!amount) {
+      setTotalPrice(service.price || 0);
       return;
     }
+
+    if (amount < 15000) return;
 
     const total = amount + serviceFee;
 
@@ -98,7 +103,7 @@ export default function BookingModal({ service, closeModal }) {
     name &&
     email &&
     phone &&
-    (!service.dynamicPricing || (duration && adBudget >= 15000));
+    (!service.dynamicPricing || (duration && Number(adBudget) >= 15000));
   return (
     <Modal closeModal={closeModal}>
       <div className={styles.wrapper}>
@@ -152,12 +157,12 @@ export default function BookingModal({ service, closeModal }) {
                 <option value="6 months">6 Months</option>
               </select>
 
-              <label>How much ads budget do you want to run?</label>
+              <label>How much ads do you want to run?</label>
 
               <input
-                type="number"
+                type="text"
                 placeholder="Minimum ₦15,000"
-                value={adBudget}
+                value={adBudget ? `₦${Number(adBudget).toLocaleString()}` : ""}
                 disabled={loading}
                 onChange={(e) => handleBudgetChange(e.target.value)}
               />
@@ -174,13 +179,13 @@ export default function BookingModal({ service, closeModal }) {
                 readOnly
                 className={styles.readOnlyInput}
               />
-              <p className={styles.totalPrice}>
+              <div className={styles.totalPrice}>
                 Your total price is{" "}
-                <p className={styles.price}>
+                <div className={styles.price}>
                   ₦
                   <CountUp end={totalPrice} duration={0.6} separator="," />
-                </p>
-              </p>
+                </div>
+              </div>
             </div>
           )}
           <button
