@@ -41,7 +41,7 @@ Book one hour with Joshspot to deeply review and improve marketing.
 
 This is a deeper strategy session where we analyze your situation properly.
 
-During this call we can:
+During this call/session, we can:
 - Review your Meta or TikTok ads account
 - Diagnose why your ads are not performing well
 - Fix targeting or campaign structure problems
@@ -113,9 +113,9 @@ We will:
 - Optimize ads performance
 - Scale profitable campaigns
 
-Pricing depends on your ad budget and project scope.
-
-Businesses must book a consultation first before ads management begins.
+Pricing depends on your ad budget and we charge a service fee depending on how long you want us to manage your ads. 
+<br /> Let me explain how this works: Imagine you want to hire a tailorto make a suit, you will pay the tailor for the materials (fabric) and also pay for their time and expertise to make the suit. The same applies here, you will pay for the ad budget (the money spent on running ads) and also pay a service fee for our time and expertise in managing your ads effectively.
+<br /> The service fee is calculated based on the duration of management. For example, if you want us to manage your ads for a week, we will charge a service fee that covers our time and expertise for that week. If you want us to manage your ads for a month, the service fee will be higher to reflect the longer duration and increased workload. Click on book now  to see the pricing details.
 `,
     image: "/images/ads-management.jpg",
   },

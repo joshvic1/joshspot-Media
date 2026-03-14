@@ -253,41 +253,88 @@ export default function Admin() {
       </div>
 
       {/* BOOKINGS TABLE */}
+      {/* ALL BOOKINGS */}
 
-      <div className={styles.tableCard}>
-        <h2>All Bookings</h2>
+      <div className={styles.bookingsSection}>
+        <h2 className={styles.sectionTitle}>All Bookings</h2>
 
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Service</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Notes</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+        <div className={styles.bookingsGrid}>
+          {[...bookings]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .map((b) => (
+              <div key={b._id} className={styles.bookingCard}>
+                <div className={styles.bookingHeader}>
+                  <h3>{b.serviceTitle}</h3>
+                  <span className={styles.status}>{b.status}</span>
+                </div>
 
-          <tbody>
-            {[...bookings]
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .map((b) => (
-                <tr key={b._id}>
-                  <td>{b.name}</td>
-                  <td>{b.email}</td>
-                  <td>{b.phone}</td>
-                  <td>{b.serviceTitle}</td>
-                  <td>{formatDate(b.date)}</td>
-                  <td>{b.time}</td>
-                  <td>{b.notes || "-"}</td>
-                  <td>{b.status}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                <div className={styles.bookingBody}>
+                  <p>
+                    <strong>Name:</strong> {b.name}
+                  </p>
+
+                  <p>
+                    <strong>Email:</strong> {b.email}
+                  </p>
+
+                  <p>
+                    <strong>WhatsApp:</strong> {b.phone}
+                  </p>
+
+                  {b.duration && (
+                    <p>
+                      <strong>Duration:</strong> {b.duration}
+                    </p>
+                  )}
+
+                  {b.adBudget && (
+                    <p>
+                      <strong>Ad Budget:</strong> ₦{b.adBudget.toLocaleString()}
+                    </p>
+                  )}
+
+                  {b.serviceFee && (
+                    <p>
+                      <strong>Service Fee:</strong> ₦
+                      {b.serviceFee.toLocaleString()}
+                    </p>
+                  )}
+
+                  <p>
+                    <strong>Date:</strong> {formatDate(b.date) || "-"}
+                  </p>
+
+                  <p>
+                    <strong>Time:</strong> {b.time || "-"}
+                  </p>
+
+                  <p>
+                    <strong>Notes:</strong> {b.notes || "-"}
+                  </p>
+                </div>
+
+                <div className={styles.bookingActions}>
+                  {b.status !== "cancelled" && (
+                    <button
+                      onClick={() => cancelBooking(b._id)}
+                      className={styles.cancelBtn}
+                    >
+                      Cancel
+                    </button>
+                  )}
+
+                  {b.status !== "completed" && (
+                    <button
+                      onClick={() => markCompleted(b._id)}
+                      className={styles.completeBtn}
+                    >
+                      Completed
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+        </div>
       </div>
 
       {/* SERVICE PERFORMANCE */}

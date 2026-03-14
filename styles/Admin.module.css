@@ -280,3 +280,123 @@
 .loginButton:hover {
   background: #ffd760;
 }
+/* BOOKINGS SECTION */
+
+.bookingsSection {
+  margin-top: 40px;
+}
+
+.sectionTitle {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* GRID */
+
+.bookingsGrid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+  gap: 18px;
+}
+
+/* CARD */
+
+.bookingCard {
+  background: rgba(255, 255, 255, 0.05);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 14px;
+
+  padding: 20px;
+
+  transition: all 0.2s ease;
+}
+
+.bookingCard:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* HEADER */
+
+.bookingHeader {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 12px;
+}
+
+.bookingHeader h3 {
+  color: #f5c543;
+
+  font-size: 16px;
+}
+
+/* STATUS */
+
+.status {
+  font-size: 12px;
+
+  padding: 4px 8px;
+
+  border-radius: 6px;
+
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* BODY */
+
+.bookingBody p {
+  margin: 4px 0;
+
+  font-size: 14px;
+}
+
+/* ACTIONS */
+
+.bookingActions {
+  display: flex;
+
+  gap: 10px;
+
+  margin-top: 14px;
+}
+
+.cancelBtn {
+  flex: 1;
+
+  padding: 8px;
+
+  border-radius: 8px;
+
+  border: none;
+
+  background: #ff4d4d;
+
+  color: white;
+
+  cursor: pointer;
+}
+
+.completeBtn {
+  flex: 1;
+
+  padding: 8px;
+
+  border-radius: 8px;
+
+  border: none;
+
+  background: #22c55e;
+
+  color: white;
+
+  cursor: pointer;
+}

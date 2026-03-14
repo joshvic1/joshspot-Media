@@ -48,6 +48,44 @@ export default function PickADate() {
   ];
 
   const [bookedTimes, setBookedTimes] = useState([]);
+  const firePurchaseEvent = () => {
+    if (typeof window === "undefined") return;
+
+    const tracked = localStorage.getItem("tiktok_purchase_tracked");
+
+    if (tracked) {
+      console.log("⚠️ purchase already tracked");
+      return;
+    }
+
+    console.log("🔥 purchase event fired");
+
+    if (window.ttq) {
+      window.ttq.track("Purchase", {
+        value: 20000,
+        currency: "NGN",
+        event_id: token,
+        contents: [
+          {
+            content_name: "TikTok Ads Account Setup",
+            content_type: "service",
+            price: 20000,
+          },
+        ],
+      });
+
+      console.log("✅ TikTok purchase event sent");
+
+      localStorage.setItem("tiktok_purchase_tracked", "true");
+    } else {
+      console.log("❌ TikTok Pixel not found");
+    }
+  };
+  useEffect(() => {
+    if (!token) return;
+
+    firePurchaseEvent();
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -171,6 +209,7 @@ export default function PickADate() {
 
     return diffHours < 24;
   };
+
   return (
     <div className={styles.page}>
       <div className={styles.card}>
