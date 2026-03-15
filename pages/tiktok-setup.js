@@ -50,7 +50,7 @@ export default function TiktokSetup() {
 
   const handleWhatsapp = () => {
     fireRegistrationEvent();
-    window.open("https://mytiklink.com/r/ehr3bg", "_blank");
+    window.open("https://mytiklink.com/r/vshzs8", "_blank");
   };
 
   return (
