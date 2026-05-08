@@ -6,8 +6,13 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
 });
 export default function App({ Component, pageProps }) {
-  useEffect(() => {
-    !(function (w, d, t) {
+ useEffect(() => {
+  if (window.ttq && window.__ttLoaded) {
+    console.log("⚠️ TikTok already initialized");
+    return;
+  }
+
+  !(function (w, d, t) {
       w.TiktokAnalyticsObject = t;
       var ttq = (w[t] = w[t] || []);
       ttq.methods = [
@@ -24,6 +29,9 @@ export default function App({ Component, pageProps }) {
         "group",
         "enableCookie",
         "disableCookie",
+        "holdConsent",
+"revokeConsent",
+"grantConsent",
       ];
       ttq.setAndDefer = function (t, e) {
         t[e] = function () {
@@ -50,6 +58,7 @@ export default function App({ Component, pageProps }) {
         a.parentNode.insertBefore(o, a);
       };
       ttq.load("D7V46AJC77UCL5G1KVLG");
+    window.__ttLoaded = true;
       ttq.page();
     })(window, document, "ttq");
   }, []);
