@@ -57,7 +57,7 @@ export default function App({ Component, pageProps }) {
         var a = document.getElementsByTagName("script")[0];
         a.parentNode.insertBefore(o, a);
       };
-      ttq.load("D5UVLSBC77UAR2VU2LK0");
+      ttq.load("D7V46AJC77UCL5G1KVLG");
       ttq.page();
     })(window, document, "ttq");
   }, []);
