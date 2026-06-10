@@ -7,6 +7,11 @@ const poppins = Poppins({
 });
 export default function App({ Component, pageProps }) {
   useEffect(() => {
+    if (window.ttq && window.__ttLoaded) {
+      console.log("⚠️ TikTok already initialized");
+      return;
+    }
+
     !(function (w, d, t) {
       w.TiktokAnalyticsObject = t;
       var ttq = (w[t] = w[t] || []);
@@ -24,6 +29,9 @@ export default function App({ Component, pageProps }) {
         "group",
         "enableCookie",
         "disableCookie",
+        "holdConsent",
+        "revokeConsent",
+        "grantConsent",
       ];
       ttq.setAndDefer = function (t, e) {
         t[e] = function () {
@@ -49,7 +57,7 @@ export default function App({ Component, pageProps }) {
         var a = document.getElementsByTagName("script")[0];
         a.parentNode.insertBefore(o, a);
       };
-      ttq.load("D7V46AJC77UCL5G1KVLG");
+      ttq.load("D5UVLSBC77UAR2VU2LK0");
       ttq.page();
     })(window, document, "ttq");
   }, []);
