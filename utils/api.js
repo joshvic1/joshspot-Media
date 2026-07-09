@@ -5,7 +5,7 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("adminToken") || localStorage.getItem("crmToken");
 
   if (token) {
     req.headers.authorization = token;
