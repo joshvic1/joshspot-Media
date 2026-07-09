@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
@@ -40,12 +40,34 @@ export default function CrmDashboard() {
   const [permissions, setPermissions] = useState({ canCreate: false, fields: [] });
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState("");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
+  const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const [saving, setSaving] = useState(false);
+  const formRef = useRef(null);
+  const clientRefs = useRef({});
 
   const editableFields = useMemo(
     () => fieldOrder.filter((field) => permissions.fields.includes(field)),
     [permissions.fields],
   );
+
+  const filteredClients = useMemo(() => {
+    const search = activeSearch.trim().toLowerCase();
+
+    if (!search) {
+      return clients;
+    }
+
+    return clients.filter((client) =>
+      fieldOrder.some((field) =>
+        String(client[field] || "")
+          .toLowerCase()
+          .includes(search),
+      ),
+    );
+  }, [activeSearch, clients]);
 
   const fetchClients = useCallback(async () => {
     try {
@@ -53,10 +75,12 @@ export default function CrmDashboard() {
 
       setClients(res.data.clients);
       setPermissions(res.data.permissions);
+      return res.data.clients;
     } catch {
       localStorage.removeItem("crmToken");
       localStorage.removeItem("crmStaff");
       router.push("/crm-login");
+      return [];
     }
   }, [router]);
 
@@ -76,6 +100,19 @@ export default function CrmDashboard() {
     fetchClients();
   }, [fetchClients, router]);
 
+  useEffect(() => {
+    if (!pendingScrollClientId) {
+      return;
+    }
+
+    const clientNode = clientRefs.current[pendingScrollClientId];
+
+    if (clientNode) {
+      clientNode.scrollIntoView({ behavior: "smooth", block: "center" });
+      setPendingScrollClientId("");
+    }
+  }, [clients, filteredClients, pendingScrollClientId]);
+
   const handleChange = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
@@ -83,10 +120,15 @@ export default function CrmDashboard() {
   const startCreate = () => {
     setEditingId("");
     setForm(emptyForm);
+    setIsFormOpen(true);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   const startEdit = (client) => {
     setEditingId(client._id);
+    setIsFormOpen(true);
     setForm({
       ...emptyForm,
       ...fieldOrder.reduce((values, field) => {
@@ -94,6 +136,19 @@ export default function CrmDashboard() {
         return values;
       }, {}),
     });
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  };
+
+  const searchClients = (event) => {
+    event.preventDefault();
+    setActiveSearch(searchInput);
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    setActiveSearch("");
   };
 
   const saveClient = async (event) => {
@@ -108,13 +163,18 @@ export default function CrmDashboard() {
     try {
       if (editingId) {
         await API.put(`/crm/clients/${editingId}`, payload);
+        await fetchClients();
       } else {
-        await API.post("/crm/clients", payload);
+        const res = await API.post("/crm/clients", payload);
+        setActiveSearch("");
+        setSearchInput("");
+        setIsFormOpen(false);
+        setPendingScrollClientId(res.data._id);
+        await fetchClients();
       }
 
       setForm(emptyForm);
       setEditingId("");
-      fetchClients();
     } catch (error) {
       alert(error.response?.data?.message || "Unable to save client");
     } finally {
@@ -128,7 +188,7 @@ export default function CrmDashboard() {
     router.push("/crm-login");
   };
 
-  const canShowForm = permissions.canCreate || editingId;
+  const canShowForm = isFormOpen || editingId;
 
   return (
     <div className={styles.page}>
@@ -146,28 +206,13 @@ export default function CrmDashboard() {
         </div>
       </header>
 
-      <section className={styles.summaryGrid}>
-        <div>
-          <span>Total clients</span>
-          <strong>{clients.length}</strong>
-        </div>
-        <div>
-          <span>Your role</span>
-          <strong>{staff?.role || "-"}</strong>
-        </div>
-        <div>
-          <span>Visible fields</span>
-          <strong>{permissions.fields.length}</strong>
-        </div>
-      </section>
-
       <section className={styles.contentGrid}>
-        <div className={styles.panel}>
+        <div className={styles.panel} ref={formRef}>
           <div className={styles.panelHeader}>
             <h2>{editingId ? "Update Client" : "Add New Client"}</h2>
             {permissions.canCreate && (
               <button className={styles.secondaryBtn} onClick={startCreate}>
-                New client
+                + Add new client
               </button>
             )}
           </div>
@@ -183,8 +228,8 @@ export default function CrmDashboard() {
                       onChange={(e) => handleChange(field, e.target.value)}
                     >
                       <option>Meta ads setup</option>
-                      <option>TikTok ads setup - DM </option>
-                      <option>Tiktok Ads Setup - Landing Page </option>
+                      <option>TikTok ads setup - DM</option>
+                      <option>Tiktok Ads Setup - Landing Page</option>
                     </select>
                   ) : field.includes("Details") || field.includes("Logins") ? (
                     <textarea
@@ -207,7 +252,9 @@ export default function CrmDashboard() {
             </form>
           ) : (
             <p className={styles.emptyState}>
-              Setup staff can update existing clients only. Select a client below.
+              {permissions.canCreate
+                ? "Click + Add new client to open the form."
+                : "Setup staff can update existing clients only. Select a client below."}
             </p>
           )}
         </div>
@@ -215,12 +262,36 @@ export default function CrmDashboard() {
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Existing Clients</h2>
-            <span>{clients.length} records</span>
+            <span>
+              {filteredClients.length} of {clients.length} records
+            </span>
           </div>
 
+          <form className={styles.searchBar} onSubmit={searchClients}>
+            <input
+              placeholder="Search by business name, number, service, link, login details..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            <button type="submit">Search</button>
+            {activeSearch && (
+              <button type="button" onClick={clearSearch}>
+                Clear
+              </button>
+            )}
+          </form>
+
           <div className={styles.clientList}>
-            {clients.map((client) => (
-              <article key={client._id} className={styles.clientCard}>
+            {filteredClients.map((client) => (
+              <article
+                key={client._id}
+                className={styles.clientCard}
+                ref={(node) => {
+                  if (node) {
+                    clientRefs.current[client._id] = node;
+                  }
+                }}
+              >
                 <div className={styles.clientTop}>
                   <div>
                     <h3>{client.businessName}</h3>
@@ -246,6 +317,10 @@ export default function CrmDashboard() {
 
             {clients.length === 0 && (
               <p className={styles.emptyState}>No clients have been added yet.</p>
+            )}
+
+            {clients.length > 0 && filteredClients.length === 0 && (
+              <p className={styles.emptyState}>No client matched your search.</p>
             )}
           </div>
         </div>

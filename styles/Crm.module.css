@@ -184,6 +184,38 @@
   font-size: 20px;
 }
 
+.searchBar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.searchBar input {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(147, 197, 253, 0.32);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.42);
+  color: #eff6ff;
+  font: inherit;
+}
+
+.searchBar button {
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #38bdf8;
+  color: #082f49;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.searchBar button[type="button"] {
+  background: rgba(219, 234, 254, 0.14);
+  color: #eff6ff;
+}
+
 .clientList {
   display: grid;
   gap: 14px;
@@ -246,6 +278,10 @@
 
   .summaryGrid,
   .clientFields {
+    grid-template-columns: 1fr;
+  }
+
+  .searchBar {
     grid-template-columns: 1fr;
   }
 }
