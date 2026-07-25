@@ -7,8 +7,13 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 
-export const WHATSAPP_CHANNEL_URL = "https://wa.me/234XXXXXXXXXX";
+export const WHATSAPP_CHANNEL_URL =
+  "https://whatsapp.com/channel/0029VbDEhCQAjPXDyKGgxw0K";
 export const YOUTUBE_CHANNEL_URL = "https://youtube.com/@joshspot_tv";
+export const META_ADS_TRAINING_URL =
+  "https://youtube.com/playlist?list=PLiF2fraj3mTfHrONCT50CFUZMCOp8jnam&si=Gm6Tue4nsQPk--Jh";
+export const TIKTOK_ADS_TRAINING_URL =
+  "https://youtube.com/playlist?list=PLiF2fraj3mTcolRwvw4QsPTDO_4xWVSs1&si=o6kD8hLfjUfny2xr";
 
 export const services = [
   {
@@ -98,7 +103,11 @@ export const services = [
     image: "/images/community.jpg",
     description:
       "Join the private marketing community for practical business growth ideas, campaign insights, and regular marketing updates.",
-    highlights: ["Marketing insights", "Campaign breakdowns", "Community updates"],
+    highlights: [
+      "Marketing insights",
+      "Campaign breakdowns",
+      "Community updates",
+    ],
     externalLink: WHATSAPP_CHANNEL_URL,
     ctaLabel: "Join Now",
     resource: true,
@@ -117,7 +126,7 @@ export const services = [
       "TikTok account setup basics",
       "Campaign launch guidance",
     ],
-    externalLink: YOUTUBE_CHANNEL_URL,
+    externalLink: TIKTOK_ADS_TRAINING_URL,
     ctaLabel: "Watch Free Training",
     resource: true,
     featuredResource: true,
@@ -136,7 +145,7 @@ export const services = [
       "Targeting and structure basics",
       "Free learning resource",
     ],
-    externalLink: YOUTUBE_CHANNEL_URL,
+    externalLink: META_ADS_TRAINING_URL,
     ctaLabel: "Watch Free Training",
     resource: true,
     featuredResource: true,

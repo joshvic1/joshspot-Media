@@ -10,15 +10,20 @@ export default function Services() {
           <span className={styles.label}>Services and free trainings</span>
           <h2>Choose the exact support your business needs now.</h2>
           <p>
-            Paid services open a booking popup with the right package options.
-            Free trainings and the community take you straight to the learning
-            channel.
+            Select any of the services below ,click on View Details to learn
+            more about each service, and click Book Now to pay for the service.
+            We will help you get the most out of your ad campaigns and grow your
+            business.
           </p>
         </div>
 
         <div className={styles.grid}>
           {services.map((service, index) => (
-            <ServiceCard key={service.id} service={service} number={index + 1} />
+            <ServiceCard
+              key={service.id}
+              service={service}
+              number={index + 1}
+            />
           ))}
         </div>
       </div>

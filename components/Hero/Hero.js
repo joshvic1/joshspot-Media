@@ -38,7 +38,9 @@ export default function Hero() {
             <span>Premium Ads Growth</span> TikTok • Meta • Strategy
           </div>
 
-          <h1 className={`${styles.heading} ${fade ? styles.fadeIn : styles.fadeOut}`}>
+          <h1
+            className={`${styles.heading} ${fade ? styles.fadeIn : styles.fadeOut}`}
+          >
             {texts[currentText]}
           </h1>
 
@@ -48,27 +50,18 @@ export default function Hero() {
             clean direction, sharper campaigns, and faster execution.
           </p>
 
-          <div className={styles.proofGrid}>
-            <div>
-              <strong>3-day</strong>
-              <span>private ads training</span>
-            </div>
-            <div>
-              <strong>2</strong>
-              <span>major ad platforms</span>
-            </div>
-            <div>
-              <strong>Free</strong>
-              <span>starter trainings</span>
-            </div>
-          </div>
-
           <div className={styles.buttons}>
-            <button className={styles.primary} onClick={() => router.push("#services")}>
+            <button
+              className={styles.primary}
+              onClick={() => router.push("#services")}
+            >
               Explore Services
             </button>
 
-            <button className={styles.secondary} onClick={() => router.push("#services")}>
+            <button
+              className={styles.secondary}
+              onClick={() => router.push("#services")}
+            >
               Watch Free Training
             </button>
           </div>
