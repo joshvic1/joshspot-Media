@@ -1,34 +1,46 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Admin.module.css";
 
-import { useRouter } from "next/router";
+const formatDate = (date) => {
+  if (!date) return null;
+
+  const d = new Date(date);
+
+  if (Number.isNaN(d.getTime())) return null;
+
+  return d.toISOString().split("T")[0];
+};
+
+const formatMoney = (amount) => `NGN ${Number(amount || 0).toLocaleString()}`;
 
 export default function Admin() {
   const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-
-    if (!token) {
-      router.push("/admin-login-0tT6Yc1");
-    }
-  }, []);
   const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState("today");
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       const res = await API.get("/booking/all");
       setBookings(res.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+
+    if (!token) {
+      router.push("/admin-login-0tT6Yc1");
+      return;
+    }
+
+    const timer = setTimeout(fetchBookings, 0);
+
+    return () => clearTimeout(timer);
+  }, [fetchBookings, router]);
 
   const cancelBooking = async (id) => {
     try {
@@ -48,17 +60,6 @@ export default function Admin() {
     }
   };
 
-  /* ---------------- DATE HELPERS ---------------- */
-  const formatDate = (date) => {
-    if (!date) return null;
-
-    const d = new Date(date);
-
-    if (isNaN(d.getTime())) return null;
-
-    return d.toISOString().split("T")[0];
-  };
-
   const today = formatDate(new Date());
 
   const tomorrowDate = (() => {
@@ -67,289 +68,284 @@ export default function Admin() {
     return formatDate(t);
   })();
 
-  /* ---------------- METRICS ---------------- */
-
-  const totalBookings = bookings.length;
-
   const todaysBookings = bookings.filter(
-    (b) => b.date && formatDate(b.date) === today,
+    (booking) => booking.date && formatDate(booking.date) === today,
   );
 
-  const totalRevenue = bookings.reduce((sum, b) => sum + (b.price || 0), 0);
-
-  const todaysRevenue = todaysBookings.reduce(
-    (sum, b) => sum + (b.price || 0),
+  const totalRevenue = bookings.reduce(
+    (sum, booking) => sum + (booking.price || 0),
     0,
   );
 
-  /* ---------------- FILTER LOGIC ---------------- */
-  let filteredBookings = [];
+  const todaysRevenue = todaysBookings.reduce(
+    (sum, booking) => sum + (booking.price || 0),
+    0,
+  );
 
-  if (filter === "today") {
-    filteredBookings = bookings.filter(
-      (b) => b.date && formatDate(b.date) === today,
-    );
-  }
+  const filteredBookings = bookings
+    .filter((booking) => {
+      const bookingDate = booking.date && formatDate(booking.date);
 
-  if (filter === "tomorrow") {
-    filteredBookings = bookings.filter(
-      (b) => b.date && formatDate(b.date) === tomorrowDate,
-    );
-  }
+      if (filter === "today") return bookingDate === today;
+      if (filter === "tomorrow") return bookingDate === tomorrowDate;
+      if (filter === "upcoming") return bookingDate && bookingDate > today;
+      if (filter === "past") return bookingDate && bookingDate < today;
 
-  if (filter === "upcoming") {
-    filteredBookings = bookings.filter(
-      (b) => b.date && formatDate(b.date) > today,
-    );
-  }
+      return true;
+    })
+    .sort((a, b) => {
+      if (!a.time || !b.time) return 0;
 
-  if (filter === "past") {
-    filteredBookings = bookings.filter(
-      (b) => b.date && formatDate(b.date) < today,
-    );
-  }
+      const convert = (time) => {
+        let hour = parseInt(time, 10);
 
-  filteredBookings.sort((a, b) => {
-    if (!a.time || !b.time) return 0;
+        if (time.includes("pm") && hour !== 12) hour += 12;
+        if (time.includes("am") && hour === 12) hour = 0;
 
-    const convert = (t) => {
-      let hour = parseInt(t);
+        return hour;
+      };
 
-      if (t.includes("pm") && hour !== 12) hour += 12;
-      if (t.includes("am") && hour === 12) hour = 0;
-
-      return hour;
-    };
-
-    return convert(a.time) - convert(b.time);
-  });
-
-  /* ---------------- SERVICE STATS ---------------- */
+      return convert(a.time) - convert(b.time);
+    });
 
   const serviceStats = {};
 
-  bookings.forEach((b) => {
-    if (!serviceStats[b.serviceTitle]) {
-      serviceStats[b.serviceTitle] = {
+  bookings.forEach((booking) => {
+    const title = booking.serviceTitle || "Untitled service";
+
+    if (!serviceStats[title]) {
+      serviceStats[title] = {
         count: 0,
         revenue: 0,
       };
     }
 
-    serviceStats[b.serviceTitle].count += 1;
-    serviceStats[b.serviceTitle].revenue += b.price || 0;
+    serviceStats[title].count += 1;
+    serviceStats[title].revenue += booking.price || 0;
   });
+
+  const sortedBookings = [...bookings].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
+
+  const getPackage = (booking) =>
+    booking.packageSelected || booking.duration || "-";
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>Joshspot Media Dashboard</h1>
+      <header className={styles.dashboardHeader}>
+        <div>
+          <span className={styles.kicker}>Admin dashboard</span>
+          <h1 className={styles.title}>Joshspot Media Bookings</h1>
+          <p>Track payments, packages, booked dates, and client details.</p>
+        </div>
+      </header>
 
-      {/* METRICS */}
-
-      <div className={styles.metrics}>
+      <section className={styles.metrics}>
         <div className={styles.metricCard}>
           <span>Total Bookings</span>
-          <h2>{totalBookings}</h2>
+          <h2>{bookings.length}</h2>
         </div>
 
         <div className={styles.metricCard}>
-          <span>Today's Bookings</span>
+          <span>Today&apos;s Bookings</span>
           <h2>{todaysBookings.length}</h2>
         </div>
 
         <div className={styles.metricCard}>
           <span>Total Revenue</span>
-          <h2>₦{totalRevenue.toLocaleString()}</h2>
+          <h2>{formatMoney(totalRevenue)}</h2>
         </div>
 
         <div className={styles.metricCard}>
-          <span>Today's Revenue</span>
-          <h2>₦{todaysRevenue.toLocaleString()}</h2>
+          <span>Today&apos;s Revenue</span>
+          <h2>{formatMoney(todaysRevenue)}</h2>
         </div>
-      </div>
+      </section>
 
-      {/* JOB FILTERS */}
-
-      <div className={styles.jobFilters}>
-        <button
-          className={`${styles.filterBtn} ${filter === "today" ? styles.active : ""}`}
-          onClick={() => setFilter("today")}
-        >
-          Today's Jobs
-        </button>
-
-        <button
-          className={`${styles.filterBtn} ${filter === "tomorrow" ? styles.active : ""}`}
-          onClick={() => setFilter("tomorrow")}
-        >
-          Tomorrow
-        </button>
-
-        <button
-          className={`${styles.filterBtn} ${filter === "upcoming" ? styles.active : ""}`}
-          onClick={() => setFilter("upcoming")}
-        >
-          Upcoming
-        </button>
-
-        <button
-          className={`${styles.filterBtn} ${filter === "past" ? styles.active : ""}`}
-          onClick={() => setFilter("past")}
-        >
-          Past
-        </button>
-      </div>
-
-      {/* JOB CARDS */}
-
-      <div className={styles.jobsGrid}>
-        {filteredBookings.map((b) => (
-          <div key={b._id} className={styles.jobCard}>
-            <div className={styles.jobHeader}>
-              <h3>{b.serviceTitle}</h3>
-              <span>{b.time}</span>
-            </div>
-
-            <div className={styles.jobBody}>
-              <p>
-                <strong>Name:</strong> {b.name}
-              </p>
-              <p>
-                <strong>WhatsApp:</strong> {b.phone}
-              </p>
-              <p>
-                <strong>Email:</strong> {b.email}
-              </p>
-              <p>
-                <strong>Date:</strong> {formatDate(b.date)}
-              </p>
-            </div>
-
-            <div className={styles.actions}>
-              {b.status !== "cancelled" && (
-                <button
-                  onClick={() => cancelBooking(b._id)}
-                  className={styles.cancelBtn}
-                >
-                  Cancel
-                </button>
-              )}
-
-              {b.status !== "completed" && (
-                <button
-                  onClick={() => markCompleted(b._id)}
-                  className={styles.completeBtn}
-                >
-                  Completed
-                </button>
-              )}
-            </div>
+      <section className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <div>
+            <span className={styles.kicker}>Schedule</span>
+            <h2>Jobs by Date</h2>
           </div>
-        ))}
+          <div className={styles.jobFilters}>
+            {["today", "tomorrow", "upcoming", "past"].map((item) => (
+              <button
+                key={item}
+                className={`${styles.filterBtn} ${
+                  filter === item ? styles.active : ""
+                }`}
+                onClick={() => setFilter(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
 
-        {filteredBookings.length === 0 && (
-          <p className={styles.noJobs}>No jobs found</p>
-        )}
-      </div>
+        <div className={styles.jobsGrid}>
+          {filteredBookings.map((booking) => (
+            <div key={booking._id} className={styles.jobCard}>
+              <div className={styles.cardTop}>
+                <span className={styles.status}>{booking.status}</span>
+                <strong>{booking.time || "No time yet"}</strong>
+              </div>
+              <h3>{booking.serviceTitle}</h3>
+              <div className={styles.infoGrid}>
+                <p>
+                  <span>Name</span>
+                  <strong>{booking.name}</strong>
+                </p>
+                <p>
+                  <span>WhatsApp</span>
+                  <strong>{booking.phone}</strong>
+                </p>
+                <p>
+                  <span>Date</span>
+                  <strong>{formatDate(booking.date) || "Not selected"}</strong>
+                </p>
+                <p>
+                  <span>Package</span>
+                  <strong>{getPackage(booking)}</strong>
+                </p>
+              </div>
 
-      {/* BOOKINGS TABLE */}
-      {/* ALL BOOKINGS */}
+              <div className={styles.actions}>
+                {booking.status !== "cancelled" && (
+                  <button
+                    onClick={() => cancelBooking(booking._id)}
+                    className={styles.cancelBtn}
+                  >
+                    Cancel
+                  </button>
+                )}
 
-      <div className={styles.bookingsSection}>
-        <h2 className={styles.sectionTitle}>All Bookings</h2>
+                {booking.status !== "completed" && (
+                  <button
+                    onClick={() => markCompleted(booking._id)}
+                    className={styles.completeBtn}
+                  >
+                    Completed
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {filteredBookings.length === 0 && (
+            <p className={styles.emptyState}>No jobs found for this filter.</p>
+          )}
+        </div>
+      </section>
+
+      <section className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <div>
+            <span className={styles.kicker}>All records</span>
+            <h2>All Bookings</h2>
+          </div>
+          <span className={styles.recordCount}>{bookings.length} records</span>
+        </div>
 
         <div className={styles.bookingsGrid}>
-          {[...bookings]
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .map((b) => (
-              <div key={b._id} className={styles.bookingCard}>
-                <div className={styles.bookingHeader}>
-                  <h3>{b.serviceTitle}</h3>
-                  <span className={styles.status}>{b.status}</span>
+          {sortedBookings.map((booking) => (
+            <article key={booking._id} className={styles.bookingCard}>
+              <div className={styles.bookingHeader}>
+                <div>
+                  <span className={styles.serviceId}>
+                    Service #{booking.serviceId}
+                  </span>
+                  <h3>{booking.serviceTitle}</h3>
                 </div>
-
-                <div className={styles.bookingBody}>
-                  <p>
-                    <strong>Name:</strong> {b.name}
-                  </p>
-
-                  <p>
-                    <strong>Email:</strong> {b.email}
-                  </p>
-
-                  <p>
-                    <strong>WhatsApp:</strong> {b.phone}
-                  </p>
-
-                  {b.duration && (
-                    <p>
-                      <strong>Duration:</strong> {b.duration}
-                    </p>
-                  )}
-
-                  {b.adBudget && (
-                    <p>
-                      <strong>Ad Budget:</strong> ₦{b.adBudget.toLocaleString()}
-                    </p>
-                  )}
-
-                  {b.serviceFee && (
-                    <p>
-                      <strong>Service Fee:</strong> ₦
-                      {b.serviceFee.toLocaleString()}
-                    </p>
-                  )}
-
-                  <p>
-                    <strong>Date:</strong> {formatDate(b.date) || "-"}
-                  </p>
-
-                  <p>
-                    <strong>Time:</strong> {b.time || "-"}
-                  </p>
-
-                  <p>
-                    <strong>Notes:</strong> {b.notes || "-"}
-                  </p>
-                </div>
-
-                <div className={styles.bookingActions}>
-                  {b.status !== "cancelled" && (
-                    <button
-                      onClick={() => cancelBooking(b._id)}
-                      className={styles.cancelBtn}
-                    >
-                      Cancel
-                    </button>
-                  )}
-
-                  {b.status !== "completed" && (
-                    <button
-                      onClick={() => markCompleted(b._id)}
-                      className={styles.completeBtn}
-                    >
-                      Completed
-                    </button>
-                  )}
-                </div>
+                <span className={styles.status}>{booking.status}</span>
               </div>
-            ))}
+
+              <div className={styles.bookingBody}>
+                <p>
+                  <span>Name</span>
+                  <strong>{booking.name}</strong>
+                </p>
+                <p>
+                  <span>Email</span>
+                  <strong>{booking.email}</strong>
+                </p>
+                <p>
+                  <span>WhatsApp</span>
+                  <strong>{booking.phone}</strong>
+                </p>
+                <p>
+                  <span>Package</span>
+                  <strong>{getPackage(booking)}</strong>
+                </p>
+                <p>
+                  <span>Amount Paid</span>
+                  <strong>{formatMoney(booking.price)}</strong>
+                </p>
+                <p>
+                  <span>Payment</span>
+                  <strong>{booking.paid ? "Paid" : "Pending date selection"}</strong>
+                </p>
+                <p>
+                  <span>Date</span>
+                  <strong>{formatDate(booking.date) || "-"}</strong>
+                </p>
+                <p>
+                  <span>Time</span>
+                  <strong>{booking.time || "-"}</strong>
+                </p>
+                <p className={styles.fullWidth}>
+                  <span>Notes</span>
+                  <strong>{booking.notes || "-"}</strong>
+                </p>
+              </div>
+
+              <div className={styles.bookingActions}>
+                {booking.status !== "cancelled" && (
+                  <button
+                    onClick={() => cancelBooking(booking._id)}
+                    className={styles.cancelBtn}
+                  >
+                    Cancel
+                  </button>
+                )}
+
+                {booking.status !== "completed" && (
+                  <button
+                    onClick={() => markCompleted(booking._id)}
+                    className={styles.completeBtn}
+                  >
+                    Completed
+                  </button>
+                )}
+              </div>
+            </article>
+          ))}
         </div>
-      </div>
+      </section>
 
-      {/* SERVICE PERFORMANCE */}
-
-      <div className={styles.serviceStats}>
-        <h2>Service Performance</h2>
-
-        {Object.entries(serviceStats).map(([service, data]) => (
-          <div key={service} className={styles.serviceRow}>
-            <div>{service}</div>
-            <div>{data.count} bookings</div>
-            <div>₦{data.revenue.toLocaleString()}</div>
+      <section className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <div>
+            <span className={styles.kicker}>Performance</span>
+            <h2>Service Performance</h2>
           </div>
-        ))}
-      </div>
+        </div>
+
+        <div className={styles.serviceStats}>
+          {Object.entries(serviceStats).map(([service, data]) => (
+            <div key={service} className={styles.serviceRow}>
+              <strong>{service}</strong>
+              <span>{data.count} bookings</span>
+              <span>{formatMoney(data.revenue)}</span>
+            </div>
+          ))}
+
+          {Object.keys(serviceStats).length === 0 && (
+            <p className={styles.emptyState}>No service data yet.</p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

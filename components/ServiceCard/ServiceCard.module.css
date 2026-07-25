@@ -80,7 +80,6 @@
   align-items: center;
 }
 
-.number,
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -92,6 +91,38 @@
   font-size: 12px;
   font-weight: 800;
   backdrop-filter: blur(10px);
+}
+
+.number {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 86px;
+  height: 64px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 197, 67, 0.98),
+    rgba(56, 189, 248, 0.94)
+  );
+  color: #041127;
+  font-size: 34px;
+  font-weight: 1000;
+  letter-spacing: 0;
+  box-shadow: 0 18px 40px rgba(2, 6, 23, 0.28);
+  animation: numberPulse 2.8s ease-in-out infinite;
+}
+
+.number::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 1px solid rgba(245, 197, 67, 0.42);
+  border-radius: 10px;
+  opacity: 0;
+  animation: numberRing 2.8s ease-in-out infinite;
 }
 
 .eyebrow {
@@ -238,9 +269,42 @@
   transform: translateY(-2px);
 }
 
+@keyframes numberPulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-3px) scale(1.04);
+  }
+}
+
+@keyframes numberRing {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
 @media (max-width: 560px) {
   .card {
     min-height: 410px;
+  }
+
+  .number {
+    width: 76px;
+    height: 56px;
+    font-size: 29px;
   }
 
   .buttons {

@@ -49,6 +49,7 @@ export default function BookingModal({ service, closeModal }) {
             : service.title,
           calculatedPrice: totalPrice,
           duration: selectedPackage?.label || "",
+          packageSelected: selectedPackage?.label || "",
           serviceFee: totalPrice,
         },
       });

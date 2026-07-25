@@ -1,247 +1,289 @@
 .page {
   min-height: 100vh;
+  padding: 36px;
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 32%),
+    linear-gradient(135deg, #061534 0%, #0a2a68 48%, #041127 100%);
+  color: #eff6ff;
+  font-family: system-ui, sans-serif;
+}
 
-  padding: 60px;
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
 
-  background: linear-gradient(180deg, #0a1f4a, #061436);
-
-  color: white;
-
-  font-family: system-ui;
+.kicker {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .title {
-  font-size: 32px;
+  margin-top: 12px;
+  font-size: 36px;
+  line-height: 1.08;
+}
 
-  font-weight: 700;
-
-  margin-bottom: 40px;
+.dashboardHeader p {
+  margin-top: 8px;
+  color: #bfdbfe;
 }
 
 .metrics {
   display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
 
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-
-  gap: 20px;
-
-  margin-bottom: 40px;
+.metricCard,
+.panel,
+.loginCard {
+  border: 1px solid rgba(191, 219, 254, 0.18);
+  border-radius: 8px;
+  background: rgba(8, 35, 78, 0.74);
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.16);
 }
 
 .metricCard {
-  background: rgba(255, 255, 255, 0.05);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  padding: 24px;
-
-  border-radius: 14px;
+  padding: 18px;
 }
 
-.metricCard span {
-  color: #9ca3af;
-
+.metricCard span,
+.recordCount {
+  color: #bfdbfe;
   font-size: 13px;
 }
 
 .metricCard h2 {
-  margin-top: 6px;
-
-  font-size: 28px;
-
+  margin-top: 8px;
   color: #f5c543;
+  font-size: 28px;
 }
 
-.serviceStats {
-  background: rgba(255, 255, 255, 0.04);
-
-  padding: 25px;
-
-  border-radius: 14px;
-
-  margin-bottom: 40px;
+.panel {
+  padding: 20px;
+  margin-top: 18px;
 }
 
-.serviceStats h2 {
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
   margin-bottom: 16px;
 }
 
-.serviceRow {
-  display: flex;
-
-  justify-content: space-between;
-
-  padding: 12px 0;
-
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.panelHeader h2 {
+  margin-top: 8px;
+  font-size: 22px;
 }
 
-.tableCard {
-  background: rgba(255, 255, 255, 0.04);
-
-  padding: 25px;
-
-  border-radius: 14px;
-}
-
-.table {
-  width: 100%;
-
-  border-collapse: collapse;
-
-  margin-top: 20px;
-}
-
-.table th {
-  text-align: left;
-
-  padding: 12px;
-
-  color: #9ca3af;
-
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.table td {
-  padding: 14px 12px;
-
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.table tr:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
 .jobFilters {
   display: flex;
-  gap: 12px;
-  margin-top: 30px;
-  margin-bottom: 20px;
+  gap: 10px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .filterBtn {
-  padding: 10px 16px;
-
+  padding: 10px 13px;
+  border: 1px solid rgba(191, 219, 254, 0.18);
   border-radius: 8px;
-
-  border: none;
-
-  background: #162c5c;
-
-  color: white;
-
+  background: rgba(255, 255, 255, 0.08);
+  color: #eff6ff;
   cursor: pointer;
-}
-
-.filterBtn:hover {
-  background: #1f3b7a;
+  font-weight: 800;
+  text-transform: capitalize;
 }
 
 .active {
   background: #f5c543;
-  color: #0a1a44;
+  color: #07152f;
 }
 
-.jobsGrid {
+.jobsGrid,
+.bookingsGrid {
   display: grid;
-
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-
-  gap: 18px;
-
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
 }
 
-.jobCard {
-  background: rgba(255, 255, 255, 0.05);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  padding: 20px;
-
-  border-radius: 12px;
+.jobCard,
+.bookingCard {
+  padding: 16px;
+  border: 1px solid rgba(147, 197, 253, 0.18);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.32);
 }
 
-.jobHeader {
+.cardTop,
+.bookingHeader {
   display: flex;
-
   justify-content: space-between;
-
-  align-items: center;
-
+  gap: 12px;
+  align-items: flex-start;
   margin-bottom: 12px;
+}
 
+.jobCard h3,
+.bookingHeader h3 {
+  color: #ffffff;
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.status,
+.serviceId {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  color: #bae6fd;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.serviceId {
+  margin-bottom: 8px;
+  background: rgba(245, 197, 67, 0.14);
   color: #f5c543;
 }
 
-.jobBody p {
-  margin: 4px 0;
-
-  font-size: 14px;
+.infoGrid,
+.bookingBody {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.noJobs {
-  opacity: 0.6;
-
-  margin-top: 20px;
+.infoGrid p,
+.bookingBody p {
+  min-width: 0;
+  padding: 11px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow-wrap: anywhere;
 }
-/* ADMIN LOGIN PAGE */
+
+.infoGrid span,
+.bookingBody span {
+  display: block;
+  margin-bottom: 4px;
+  color: #93c5fd;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.infoGrid strong,
+.bookingBody strong {
+  color: #eff6ff;
+  font-size: 13px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.actions,
+.bookingActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.cancelBtn,
+.completeBtn {
+  flex: 1;
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.cancelBtn {
+  background: #ef4444;
+}
+
+.completeBtn {
+  background: #22c55e;
+}
+
+.emptyState {
+  padding: 16px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.28);
+  color: #bfdbfe;
+}
+
+.serviceStats {
+  display: grid;
+  gap: 10px;
+}
+
+.serviceRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.serviceRow strong {
+  overflow-wrap: anywhere;
+}
+
+.serviceRow span {
+  color: #bfdbfe;
+  font-size: 13px;
+}
 
 .loginPage {
   min-height: 100vh;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
+  padding: 24px;
   background: linear-gradient(180deg, #0a1f4a, #061436);
-
-  font-family: system-ui;
-
   color: white;
+  font-family: system-ui, sans-serif;
 }
 
 .loginCard {
-  width: 420px;
-
-  padding: 40px;
-
-  border-radius: 16px;
-
-  background: rgba(255, 255, 255, 0.05);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  backdrop-filter: blur(10px);
+  width: min(100%, 420px);
+  padding: 34px;
 }
 
 .loginTitle {
-  font-size: 28px;
-
-  font-weight: 700;
-
   margin-bottom: 25px;
-
   text-align: center;
+  font-size: 28px;
 }
 
 .loginInput {
   width: 100%;
-
   padding: 14px;
-
   margin-bottom: 16px;
-
-  border-radius: 10px;
-
   border: 1px solid rgba(255, 255, 255, 0.15);
-
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
-
   color: white;
-
   font-size: 14px;
 }
 
@@ -251,152 +293,54 @@
 
 .loginInput:focus {
   outline: none;
-
   border-color: #f5c543;
 }
 
 .loginButton {
   width: 100%;
-
   padding: 14px;
-
-  border-radius: 10px;
-
-  border: none;
-
+  border: 0;
+  border-radius: 8px;
   background: #f5c543;
-
   color: #0a1f4a;
-
-  font-weight: 600;
-
+  cursor: pointer;
   font-size: 15px;
-
-  cursor: pointer;
-
-  transition: all 0.2s ease;
+  font-weight: 800;
 }
 
-.loginButton:hover {
-  background: #ffd760;
-}
-/* BOOKINGS SECTION */
+@media (max-width: 980px) {
+  .page {
+    padding: 22px;
+  }
 
-.bookingsSection {
-  margin-top: 40px;
-}
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-.sectionTitle {
-  font-size: 22px;
-  margin-bottom: 20px;
-}
+  .panelHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 
-/* GRID */
-
-.bookingsGrid {
-  display: grid;
-
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-
-  gap: 18px;
+  .jobFilters {
+    justify-content: flex-start;
+  }
 }
 
-/* CARD */
+@media (max-width: 620px) {
+  .title {
+    font-size: 28px;
+  }
 
-.bookingCard {
-  background: rgba(255, 255, 255, 0.05);
+  .metrics,
+  .infoGrid,
+  .bookingBody,
+  .serviceRow {
+    grid-template-columns: 1fr;
+  }
 
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  border-radius: 14px;
-
-  padding: 20px;
-
-  transition: all 0.2s ease;
-}
-
-.bookingCard:hover {
-  transform: translateY(-3px);
-
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* HEADER */
-
-.bookingHeader {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  margin-bottom: 12px;
-}
-
-.bookingHeader h3 {
-  color: #f5c543;
-
-  font-size: 16px;
-}
-
-/* STATUS */
-
-.status {
-  font-size: 12px;
-
-  padding: 4px 8px;
-
-  border-radius: 6px;
-
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* BODY */
-
-.bookingBody p {
-  margin: 4px 0;
-
-  font-size: 14px;
-}
-
-/* ACTIONS */
-
-.bookingActions {
-  display: flex;
-
-  gap: 10px;
-
-  margin-top: 14px;
-}
-
-.cancelBtn {
-  flex: 1;
-
-  padding: 8px;
-
-  border-radius: 8px;
-
-  border: none;
-
-  background: #ff4d4d;
-
-  color: white;
-
-  cursor: pointer;
-}
-
-.completeBtn {
-  flex: 1;
-
-  padding: 8px;
-
-  border-radius: 8px;
-
-  border: none;
-
-  background: #22c55e;
-
-  color: white;
-
-  cursor: pointer;
+  .actions,
+  .bookingActions {
+    flex-direction: column;
+  }
 }
