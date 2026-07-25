@@ -1,212 +1,249 @@
 .card {
+  --x: 50%;
+  --y: 50%;
   position: relative;
-  height: 304px;
-  border-radius: 24px;
+  min-height: 430px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-
-  cursor: pointer;
-
-  transform-style: preserve-3d;
-
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 22px 70px rgba(15, 23, 42, 0.08);
   transition:
-    transform 0.35s ease,
-    box-shadow 0.35s ease;
-
-  background: black;
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
 }
-
-/* 3D HOVER */
-
-.card:hover {
-  transform: scale(1.04) rotateX(2deg) rotateY(-2deg);
-  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.25);
-}
-
-/* IMAGE */
-
-.image {
-  object-fit: cover;
-}
-
-/* DARK OVERLAY */
-
-.overlay {
-  position: absolute;
-  inset: 0;
-
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.75),
-    rgba(0, 0, 0, 0.25),
-    transparent
-  );
-
-  pointer-events: none;
-}
-
-/* MOUSE SPOTLIGHT */
 
 .card::before {
   content: "";
-
   position: absolute;
   inset: 0;
-
+  z-index: 2;
   background: radial-gradient(
     circle at var(--x) var(--y),
-    rgba(255, 255, 255, 0.25),
-    transparent 40%
+    rgba(14, 165, 233, 0.16),
+    transparent 34%
   );
-
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(14, 165, 233, 0.22);
+  box-shadow: 0 32px 90px rgba(15, 23, 42, 0.14);
 }
 
 .card:hover::before {
   opacity: 1;
 }
 
-/* NUMBER */
+.resourceCard {
+  background: linear-gradient(145deg, #07152f, #0b3b82);
+  color: #ffffff;
+}
 
-.number {
+.imageWrap {
+  position: relative;
+  height: 168px;
+  overflow: hidden;
+}
+
+.imageWrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(2, 6, 23, 0.35), transparent);
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+.topRow {
   position: absolute;
   top: 14px;
+  left: 14px;
   right: 14px;
-
-  width: 49px;
-  height: 49px;
-
-  border-radius: 50%;
-
-  background: gold;
-  color: black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-weight: 700;
-  font-size: 16px;
-}
-
-/* CONTENT */
-
-.content {
-  position: absolute;
-  bottom: 0;
-  padding: 22px;
-  color: white;
-  z-index: 2;
-}
-
-/* TITLE */
-
-.content h3 {
-  font-size: 18px;
-  margin-bottom: 6px;
-}
-
-/* DESCRIPTION */
-
-.content p {
-  font-size: 11px;
-  opacity: 0.9;
-  margin-bottom: 14px;
-}
-
-/* BOTTOM */
-
-.bottom {
+  z-index: 3;
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   align-items: center;
 }
 
-/* PRICE */
-
-.price {
-  font-size: 18px;
-  font-weight: 700;
-  padding-bottom: 8px;
+.number,
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.62);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  backdrop-filter: blur(10px);
 }
 
-/* BUTTONS */
+.eyebrow {
+  background: rgba(245, 197, 67, 0.94);
+  color: #07152f;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  margin: -24px 22px 0 auto;
+  position: relative;
+  z-index: 3;
+  border-radius: 8px;
+  background: #0b3b82;
+  color: #ffffff;
+  box-shadow: 0 16px 34px rgba(11, 59, 130, 0.26);
+}
+
+.resourceCard .icon {
+  background: #f5c543;
+  color: #07152f;
+}
+
+.content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 20px 22px 22px;
+  color: #0f172a;
+}
+
+.resourceCard .content {
+  color: #ffffff;
+}
+
+.content h3 {
+  margin-bottom: 8px;
+  font-size: 23px;
+  line-height: 1.12;
+}
+
+.content p {
+  margin-bottom: 16px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.resourceCard .content p {
+  color: #c7d2fe;
+}
+
+.highlights {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.highlights li {
+  position: relative;
+  padding-left: 20px;
+  color: #334155;
+  font-size: 13px;
+}
+
+.resourceCard .highlights li {
+  color: #dbeafe;
+}
+
+.highlights li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #38bdf8;
+}
+
+.bottom {
+  display: grid;
+  gap: 14px;
+  margin-top: auto;
+}
+
+.price {
+  color: #0b3b82;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.resourceCard .price {
+  color: #f5c543;
+}
 
 .buttons {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 10px;
 }
 
 .buttons button {
-  transition: all 0.25s ease;
+  min-height: 44px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
 }
-
-/* DETAILS */
 
 .details {
-  background: rgba(255, 255, 255, 0.25);
-  border: none;
-  padding: 12px 15px;
-  border-radius: 8px;
-
-  color: white;
-  cursor: pointer;
-
-  font-size: 11px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #f8fafc;
+  color: #0f172a;
 }
 
-.details:hover {
-  background: white;
-  color: black;
+.book {
+  border: 0;
+  background: #0b3b82;
+  color: #ffffff;
+}
+
+.resourceCard .details {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.resourceCard .book {
+  background: #f5c543;
+  color: #07152f;
+}
+
+.buttons button:hover {
   transform: translateY(-2px);
 }
 
-/* BOOK */
+@media (max-width: 560px) {
+  .card {
+    min-height: 410px;
+  }
 
-.book {
-  background: white;
-  color: black;
-  border: none;
-
-  padding: 12px 32px;
-  border-radius: 8px;
-
-  font-weight: 600;
-  font-size: 11px;
-  text-align: start;
-  cursor: pointer;
-
-  transition: all 0.25s ease;
-}
-
-.book:hover {
-  transform: translateY(-2px) scale(1.05);
-  background: #f3f3f3;
-}
-
-/* YELLOW LIGHT WASH */
-
-.card::after {
-  content: "";
-
-  position: absolute;
-
-  bottom: -96px;
-  left: -96px;
-
-  width: 256px;
-  height: 256px;
-
-  background: radial-gradient(
-    circle at center,
-    rgba(245, 197, 67, 0.55) 0%,
-    rgba(245, 197, 67, 0.35) 85%,
-    rgba(245, 197, 67, 0.15) 55%,
-    transparent 70%
-  );
-
-  filter: blur(56px);
-
-  pointer-events: none;
-
-  z-index: 0;
+  .buttons {
+    grid-template-columns: 1fr;
+  }
 }

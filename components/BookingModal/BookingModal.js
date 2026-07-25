@@ -1,79 +1,38 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import CountUp from "react-countup";
+import API from "../../utils/api";
 import Modal from "../Modal/Modal";
 import styles from "./BookingModal.module.css";
-import API from "../../utils/api";
-import CountUp from "react-countup";
 
 export default function BookingModal({ service, closeModal }) {
+  const firstOption = service.options?.[0] || null;
+  const [selectedOption, setSelectedOption] = useState(firstOption?.label || "");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
-  const [duration, setDuration] = useState("");
-  const [adBudget, setAdBudget] = useState("");
-  const [serviceFee, setServiceFee] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(service.price || 0);
-  const durationFees = {
-    "2 days": 10000,
-    "1 week": 20000,
-    "1 month": 80000,
-    "3 months": 200000,
-    "6 months": 350000,
-  };
-  const handleDurationChange = (value) => {
-    setDuration(value);
 
-    const fee = durationFees[value] || 0;
-
-    setServiceFee(fee);
-
-    const total = Number(adBudget || 0) + fee;
-
-    setTotalPrice(total);
-  };
-  const handleBudgetChange = (value) => {
-    const numbersOnly = value.replace(/\D/g, "");
-
-    setAdBudget(numbersOnly);
-
-    const amount = Number(numbersOnly);
-
-    if (!amount) {
-      setTotalPrice(service.price || 0);
-      return;
+  const selectedPackage = useMemo(() => {
+    if (!service.options?.length) {
+      return null;
     }
 
-    if (amount < 15000) return;
+    return service.options.find((option) => option.label === selectedOption);
+  }, [selectedOption, service.options]);
 
-    const total = amount + serviceFee;
+  const totalPrice = selectedPackage?.price || service.price || 0;
 
-    setTotalPrice(total);
-  };
   const handlePayment = async () => {
-    if (loading) return; // prevents double click
+    if (loading) return;
 
     if (!name || !email || !phone) {
       alert("Please fill all fields");
       return;
     }
 
-    /* extra validation for ads management */
-
-    if (service.dynamicPricing) {
-      if (!duration) {
-        alert("Please select how long we should manage your ads");
-        return;
-      }
-
-      if (!adBudget) {
-        alert("Please enter your ads budget");
-        return;
-      }
-
-      if (Number(adBudget) < 15000) {
-        alert("Minimum ads budget is ₦15,000");
-        return;
-      }
+    if (service.options?.length && !selectedPackage) {
+      alert("Please select a package");
+      return;
     }
 
     try {
@@ -85,10 +44,12 @@ export default function BookingModal({ service, closeModal }) {
         phone,
         service: {
           ...service,
+          title: selectedPackage
+            ? `${service.title} - ${selectedPackage.label}`
+            : service.title,
           calculatedPrice: totalPrice,
-          duration,
-          adBudget,
-          serviceFee,
+          duration: selectedPackage?.label || "",
+          serviceFee: totalPrice,
         },
       });
 
@@ -99,21 +60,48 @@ export default function BookingModal({ service, closeModal }) {
       setLoading(false);
     }
   };
+
   const isFormValid =
-    name &&
-    email &&
-    phone &&
-    (!service.dynamicPricing || (duration && Number(adBudget) >= 15000));
+    name && email && phone && (!service.options?.length || selectedPackage);
+
   return (
     <Modal closeModal={closeModal}>
       <div className={styles.wrapper}>
         <div className={styles.card}>
-          <h2 className={styles.title}>Book {service.title}</h2>
+          <div className={styles.header}>
+            <span>{service.eyebrow || "Booking"}</span>
+            <h2>Book {service.title}</h2>
+            <p>{service.description}</p>
+          </div>
 
-          <p className={styles.price}>
-            ₦
-            <CountUp end={totalPrice} duration={0.6} separator="," />
-          </p>
+          {service.options?.length > 0 && (
+            <div className={styles.packages}>
+              <label>{service.bookingQuestion}</label>
+              <div className={styles.optionGrid}>
+                {service.options.map((option) => (
+                  <button
+                    key={option.label}
+                    type="button"
+                    className={`${styles.option} ${
+                      selectedOption === option.label ? styles.selected : ""
+                    }`}
+                    disabled={loading}
+                    onClick={() => setSelectedOption(option.label)}
+                  >
+                    <span>{option.label}</span>
+                    <strong>₦{option.price.toLocaleString()}</strong>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className={styles.pricePanel}>
+            <span>Total</span>
+            <strong>
+              ₦<CountUp end={totalPrice} duration={0.45} separator="," />
+            </strong>
+          </div>
 
           <div className={styles.form}>
             <input
@@ -140,54 +128,7 @@ export default function BookingModal({ service, closeModal }) {
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
-          {service.dynamicPricing && (
-            <div className={styles.dynamicFields}>
-              <label>How long do you want us to manage your ads?</label>
 
-              <select
-                value={duration}
-                disabled={loading}
-                onChange={(e) => handleDurationChange(e.target.value)}
-              >
-                <option value="">Select duration</option>
-                <option value="2 days">2 Days</option>
-                <option value="1 week">1 Week</option>
-                <option value="1 month">1 Month</option>
-                <option value="3 months">3 Months</option>
-                <option value="6 months">6 Months</option>
-              </select>
-
-              <label>How much ads do you want to run?</label>
-
-              <input
-                type="text"
-                placeholder="Minimum ₦15,000"
-                value={adBudget ? `₦${Number(adBudget).toLocaleString()}` : ""}
-                disabled={loading}
-                onChange={(e) => handleBudgetChange(e.target.value)}
-              />
-
-              {adBudget && adBudget < 15000 && (
-                <p className={styles.error}>Minimum ad budget is ₦15,000</p>
-              )}
-
-              <label>Service Fee</label>
-
-              <input
-                type="text"
-                value={`₦${serviceFee.toLocaleString()}`}
-                readOnly
-                className={styles.readOnlyInput}
-              />
-              <div className={styles.totalPrice}>
-                Your total price is{" "}
-                <div className={styles.price}>
-                  ₦
-                  <CountUp end={totalPrice} duration={0.6} separator="," />
-                </div>
-              </div>
-            </div>
-          )}
           <button
             className={`${styles.pay} ${loading ? styles.loading : ""}`}
             onClick={handlePayment}

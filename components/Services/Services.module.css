@@ -1,58 +1,99 @@
 .services {
-  padding: 96px 5%;
-
-  background: #ffffff;
+  position: relative;
+  padding: 100px 5%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(14, 165, 233, 0.12), transparent 28%),
+    linear-gradient(180deg, #f8fbff 0%, #eef6ff 48%, #ffffff 100%);
 }
 
-@media (max-width: 900px) {
-  .services {
-    padding: 48px 5%;
-  }
+.services::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent);
+  pointer-events: none;
 }
 
 .container {
-  max-width: 1200px;
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
   margin: auto;
 }
 
-/* HEADER */
-
 .header {
-  margin-bottom: 24px;
+  max-width: 760px;
+  margin: 0 auto 34px;
   text-align: center;
-  color: #333;
+  color: #0f172a;
 }
 
 .label {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #333;
-}
-
-@media (max-width: 900px) {
-  .label {
-    font-size: 16px;
-  }
+  display: inline-flex;
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #0b3b82;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .header h2 {
-  font-size: 32px;
-  margin-top: 8px;
-  margin-bottom: 11px;
-  line-height: 1.2;
+  font-size: 42px;
+  line-height: 1.06;
+  letter-spacing: 0;
 }
 
 .header p {
-  color: #666;
-  font-size: 13px;
-  line-height: 1.6;
+  max-width: 620px;
+  margin: 14px auto 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.7;
 }
-
-/* GRID */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 18px;
+}
+
+.grid > * {
+  grid-column: span 4;
+}
+
+.grid > *:nth-child(1),
+.grid > *:nth-child(4) {
+  grid-column: span 6;
+}
+
+@media (max-width: 980px) {
+  .services {
+    padding: 70px 5%;
+  }
+
+  .grid > *,
+  .grid > *:nth-child(1),
+  .grid > *:nth-child(4) {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 680px) {
+  .header h2 {
+    font-size: 30px;
+  }
+
+  .grid > *,
+  .grid > *:nth-child(1),
+  .grid > *:nth-child(4) {
+    grid-column: span 12;
+  }
 }

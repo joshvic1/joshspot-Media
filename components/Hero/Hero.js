@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import styles from "./Hero.module.css";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import styles from "./Hero.module.css";
 
 export default function Hero() {
   const texts = [
-    "Work With JoshspotMedia",
-    "Book a Consultation",
-    "Fix Your Ad Account",
-    "Hire us to run Your Ads",
+    "Launch Better Ads With Joshspot Media",
+    "Fix Your Ad Account Fast",
+    "Book Premium Marketing Support",
+    "Learn TikTok And Meta Ads",
   ];
   const router = useRouter();
   const [currentText, setCurrentText] = useState(0);
@@ -25,49 +25,55 @@ export default function Hero() {
     }, 3500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [texts.length]);
 
   return (
-    <section className={styles.hero}>
+    <section className={styles.hero} id="home">
+      <div className={styles.glowOne}></div>
+      <div className={styles.glowTwo}></div>
+
       <div className={styles.container}>
-        {/* LEFT SIDE */}
         <div className={styles.textArea}>
           <div className={styles.badge}>
-            <span>HELLO!</span> WELCOME
+            <span>Premium Ads Growth</span> TikTok • Meta • Strategy
           </div>
 
-          <h1
-            className={`${styles.heading} ${
-              fade ? styles.fadeIn : styles.fadeOut
-            }`}
-          >
+          <h1 className={`${styles.heading} ${fade ? styles.fadeIn : styles.fadeOut}`}>
             {texts[currentText]}
           </h1>
 
           <p className={styles.subtext}>
-            Professional TikTok ads, Meta ads, brand growth, and marketing
-            strategy designed to help businesses scale faster and fix ad account
-            issues quickly.
+            Book expert consultations, ads setup, account audits, and private
+            training for TikTok and Meta. Built for business owners who want
+            clean direction, sharper campaigns, and faster execution.
           </p>
 
+          <div className={styles.proofGrid}>
+            <div>
+              <strong>3-day</strong>
+              <span>private ads training</span>
+            </div>
+            <div>
+              <strong>2</strong>
+              <span>major ad platforms</span>
+            </div>
+            <div>
+              <strong>Free</strong>
+              <span>starter trainings</span>
+            </div>
+          </div>
+
           <div className={styles.buttons}>
-            <button
-              className={styles.primary}
-              onClick={() => router.push("#services")}
-            >
-              Book Consultation
+            <button className={styles.primary} onClick={() => router.push("#services")}>
+              Explore Services
             </button>
 
-            <button
-              className={styles.secondary}
-              onClick={() => router.push("#services")}
-            >
-              View Services →
+            <button className={styles.secondary} onClick={() => router.push("#services")}>
+              Watch Free Training
             </button>
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className={styles.imageArea}>
           <div className={styles.imageCard}>
             <Image
@@ -77,6 +83,10 @@ export default function Hero() {
               className={styles.image}
               priority
             />
+            <div className={styles.imageBadge}>
+              <span>Live support</span>
+              <strong>Strategy • Setup • Training</strong>
+            </div>
           </div>
         </div>
       </div>

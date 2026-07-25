@@ -1,180 +1,144 @@
 import {
+  FaBullhorn,
+  FaChalkboardTeacher,
   FaComments,
   FaSearch,
-  FaCog,
-  FaChalkboardTeacher,
-  FaBullhorn,
-  FaBook,
   FaUsers,
+  FaYoutube,
 } from "react-icons/fa";
+
+export const WHATSAPP_CHANNEL_URL = "https://wa.me/234XXXXXXXXXX";
+export const YOUTUBE_CHANNEL_URL = "https://youtube.com/@joshspot_tv";
 
 export const services = [
   {
     id: 1,
-    title: "30 Minute Consultation",
-    price: 12000,
+    title: "Book Consultation",
+    eyebrow: "Strategy call",
+    priceRange: "From ₦15,000",
     icon: FaComments,
-    description: `
-Book 30 minutes with Joshspot to fix ads or marketing issues.
-
-Use this session if you need quick help with your business marketing.
-
-You can use this time to:
-- Ask marketing questions
-- Fix Meta or TikTok ad account problems
-- Troubleshoot campaigns that are not performing
-- Get advice on improving your marketing strategy
-- Quickly review your ads account
-
-Perfect if you need fast direction or expert answers.
-`,
     image: "/images/consult.jpg",
+    description:
+      "Book a focused session with Joshspot to diagnose ads issues, review your funnel, or get clear direction for your next marketing move.",
+    highlights: [
+      "Ask direct marketing questions",
+      "Review TikTok or Meta ad issues",
+      "Get practical next steps for your business",
+    ],
+    bookingQuestion: "How long do you want the consultation to be?",
+    options: [
+      { label: "30 mins", price: 15000 },
+      { label: "1 hr", price: 25000 },
+      { label: "2 hrs", price: 40000 },
+    ],
   },
-
   {
     id: 2,
-    title: "1 Hour Consultation",
+    title: "Ads Account Audit",
+    eyebrow: "Account diagnosis",
     price: 20000,
-    icon: FaComments,
-    description: `
-Book one hour with Joshspot to deeply review and improve marketing.
-
-This is a deeper strategy session where we analyze your situation properly.
-
-During this call/session, we can:
-- Review your Meta or TikTok ads account
-- Diagnose why your ads are not performing well
-- Fix targeting or campaign structure problems
-- Plan a better marketing strategy for your business
-
-You are basically buying my time for one full hour.
-`,
-    image: "/images/consultation-1hr.jpg",
+    icon: FaSearch,
+    image: "/images/ads-management.jpg",
+    description:
+      "Get your TikTok or Meta ads account reviewed properly so you know what is broken, what to fix, and how to improve performance.",
+    highlights: [
+      "Campaign and structure review",
+      "Pixel and tracking checks",
+      "Clear improvement recommendations",
+    ],
   },
-
   {
     id: 3,
-    title: "TikTok Ads Account Setup",
-    price: 20000,
-    icon: FaCog,
-    description: `
-I setup your TikTok ads account properly from scratch.
-
-If you are new to ads or your account is not structured well, I will fix it.
-
-This service includes:
-- Ads account setup
-- Pixel installation (if needed)
-- Proper campaign structure
-- Audience targeting setup
-- Preparing your account to launch ads
-
-This ensures your ads account is ready to run campaigns correctly.
-`,
+    title: "TikTok/Meta Ads Account Setup",
+    eyebrow: "Done-for-you setup",
+    priceRange: "From ₦20,000",
+    icon: FaBullhorn,
     image: "/images/ads-setup.jpg",
+    description:
+      "Let the team setup your ads account correctly from scratch, including the right structure for launching campaigns with confidence.",
+    highlights: [
+      "Account setup and structure",
+      "Platform-specific guidance",
+      "Ready-to-launch foundation",
+    ],
+    bookingQuestion: "Which ads account should we setup?",
+    options: [
+      { label: "TikTok only", price: 20000 },
+      { label: "Meta only", price: 30000 },
+      { label: "TikTok and Meta", price: 50000 },
+    ],
   },
-
   {
     id: 4,
-    title: "TikTok Ads Training (1-on-1)",
-    price: 45000,
+    title: "Ads Training (1 on 1)",
+    eyebrow: "Private training",
+    priceRange: "From ₦60,000",
     icon: FaChalkboardTeacher,
-    description: `
-3 days Private training where Joshspot teaches you how to run ads yourself.
-
-This is a personal training session designed to help you understand ads properly.
-
-In this training you will learn:
-- How TikTok ads work
-- How to Register and setup your TikTok ads account
-- How to structure campaigns correctly
-- How to target the right audience
-- How to scale profitable ads
-- How to avoid wasting money on ads
-
-Duration: 3 Days
-`,
     image: "/images/ads-training.jpg",
+    description:
+      "A private 3-day training experience that teaches you how to setup, launch, manage, and improve ads yourself.",
+    highlights: [
+      "3 days training for each platform",
+      "Private guidance and feedback",
+      "Learn campaign setup, targeting, and scaling",
+    ],
+    bookingQuestion: "Which platform do you want to learn?",
+    options: [
+      { label: "TikTok (1 on 1)", price: 60000 },
+      { label: "Meta (1 on 1)", price: 60000 },
+      { label: "TikTok and Meta", price: 100000 },
+    ],
   },
-
   {
     id: 5,
-    title: "TikTok Ads Management",
-    dynamicPricing: true,
-    priceRange: "Starting From ₦10,000",
-    icon: FaBullhorn,
-    description: `
-Hire Joshspot Media team to run and manage your business ads for a week.
-This service is for business owners who want professionals to handle their ads.
-
-We will:
-- Setup your campaigns
-- Target the right audience
-- Optimize ads performance
-- Scale profitable campaigns
-
-Pricing depends on your ad budget and we charge a service fee depending on how long you want us to manage your ads. 
-<br /> Let me explain how this works: Imagine you want to hire a tailorto make a suit, you will pay the tailor for the materials (fabric) and also pay for their time and expertise to make the suit. The same applies here, you will pay for the ad budget (the money spent on running ads) and also pay a service fee for our time and expertise in managing your ads effectively.
-<br /> The service fee is calculated based on the duration of management. For example, if you want us to manage your ads for a week, we will charge a service fee that covers our time and expertise for that week. If you want us to manage your ads for a month, the service fee will be higher to reflect the longer duration and increased workload. Click on book now  to see the pricing details.
-`,
-    image: "/images/ads-management.jpg",
+    title: "Private Marketing Community",
+    eyebrow: "Community",
+    priceLabel: "Free",
+    icon: FaUsers,
+    image: "/images/community.jpg",
+    description:
+      "Join the private marketing community for practical business growth ideas, campaign insights, and regular marketing updates.",
+    highlights: ["Marketing insights", "Campaign breakdowns", "Community updates"],
+    externalLink: WHATSAPP_CHANNEL_URL,
+    ctaLabel: "Join Now",
+    resource: true,
   },
-
   {
     id: 6,
-    title: "TikTok Ads Manager Course",
-    price: 7000,
-    icon: FaBook,
-    description: `
-This is a pre-recorded video  step-by-step tutorial on how to run TikTok ads professionally.
-
-Inside the course you will learn:
-- How to register and setup your TikTok ads account
-- How to create campaigns
-- How to target the right audience
-- How to control ad spending
-- How to run profitable campaigns
-
-Perfect for beginners who want to start running ads themselves.
-`,
+    title: "TikTok Ads Training",
+    eyebrow: "Free class",
+    priceLabel: "Free training",
+    icon: FaYoutube,
     image: "/images/ads-course.jpg",
+    description:
+      "Watch the free TikTok ads training and learn the basics of setting up, launching, and understanding TikTok campaigns.",
+    highlights: [
+      "Beginner-friendly walkthrough",
+      "TikTok account setup basics",
+      "Campaign launch guidance",
+    ],
+    externalLink: YOUTUBE_CHANNEL_URL,
+    ctaLabel: "Watch Free Training",
+    resource: true,
+    featuredResource: true,
   },
-
   {
-    id: 8,
-    title: "Landing Page + Conversion Course",
-    price: 2000,
-    icon: FaBook,
-    description: `
-Learn how to turn ad traffic into paying customers using landing pages.
-
-Running ads alone is not enough. You also need a page that converts.
-
-In this course you will learn:
-- How landing pages work
-- How to build a simple landing page
-- How to connect ads to your landing page
-- How to turn visitors into paying customers
-`,
+    id: 7,
+    title: "Meta Ads Training",
+    eyebrow: "Free class",
+    priceLabel: "Free training",
+    icon: FaYoutube,
     image: "/images/landing-page-course.jpg",
-  },
-
-  {
-    id: 9,
-    title: "Private Marketing Community",
-    price: 5000,
-    icon: FaUsers,
-    description: `
-For 5k per month, Join my inner marketing circle to learn marketing and business growth.
-
-Inside the community you will get:
-- Marketing insights and strategies
-- Campaign breakdowns
-- Answers to your marketing questions
-- Updates on new marketing tactics
-
-Perfect for business owners and marketers who want to grow faster.
-`,
-    image: "/images/community.jpg",
+    description:
+      "Watch the free Meta ads training and learn how Meta campaigns work, from setup to targeting and campaign structure.",
+    highlights: [
+      "Meta campaign fundamentals",
+      "Targeting and structure basics",
+      "Free learning resource",
+    ],
+    externalLink: YOUTUBE_CHANNEL_URL,
+    ctaLabel: "Watch Free Training",
+    resource: true,
+    featuredResource: true,
   },
 ];
