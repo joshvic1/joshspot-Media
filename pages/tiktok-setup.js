@@ -23,7 +23,22 @@ export default function TiktokSetup() {
       });
     }
   };
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
+    // Initialize the separate TikTok Pixel
+    if (!window.ttq) {
+      window.ttq = [];
+    }
+
+    window.ttq.load("D7V46AJC77UCL5G1KVLG");
+
+    window.ttq.page();
+
+    window.ttq.track("ViewContent", {
+      content_name: "TikTok Ads Setup Page",
+    });
+  }, []);
   useEffect(() => {
     if (window.ttq) {
       window.ttq.track("ViewContent", {

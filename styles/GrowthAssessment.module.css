@@ -1,0 +1,289 @@
+.page {
+  min-height: 100vh;
+  padding: 38px 6% 70px;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(56, 189, 248, 0.22), transparent 30%),
+    linear-gradient(135deg, #061534 0%, #0a2a68 52%, #041127 100%);
+  color: #eff6ff;
+}
+
+.hero {
+  max-width: 1180px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 22px;
+  align-items: stretch;
+  margin: 0 auto 22px;
+}
+
+.heroCopy,
+.promiseCard,
+.beforeCard,
+.formSection,
+.thankYouCard {
+  border: 1px solid rgba(191, 219, 254, 0.18);
+  border-radius: 8px;
+  background: rgba(8, 35, 78, 0.76);
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.18);
+}
+
+.heroCopy {
+  padding: 34px;
+}
+
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.heroCopy h1,
+.thankYouCard h1 {
+  max-width: 760px;
+  margin: 16px 0;
+  font-size: 46px;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.heroCopy p,
+.promiseCard p,
+.beforeCard p,
+.thankYouCard p {
+  margin-top: 12px;
+  color: #bfdbfe;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.heroButton,
+.submitButton {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
+  margin-top: 24px;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #f5c543;
+  color: #07152f;
+  cursor: pointer;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.promiseCard {
+  padding: 26px;
+}
+
+.promiseCard h2,
+.beforeCard h2,
+.formSection h2 {
+  font-size: 24px;
+}
+
+.promiseCard ul {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.promiseCard li {
+  position: relative;
+  padding: 13px 13px 13px 38px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #eff6ff;
+  line-height: 1.55;
+}
+
+.promiseCard li::before {
+  content: "✓";
+  position: absolute;
+  left: 13px;
+  top: 13px;
+  color: #22c55e;
+  font-weight: 900;
+}
+
+.beforeCard,
+.form,
+.thankYouCard {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.beforeCard {
+  padding: 24px;
+  margin-bottom: 22px;
+}
+
+.beforeCard h2 {
+  margin-top: 12px;
+}
+
+.form {
+  display: grid;
+  gap: 22px;
+}
+
+.formSection {
+  padding: 24px;
+}
+
+.sectionIntro {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.sectionIntro span {
+  width: 58px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f5c543, #38bdf8);
+  color: #041127;
+  font-size: 22px;
+  font-weight: 1000;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.field span,
+.options legend {
+  color: #dbeafe;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.field em {
+  margin-left: 4px;
+  color: #f5c543;
+  font-style: normal;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(191, 219, 254, 0.22);
+  border-radius: 8px;
+  background: rgba(2, 6, 23, 0.34);
+  color: #eff6ff;
+  font: inherit;
+  outline: none;
+}
+
+.field textarea {
+  min-height: 118px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: #7dd3fc;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+.options {
+  margin-top: 18px;
+  padding: 0;
+  border: 0;
+}
+
+.options div {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.options label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(191, 219, 254, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #eff6ff;
+  cursor: pointer;
+}
+
+.options input {
+  accent-color: #f5c543;
+}
+
+.submitButton {
+  width: min(100%, 420px);
+  justify-self: center;
+  font-size: 15px;
+}
+
+.submitButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.thankYouCard {
+  max-width: 760px;
+  padding: 34px;
+}
+
+.thankYouCard strong {
+  display: block;
+  margin-top: 18px;
+  color: #f5c543;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 24px 5% 52px;
+  }
+
+  .hero,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCopy h1,
+  .thankYouCard h1 {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 560px) {
+  .heroCopy,
+  .promiseCard,
+  .beforeCard,
+  .formSection,
+  .thankYouCard {
+    padding: 20px;
+  }
+
+  .options div {
+    grid-template-columns: 1fr;
+  }
+}
