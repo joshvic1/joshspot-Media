@@ -4,9 +4,30 @@ import BookingModal from "../components/BookingModal/BookingModal";
 
 const LIVE_MODE = false;
 const PRICE = 20000;
+const PIXEL_ID = "D7V46AJC77UCL5G1KVLG";
 
 export default function TiktokSetup() {
   const [showBooking, setShowBooking] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Load TikTok Pixel script
+    if (!window.ttq) {
+      window.ttq = [];
+    }
+
+    if (!window.ttq._initialized) {
+      window.ttq.load(PIXEL_ID);
+      window.ttq.page();
+      window.ttq._initialized = true;
+    }
+
+    window.ttq.track("ViewContent", {
+      content_name: "TikTok Ads Setup Page",
+    });
+  }, []);
+
   const firePurchaseEvent = () => {
     if (typeof window !== "undefined" && window.ttq) {
       window.ttq.track("Purchase", {
@@ -19,59 +40,45 @@ export default function TiktokSetup() {
             price: PRICE,
           },
         ],
-        test_event_code: LIVE_MODE ? undefined : "TEST123",
+        ...(LIVE_MODE
+          ? {}
+          : {
+              test_event_code: "TEST123",
+            }),
       });
     }
   };
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // Initialize the separate TikTok Pixel
-    if (!window.ttq) {
-      window.ttq = [];
-    }
-
-    window.ttq.load("D7V46AJC77UCL5G1KVLG");
-
-    window.ttq.page();
-
-    window.ttq.track("ViewContent", {
-      content_name: "TikTok Ads Setup Page",
-    });
-  }, []);
-  useEffect(() => {
-    if (window.ttq) {
-      window.ttq.track("ViewContent", {
-        content_name: "TikTok Ads Setup Page",
-      });
-    }
-  }, []);
 
   const fireRegistrationEvent = () => {
     if (typeof window !== "undefined" && window.ttq) {
       window.ttq.track("CompleteRegistration", {
         content_name: "TikTok Ads Setup WhatsApp Inquiry",
-        test_event_code: LIVE_MODE ? undefined : "TEST49729",
+        ...(LIVE_MODE
+          ? {}
+          : {
+              test_event_code: "TEST49729",
+            }),
       });
     }
   };
 
   const handlePay = () => {
-    if (window.ttq) {
+    if (typeof window !== "undefined" && window.ttq) {
       window.ttq.track("InitiateCheckout");
     }
+
     setShowBooking(true);
   };
 
   const handleWhatsapp = () => {
     fireRegistrationEvent();
+
     window.open("https://mytiklink.com/r/vshzs8", "_blank");
   };
 
   return (
     <div className={styles.page}>
       {/* HERO */}
-
       <section className={styles.hero}>
         <div className={styles.videoWrapper}>
           <iframe
@@ -80,10 +87,11 @@ export default function TiktokSetup() {
             src="https://www.youtube.com/embed/rZsBk0lnqu0?si=5Gy4H1-8fSTCJ0cd"
             title="YouTube video player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-          ></iframe>
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
         </div>
+
         <h1 className={styles.title}>
           Let me help you set up your TikTok Ads Manager account
           <span> Properly</span>
@@ -161,6 +169,7 @@ export default function TiktokSetup() {
           </button>
         </div>
       </section>
+
       {showBooking && (
         <BookingModal
           service={{
