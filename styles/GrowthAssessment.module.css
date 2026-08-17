@@ -303,6 +303,41 @@
   opacity: 0.58;
 }
 
+.successIcon {
+  align-items: center;
+  background: #dcfce7;
+  border: 1px solid rgba(22, 168, 102, 0.22);
+  border-radius: 999px;
+  box-shadow: 0 16px 40px rgba(22, 168, 102, 0.16);
+  color: #16a34a;
+  display: inline-flex;
+  height: 78px;
+  justify-content: center;
+  margin: 0 auto 18px;
+  width: 78px;
+  animation: successPulse 1.25s ease-in-out infinite;
+}
+
+.successIcon span {
+  font-size: 43px;
+  font-weight: 1000;
+  line-height: 1;
+}
+
+.resultActions {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  margin: 22px auto 10px;
+  max-width: 480px;
+}
+
+.resultActions .primaryButton,
+.resultActions .secondaryButton {
+  margin-top: 0;
+  width: 100%;
+}
+
 .stepActions {
   display: flex;
   gap: 12px;
@@ -314,30 +349,18 @@
   margin-top: 0;
 }
 
-.scoreCard {
-  background: #14241c;
-  border-radius: 14px;
-  color: #ffffff;
-  margin: 24px auto;
-  max-width: 360px;
-  padding: 22px;
-}
+@keyframes successPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.22);
+  }
 
-.scoreCard span,
-.scoreCard small {
-  color: #bcefd4;
-  display: block;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
+  70% {
+    box-shadow: 0 0 0 14px rgba(22, 163, 74, 0);
+  }
 
-.scoreCard strong {
-  color: #ffcd4b;
-  display: block;
-  font-size: 3rem;
-  line-height: 1;
-  margin: 10px 0;
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
 }
 
 @media (max-width: 620px) {

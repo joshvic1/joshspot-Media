@@ -1,6 +1,13 @@
 import { useState } from "react";
 import API from "../utils/api";
+import {
+  META_ADS_TRAINING_URL,
+  TIKTOK_ADS_TRAINING_URL,
+} from "../config/services";
 import styles from "../styles/GrowthAssessment.module.css";
+
+const JOSH_WHATSAPP_URL =
+  "https://wa.me/2347072571740?text=Hello%20Josh%2C%20I%20just%20completed%20the%20growth%20assessment%20and%20I%20would%20like%20to%20discuss%20my%20business.";
 
 const initialForm = {
   fullName: "",
@@ -245,22 +252,66 @@ export default function GrowthAssessment() {
   };
 
   if (result) {
+    const isLowScore = result.score < 50;
+
     return (
       <main className={styles.tutorialPage}>
         <section className={styles.resultPanel}>
-          <span className={styles.tutorialBadge}>Assessment complete</span>
-          <h1>{result.recommendationTitle}</h1>
-          <p className={styles.tutorialIntro}>{result.recommendationMessage}</p>
-
-          <div className={styles.scoreCard}>
-            <span>Your assessment score</span>
-            <strong>{result.score}/100</strong>
-            <small>{result.endpoint.replaceAll("_", " ")}</small>
+          <div className={styles.successIcon}>
+            <span>✓</span>
           </div>
 
-          <a className={styles.primaryButton} href={result.redirectUrl}>
-            {result.recommendedAction}
-          </a>
+          <span className={styles.tutorialBadge}>Assessment complete</span>
+          <h1>Your assessment has been completed.</h1>
+
+          {isLowScore ? (
+            <>
+              <p className={styles.tutorialIntro}>
+                Thank you for sharing your business details. Based on your
+                responses, the best next step is to strengthen your marketing
+                foundation with the right resources and a focused diagnosis
+                before making bigger decisions.
+              </p>
+              <p className={styles.tutorialIntro}>
+                You can start with the free trainings below, or book a
+                consultation/audit if you want Joshspot to personally review
+                your business and guide you.
+              </p>
+
+              <div className={styles.resultActions}>
+                <a className={styles.primaryButton} href={TIKTOK_ADS_TRAINING_URL}>
+                  Watch Free TikTok Ads Training
+                </a>
+                <a className={styles.primaryButton} href={META_ADS_TRAINING_URL}>
+                  Watch Free Meta Ads Training
+                </a>
+                <a className={styles.secondaryButton} href="/#services">
+                  Book Consultation With Josh
+                </a>
+                <a className={styles.secondaryButton} href="/#services">
+                  Book Page / Ads Account Audit
+                </a>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className={styles.tutorialIntro}>
+                Your assessment has been received. Joshspot will review your
+                answers and reach out to you with what to do next to access,
+                grow, and improve your business.
+              </p>
+              <p className={styles.tutorialIntro}>
+                If you want to move faster, you can message Josh directly on
+                WhatsApp using the button below.
+              </p>
+
+              <div className={styles.resultActions}>
+                <a className={styles.primaryButton} href={JOSH_WHATSAPP_URL}>
+                  Message Josh On WhatsApp
+                </a>
+              </div>
+            </>
+          )}
 
           <button
             className={styles.secondaryButton}
