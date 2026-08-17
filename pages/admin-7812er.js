@@ -18,12 +18,23 @@ const formatMoney = (amount) => `NGN ${Number(amount || 0).toLocaleString()}`;
 export default function Admin() {
   const router = useRouter();
   const [bookings, setBookings] = useState([]);
+  const [assessments, setAssessments] = useState([]);
   const [filter, setFilter] = useState("today");
+  const [assessmentFilter, setAssessmentFilter] = useState("high");
 
   const fetchBookings = useCallback(async () => {
     try {
       const res = await API.get("/booking/all");
       setBookings(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  const fetchAssessments = useCallback(async () => {
+    try {
+      const res = await API.get("/growth-assessment");
+      setAssessments(res.data);
     } catch (error) {
       console.log(error);
     }
@@ -37,10 +48,13 @@ export default function Admin() {
       return;
     }
 
-    const timer = setTimeout(fetchBookings, 0);
+    const timer = setTimeout(() => {
+      fetchBookings();
+      fetchAssessments();
+    }, 0);
 
     return () => clearTimeout(timer);
-  }, [fetchBookings, router]);
+  }, [fetchAssessments, fetchBookings, router]);
 
   const cancelBooking = async (id) => {
     try {
@@ -55,6 +69,15 @@ export default function Admin() {
     try {
       await API.put(`/booking/complete/${id}`);
       fetchBookings();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const markAssessmentCalled = async (id) => {
+    try {
+      await API.put(`/growth-assessment/${id}/called`);
+      fetchAssessments();
     } catch (err) {
       console.log(err);
     }
@@ -131,6 +154,36 @@ export default function Admin() {
   const getPackage = (booking) =>
     booking.packageSelected || booking.duration || "-";
 
+  const highPriorityAssessments = assessments.filter(
+    (assessment) =>
+      assessment.score >= 70 || assessment.endpoint === "STRATEGIC_GROWTH_CALL",
+  );
+
+  const calledAssessments = assessments.filter((assessment) => assessment.called);
+
+  const filteredAssessments = assessments
+    .filter((assessment) => {
+      if (assessmentFilter === "high") {
+        return (
+          assessment.score >= 70 ||
+          assessment.endpoint === "STRATEGIC_GROWTH_CALL"
+        );
+      }
+
+      if (assessmentFilter === "uncalled") return !assessment.called;
+      if (assessmentFilter === "called") return assessment.called;
+      if (assessmentFilter === "free") return assessment.endpoint === "FREE_RESOURCES";
+      if (assessmentFilter === "audit") {
+        return (
+          assessment.endpoint === "LOW_TICKET_AUDIT" ||
+          assessment.endpoint === "QUALIFIED_STRATEGY"
+        );
+      }
+
+      return true;
+    })
+    .sort((a, b) => b.score - a.score);
+
   return (
     <div className={styles.page}>
       <header className={styles.dashboardHeader}>
@@ -160,6 +213,135 @@ export default function Admin() {
         <div className={styles.metricCard}>
           <span>Today&apos;s Revenue</span>
           <h2>{formatMoney(todaysRevenue)}</h2>
+        </div>
+
+        <div className={styles.metricCard}>
+          <span>High Priority Leads</span>
+          <h2>{highPriorityAssessments.length}</h2>
+        </div>
+
+        <div className={styles.metricCard}>
+          <span>Called Assessment Leads</span>
+          <h2>{calledAssessments.length}</h2>
+        </div>
+      </section>
+
+      <section className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <div>
+            <span className={styles.kicker}>Growth assessment</span>
+            <h2>Assessment Leads</h2>
+          </div>
+          <div className={styles.jobFilters}>
+            {[
+              ["high", "High score"],
+              ["uncalled", "Not called"],
+              ["called", "Called"],
+              ["audit", "Audit/strategy"],
+              ["free", "Free resources"],
+              ["all", "All"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                className={`${styles.filterBtn} ${
+                  assessmentFilter === value ? styles.active : ""
+                }`}
+                onClick={() => setAssessmentFilter(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.assessmentsGrid}>
+          {filteredAssessments.map((assessment) => (
+            <article key={assessment._id} className={styles.assessmentCard}>
+              <div className={styles.assessmentTop}>
+                <div>
+                  <span className={styles.serviceId}>{assessment.endpoint}</span>
+                  <h3>{assessment.businessName}</h3>
+                  <p>{assessment.fullName}</p>
+                </div>
+                <div className={styles.scorePill}>
+                  <strong>{assessment.score}</strong>
+                  <span>/100</span>
+                </div>
+              </div>
+
+              <div className={styles.bookingBody}>
+                <p>
+                  <span>WhatsApp</span>
+                  <strong>{assessment.whatsappNumber}</strong>
+                </p>
+                <p>
+                  <span>Email</span>
+                  <strong>{assessment.email}</strong>
+                </p>
+                <p>
+                  <span>Revenue</span>
+                  <strong>{assessment.monthlyRevenue}</strong>
+                </p>
+                <p>
+                  <span>Current Ad Spend</span>
+                  <strong>{assessment.monthlyAdSpend}</strong>
+                </p>
+                <p>
+                  <span>Willing Ad Budget</span>
+                  <strong>{assessment.proposedMonthlyAdBudget}</strong>
+                </p>
+                <p>
+                  <span>Team Budget</span>
+                  <strong>{assessment.teamMonthlyBudget || "-"}</strong>
+                </p>
+                <p>
+                  <span>Ownership</span>
+                  <strong>{assessment.businessOwnership}</strong>
+                </p>
+                <p>
+                  <span>Urgency</span>
+                  <strong>{assessment.urgency}</strong>
+                </p>
+                <p className={styles.fullWidth}>
+                  <span>Brand Details</span>
+                  <strong>{assessment.brandDescription}</strong>
+                </p>
+                <p className={styles.fullWidth}>
+                  <span>Growth Blocker</span>
+                  <strong>{assessment.growthBlocker}</strong>
+                </p>
+                <p className={styles.fullWidth}>
+                  <span>Recommendation</span>
+                  <strong>{assessment.recommendationTitle}</strong>
+                </p>
+              </div>
+
+              <div className={styles.bookingActions}>
+                <a
+                  className={styles.whatsappBtn}
+                  href={`https://wa.me/${assessment.whatsappNumber.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  WhatsApp
+                </a>
+                {!assessment.called ? (
+                  <button
+                    className={styles.completeBtn}
+                    onClick={() => markAssessmentCalled(assessment._id)}
+                  >
+                    Mark Called
+                  </button>
+                ) : (
+                  <span className={styles.calledBadge}>Called</span>
+                )}
+              </div>
+            </article>
+          ))}
+
+          {filteredAssessments.length === 0 && (
+            <p className={styles.emptyState}>No assessment leads found.</p>
+          )}
         </div>
       </section>
 

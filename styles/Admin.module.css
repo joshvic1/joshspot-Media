@@ -113,14 +113,16 @@
 }
 
 .jobsGrid,
-.bookingsGrid {
+.bookingsGrid,
+.assessmentsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 14px;
 }
 
 .jobCard,
-.bookingCard {
+.bookingCard,
+.assessmentCard {
   padding: 16px;
   border: 1px solid rgba(147, 197, 253, 0.18);
   border-radius: 8px;
@@ -128,7 +130,8 @@
 }
 
 .cardTop,
-.bookingHeader {
+.bookingHeader,
+.assessmentTop {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -137,10 +140,37 @@
 }
 
 .jobCard h3,
-.bookingHeader h3 {
+.bookingHeader h3,
+.assessmentTop h3 {
   color: #ffffff;
   font-size: 17px;
   line-height: 1.25;
+}
+
+.assessmentTop p {
+  margin-top: 4px;
+  color: #bfdbfe;
+  font-size: 13px;
+}
+
+.scorePill {
+  min-width: 74px;
+  padding: 10px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f5c543, #38bdf8);
+  color: #07152f;
+  text-align: center;
+}
+
+.scorePill strong {
+  display: block;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.scorePill span {
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .status,
@@ -221,6 +251,29 @@
 
 .completeBtn {
   background: #22c55e;
+}
+
+.whatsappBtn,
+.calledBadge {
+  flex: 1;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: white;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.whatsappBtn {
+  background: #16a34a;
+}
+
+.calledBadge {
+  background: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+  border: 1px solid rgba(187, 247, 208, 0.22);
 }
 
 .emptyState {

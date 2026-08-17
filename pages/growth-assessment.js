@@ -9,6 +9,7 @@ const initialForm = {
   email: "",
   websiteOrSocialPage: "",
   businessType: "",
+  brandDescription: "",
   businessAge: "",
   monthlyRevenue: "",
   marketingPlatforms: [],
@@ -19,21 +20,18 @@ const initialForm = {
   marketingGoal: "",
   growthBlocker: "",
   attemptedSolutions: "",
-  attemptedResults: "",
-  sixMonthImpact: "",
-  decisionAuthority: "",
-  finalDecisionMaker: "",
-  investmentCapacity: "",
+  businessOwnership: "",
+  proposedMonthlyAdBudget: "",
   desiredHelp: "",
   urgency: "",
   implementationReadiness: "",
+  teamMonthlyBudget: "",
   extraContext: "",
 };
 
 const options = {
   businessType: [
-    "Products",
-    "Services",
+    "Physical Products/Services",
     "Digital products/courses",
     "SaaS/software",
     "Agency/marketing services",
@@ -54,15 +52,7 @@ const options = {
     "NGN 5m-NGN 10m",
     "NGN 10m+",
   ],
-  marketingPlatforms: [
-    "TikTok",
-    "Instagram",
-    "Facebook",
-    "Google",
-    "YouTube",
-    "WhatsApp",
-    "Other",
-  ],
+  marketingPlatforms: ["TikTok", "Instagram", "Facebook", "WhatsApp", "Other"],
   paidAdsExperience: [
     "Never",
     "Yes, but only occasionally",
@@ -78,7 +68,12 @@ const options = {
     "NGN 1m-NGN 5m",
     "NGN 5m+",
   ],
-  adPlatformsUsed: ["TikTok Ads", "Meta Ads", "Google Ads", "Other"],
+  adPlatformsUsed: [
+    "TikTok Ads",
+    "Facebook/Instagram Ads",
+    "Google Ads",
+    "Other",
+  ],
   biggestAdsProblem: [
     "I am getting views but not sales",
     "I am getting clicks/messages but not enough customers",
@@ -90,13 +85,13 @@ const options = {
     "I have tried several strategies and nothing works consistently",
     "Other",
   ],
-  decisionAuthority: [
-    "Yes",
-    "I make the decisions together with someone else",
-    "No",
+  businessOwnership: [
+    "I am the sole owner",
+    "I own the business with a partner/co-founder",
+    "I manage marketing, but I am not an owner",
   ],
-  investmentCapacity: [
-    "I am only looking for free information",
+  proposedMonthlyAdBudget: [
+    "I am not ready to spend on ads yet",
     "Below NGN 50k",
     "NGN 50k-NGN 100k",
     "NGN 100k-NGN 250k",
@@ -124,6 +119,14 @@ const options = {
     "Yes",
     "Possibly, depending on the recommendation",
     "No, I am only looking for free advice",
+  ],
+  teamMonthlyBudget: [
+    "Below NGN 50k",
+    "NGN 50k-NGN 100k",
+    "NGN 100k-NGN 250k",
+    "NGN 250k-NGN 500k",
+    "NGN 500k-NGN 1m",
+    "NGN 1m+",
   ],
 };
 
@@ -155,6 +158,11 @@ export default function GrowthAssessment() {
 
     try {
       const response = await API.post("/growth-assessment", form);
+
+      if (window.ttq) {
+        window.ttq.track("CompleteRegistration");
+      }
+
       setResult(response.data.result);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
@@ -203,21 +211,20 @@ export default function GrowthAssessment() {
   return (
     <main className={styles.tutorialPage}>
       <section className={styles.tutorialPanel}>
-        <span className={styles.tutorialBadge}>Joshspot Growth Assessment</span>
+        <span className={styles.tutorialBadge}>Business Growth Assessment</span>
         <h1>
           Let&apos;s find the <span>right next move</span> for your business.
         </h1>
         <p className={styles.tutorialIntro}>
-          Answer these questions honestly. Your responses help us decide whether
-          you need free resources, an audit, a paid strategy session, or a
-          strategic growth call.
+          Answer these questions honestly. Your responses help us decide how to
+          best support and recommend next steps for your business.
         </p>
 
         <div className={styles.assessmentNote}>
           <strong>This takes about 3-5 minutes.</strong>
           <p>
-            There are no right or wrong answers. The clearer your answers are,
-            the better the recommendation will be.
+            Make your answers as clear as possible. The more information you
+            provide, the better the recommendation will be.
           </p>
         </div>
 
@@ -270,15 +277,21 @@ export default function GrowthAssessment() {
               value={form.businessType}
               onChange={(value) => updateField("businessType", value)}
             />
+            <TextArea
+              label="2. Explain what your brand does in detail."
+              value={form.brandDescription}
+              onChange={(value) => updateField("brandDescription", value)}
+              required
+            />
             <Options
-              label="2. How long have you been running the business?"
+              label="3. How long have you been running the business?"
               name="businessAge"
               options={options.businessAge}
               value={form.businessAge}
               onChange={(value) => updateField("businessAge", value)}
             />
             <Options
-              label="3. What is your average monthly revenue?"
+              label="4. What is your average monthly revenue?"
               name="monthlyRevenue"
               options={options.monthlyRevenue}
               value={form.monthlyRevenue}
@@ -341,62 +354,44 @@ export default function GrowthAssessment() {
               onChange={(value) => updateField("attemptedSolutions", value)}
               required
             />
-            <TextArea
-              label="12. What happened after you tried those things?"
-              value={form.attemptedResults}
-              onChange={(value) => updateField("attemptedResults", value)}
-              required
-            />
-            <TextArea
-              label="13. If nothing changes over the next 6 months, what would that mean for your business?"
-              value={form.sixMonthImpact}
-              onChange={(value) => updateField("sixMonthImpact", value)}
-              required
-            />
           </FormSection>
 
           <FormSection number="05" title="Decision-making">
             <Options
-              label="14. Are you the person who makes the final marketing decisions for this business?"
-              name="decisionAuthority"
-              options={options.decisionAuthority}
-              value={form.decisionAuthority}
-              onChange={(value) => updateField("decisionAuthority", value)}
+              label="12. Are you the sole owner of your business, or do you partner with someone?"
+              name="businessOwnership"
+              options={options.businessOwnership}
+              value={form.businessOwnership}
+              onChange={(value) => updateField("businessOwnership", value)}
             />
-            {form.decisionAuthority === "No" && (
-              <Field
-                label="15. Who makes the final decision?"
-                value={form.finalDecisionMaker}
-                onChange={(value) => updateField("finalDecisionMaker", value)}
-                required
-              />
-            )}
           </FormSection>
 
           <FormSection number="06" title="Investment and readiness">
             <Options
-              label="16. How much are you currently willing to invest in getting this problem solved?"
-              name="investmentCapacity"
-              options={options.investmentCapacity}
-              value={form.investmentCapacity}
-              onChange={(value) => updateField("investmentCapacity", value)}
+              label="13. If we discover a clear solution, how much are you willing to spend on ads per month?"
+              name="proposedMonthlyAdBudget"
+              options={options.proposedMonthlyAdBudget}
+              value={form.proposedMonthlyAdBudget}
+              onChange={(value) =>
+                updateField("proposedMonthlyAdBudget", value)
+              }
             />
             <Options
-              label="17. What are you looking for right now?"
+              label="14. What are you looking for right now?"
               name="desiredHelp"
               options={options.desiredHelp}
               value={form.desiredHelp}
               onChange={(value) => updateField("desiredHelp", value)}
             />
             <Options
-              label="18. How soon are you looking to solve this problem?"
+              label="15. How soon are you looking to solve this problem?"
               name="urgency"
               options={options.urgency}
               value={form.urgency}
               onChange={(value) => updateField("urgency", value)}
             />
             <Options
-              label="19. If I believe I can help your business, are you prepared to invest in implementing the recommended strategy?"
+              label="16. If I believe I can help your business, are you prepared to invest in implementing the recommended strategy?"
               name="implementationReadiness"
               options={options.implementationReadiness}
               value={form.implementationReadiness}
@@ -404,14 +399,27 @@ export default function GrowthAssessment() {
                 updateField("implementationReadiness", value)
               }
             />
+            {form.implementationReadiness === "Yes" && (
+              <Options
+                label="17. Realistically, how much are you willing to pay our team monthly for this solution?"
+                name="teamMonthlyBudget"
+                options={options.teamMonthlyBudget}
+                value={form.teamMonthlyBudget}
+                onChange={(value) => updateField("teamMonthlyBudget", value)}
+              />
+            )}
             <TextArea
-              label="20. Is there anything else I should know about your business before assessing it?"
+              label="18. Is there anything else I should know about your business before assessing it?"
               value={form.extraContext}
               onChange={(value) => updateField("extraContext", value)}
             />
           </FormSection>
 
-          <button className={styles.primaryButton} disabled={loading} type="submit">
+          <button
+            className={styles.primaryButton}
+            disabled={loading}
+            type="submit"
+          >
             {loading ? "Assessing..." : "Submit My Growth Assessment"}
           </button>
         </form>
