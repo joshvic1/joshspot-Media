@@ -98,6 +98,42 @@
   text-align: left;
 }
 
+.progressWrap {
+  margin: 0 auto 24px;
+  max-width: 520px;
+  text-align: left;
+}
+
+.progressTop {
+  align-items: center;
+  color: #234338;
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 900;
+  justify-content: space-between;
+  margin-bottom: 9px;
+  text-transform: uppercase;
+}
+
+.progressTop strong {
+  color: #0d8951;
+}
+
+.progressTrack {
+  background: rgba(22, 168, 102, 0.13);
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.progressTrack span {
+  background: linear-gradient(90deg, #16a866, #3fc6ff);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width 0.25s ease;
+}
+
 .formSection {
   background: #f4fff8;
   border: 1px solid rgba(22, 168, 102, 0.17);
@@ -267,6 +303,17 @@
   opacity: 0.58;
 }
 
+.stepActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.stepActions .primaryButton,
+.stepActions .secondaryButton {
+  margin-top: 0;
+}
+
 .scoreCard {
   background: #14241c;
   border-radius: 14px;
@@ -311,5 +358,14 @@
   .twoColumn,
   .optionGroup div {
     grid-template-columns: 1fr;
+  }
+
+  .stepActions {
+    flex-direction: column-reverse;
+  }
+
+  .stepActions .primaryButton,
+  .stepActions .secondaryButton {
+    width: 100%;
   }
 }

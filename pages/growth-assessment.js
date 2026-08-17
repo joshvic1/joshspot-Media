@@ -132,6 +132,7 @@ const options = {
 
 export default function GrowthAssessment() {
   const [form, setForm] = useState(initialForm);
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -173,6 +174,74 @@ export default function GrowthAssessment() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const stepRequirements = {
+    1: [
+      "fullName",
+      "email",
+      "whatsappNumber",
+      "businessName",
+      "websiteOrSocialPage",
+    ],
+    2: ["businessType", "brandDescription", "businessAge", "monthlyRevenue"],
+    3: [
+      "marketingPlatforms",
+      "paidAdsExperience",
+      "monthlyAdSpend",
+      "biggestAdsProblem",
+    ],
+    4: ["marketingGoal", "growthBlocker", "attemptedSolutions"],
+    5: ["businessOwnership"],
+    6: [
+      "proposedMonthlyAdBudget",
+      "desiredHelp",
+      "urgency",
+      "implementationReadiness",
+    ],
+  };
+
+  const isMissing = (field) => {
+    if (
+      field === "teamMonthlyBudget" &&
+      form.implementationReadiness !== "Yes"
+    ) {
+      return false;
+    }
+
+    const value = form[field];
+    return Array.isArray(value) ? value.length === 0 : !value;
+  };
+
+  const validateStep = () => {
+    const requiredFields = [...(stepRequirements[step] || [])];
+
+    if (step === 6 && form.implementationReadiness === "Yes") {
+      requiredFields.push("teamMonthlyBudget");
+    }
+
+    const hasMissingField = requiredFields.some((field) => isMissing(field));
+
+    if (hasMissingField) {
+      alert("Please answer all required questions before continuing.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const goToStep = (nextStep) => {
+    setStep(nextStep);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const nextStep = () => {
+    if (!validateStep()) return;
+    goToStep(step + 1);
+  };
+
+  const previousStep = () => {
+    goToStep(step - 1);
   };
 
   if (result) {
@@ -221,18 +290,43 @@ export default function GrowthAssessment() {
         </p>
 
         <div className={styles.assessmentNote}>
-          <strong>This takes about 3-5 minutes.</strong>
+          <strong>We&apos;ve currently helped over 500+ business owners.</strong>
           <p>
-            Make your answers as clear as possible. The more information you
-            provide, the better the recommendation will be.
+            At the end of this assessment, Joshspot will personally examine and
+            assess your business, call you via the number you will be dropping,
+            and draft proven working strategies to grow and improve your ads
+            and business.
           </p>
         </div>
+
+        {step === 0 && (
+          <button
+            className={styles.primaryButton}
+            type="button"
+            onClick={() => goToStep(1)}
+          >
+            Start My Growth Assessment
+          </button>
+        )}
+
+        {step > 0 && (
+          <div className={styles.progressWrap}>
+            <div className={styles.progressTop}>
+              <span>Step {step} of 6</span>
+              <strong>{Math.round((step / 6) * 100)}%</strong>
+            </div>
+            <div className={styles.progressTrack}>
+              <span style={{ width: `${(step / 6) * 100}%` }}></span>
+            </div>
+          </div>
+        )}
 
         <form
           className={styles.assessmentForm}
           id="assessment-form"
           onSubmit={submitAssessment}
         >
+          {step === 1 && (
           <FormSection number="01" title="Contact details">
             <div className={styles.twoColumn}>
               <Field
@@ -263,12 +357,15 @@ export default function GrowthAssessment() {
             </div>
             <Field
               label="Website or social media page"
+              placeholder="e.g. TikTok: @username or https://yourwebsite.com"
               value={form.websiteOrSocialPage}
               onChange={(value) => updateField("websiteOrSocialPage", value)}
               required
             />
           </FormSection>
+          )}
 
+          {step === 2 && (
           <FormSection number="02" title="Business background">
             <Options
               label="1. What does your business sell?"
@@ -298,7 +395,9 @@ export default function GrowthAssessment() {
               onChange={(value) => updateField("monthlyRevenue", value)}
             />
           </FormSection>
+          )}
 
+          {step === 3 && (
           <FormSection number="03" title="Current marketing">
             <Checkboxes
               label="4. Which platforms are you currently using to market your business?"
@@ -334,7 +433,9 @@ export default function GrowthAssessment() {
               onChange={(value) => updateField("biggestAdsProblem", value)}
             />
           </FormSection>
+          )}
 
+          {step === 4 && (
           <FormSection number="04" title="The actual business problem">
             <TextArea
               label="9. What are you currently trying to achieve with your marketing?"
@@ -355,7 +456,9 @@ export default function GrowthAssessment() {
               required
             />
           </FormSection>
+          )}
 
+          {step === 5 && (
           <FormSection number="05" title="Decision-making">
             <Options
               label="12. Are you the sole owner of your business, or do you partner with someone?"
@@ -365,8 +468,10 @@ export default function GrowthAssessment() {
               onChange={(value) => updateField("businessOwnership", value)}
             />
           </FormSection>
+          )}
 
-          <FormSection number="06" title="Investment and readiness">
+          {step === 6 && (
+          <FormSection number="06" title="Conclusion">
             <Options
               label="13. If we discover a clear solution, how much are you willing to spend on ads per month?"
               name="proposedMonthlyAdBudget"
@@ -414,14 +519,44 @@ export default function GrowthAssessment() {
               onChange={(value) => updateField("extraContext", value)}
             />
           </FormSection>
+          )}
 
-          <button
-            className={styles.primaryButton}
-            disabled={loading}
-            type="submit"
-          >
-            {loading ? "Assessing..." : "Submit My Growth Assessment"}
-          </button>
+          {step > 0 && (
+            <div className={styles.stepActions}>
+              {step > 1 && (
+                <button
+                  className={styles.secondaryButton}
+                  type="button"
+                  onClick={previousStep}
+                >
+                  Back
+                </button>
+              )}
+
+              {step < 6 ? (
+                <button
+                  className={styles.primaryButton}
+                  type="button"
+                  onClick={nextStep}
+                >
+                  Next
+                </button>
+              ) : (
+                <button
+                  className={styles.primaryButton}
+                  disabled={loading}
+                  type="submit"
+                  onClick={(event) => {
+                    if (!validateStep()) {
+                      event.preventDefault();
+                    }
+                  }}
+                >
+                  {loading ? "Assessing..." : "Submit My Growth Assessment"}
+                </button>
+              )}
+            </div>
+          )}
         </form>
       </section>
     </main>
@@ -440,13 +575,21 @@ function FormSection({ number, title, children }) {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required = false }) {
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required = false,
+  placeholder = "",
+}) {
   return (
     <label className={styles.field}>
       <span>{label}</span>
       <input
         type={type}
         value={value}
+        placeholder={placeholder}
         required={required}
         onChange={(event) => onChange(event.target.value)}
       />
