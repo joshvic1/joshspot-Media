@@ -1,0 +1,230 @@
+.invoicePage {
+  align-items: center;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(255, 205, 75, 0.38), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(63, 198, 255, 0.3), transparent 32%),
+    radial-gradient(circle at 80% 85%, rgba(41, 210, 130, 0.2), transparent 30%),
+    linear-gradient(135deg, #fffaf0 0%, #f1fff7 48%, #f3f6ff 100%);
+  color: #14241c;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 30px 20px;
+}
+
+.generatorPanel,
+.paymentPanel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  box-shadow: 0 28px 90px rgba(31, 96, 76, 0.16);
+  max-width: 620px;
+  padding: 38px;
+  text-align: center;
+  width: 100%;
+}
+
+.badge {
+  background: rgba(22, 168, 102, 0.12);
+  border: 1px solid rgba(22, 168, 102, 0.2);
+  border-radius: 999px;
+  color: #0d8951;
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  margin-bottom: 18px;
+  padding: 9px 15px;
+  text-transform: uppercase;
+}
+
+.generatorPanel h1,
+.paymentPanel h1 {
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+  margin: 0 auto 16px;
+}
+
+.generatorPanel p,
+.paymentPanel p {
+  color: #60716a;
+  line-height: 1.7;
+  margin: 0 auto 25px;
+  max-width: 500px;
+}
+
+.generatorForm {
+  display: grid;
+  gap: 12px;
+  text-align: left;
+}
+
+.generatorForm label {
+  display: grid;
+  gap: 8px;
+}
+
+.generatorForm span,
+.noteBox span,
+.copyRow span {
+  color: #234338;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.generatorForm input,
+.generatorForm textarea {
+  background: #ffffff;
+  border: 2px solid rgba(22, 168, 102, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(31, 96, 76, 0.08);
+  color: #13241c;
+  font: inherit;
+  min-height: 56px;
+  outline: none;
+  padding: 0 17px;
+  width: 100%;
+}
+
+.generatorForm textarea {
+  min-height: 96px;
+  padding: 15px 17px;
+  resize: vertical;
+}
+
+.generatorForm button,
+.payButton,
+.linkBox button,
+.copyRow button {
+  background: #16a866;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 13px 28px rgba(22, 168, 102, 0.23);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+  min-height: 52px;
+  padding: 0 18px;
+}
+
+.generatorForm button:disabled,
+.payButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.linkBox,
+.noteBox,
+.transferBox,
+.expiredNotice,
+.paidNotice {
+  background: #f4fff8;
+  border: 1px solid rgba(22, 168, 102, 0.17);
+  border-radius: 16px;
+  margin-top: 22px;
+  padding: 20px;
+}
+
+.linkBox strong,
+.noteBox strong {
+  color: #14241c;
+  display: block;
+  margin: 8px 0 14px;
+  overflow-wrap: anywhere;
+}
+
+.paidNotice {
+  background: #14241c;
+  color: #ffffff;
+}
+
+.paidNotice span {
+  align-items: center;
+  background: #dcfce7;
+  border-radius: 999px;
+  color: #16a34a;
+  display: inline-flex;
+  font-size: 42px;
+  font-weight: 1000;
+  height: 74px;
+  justify-content: center;
+  margin-bottom: 15px;
+  width: 74px;
+}
+
+.paidNotice h1 {
+  color: #ffffff;
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+}
+
+.paidNotice p {
+  color: #bcefd4;
+  margin-bottom: 0;
+}
+
+.expiredNotice {
+  background: #fff7ed;
+  border-color: rgba(249, 115, 22, 0.24);
+}
+
+.transferBox {
+  text-align: left;
+}
+
+.transferBox h2 {
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.copyRow {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid rgba(22, 168, 102, 0.13);
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 13px;
+}
+
+.copyRow strong {
+  color: #14241c;
+  display: block;
+  font-size: 1.05rem;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.copyRow button {
+  box-shadow: none;
+  min-height: 40px;
+}
+
+.waitingText {
+  background: #14241c;
+  border-radius: 12px;
+  color: #bcefd4 !important;
+  margin: 16px 0 0 !important;
+  padding: 14px;
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .invoicePage {
+    padding: 12px;
+  }
+
+  .generatorPanel,
+  .paymentPanel {
+    border-radius: 13px;
+    padding: 26px 15px;
+  }
+
+  .copyRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import API from "../utils/api";
 import {
   META_ADS_TRAINING_URL,
@@ -8,6 +8,12 @@ import styles from "../styles/GrowthAssessment.module.css";
 
 const JOSH_WHATSAPP_URL =
   "https://wa.me/2347072571740?text=Hello%20Josh%2C%20I%20just%20completed%20the%20growth%20assessment%20and%20I%20would%20like%20to%20discuss%20my%20business.";
+const GROWTH_ASSESSMENT_PIXEL_ID = "D9UOPV3C77U7HHC73450";
+const GROWTH_ASSESSMENT_CONTENT = {
+  content_id: "growth_assessment",
+  content_type: "lead_form",
+  content_name: "Joshspot Growth Assessment",
+};
 
 const initialForm = {
   fullName: "",
@@ -143,6 +149,44 @@ export default function GrowthAssessment() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
+  useEffect(() => {
+    let attempts = 0;
+    let retryTimer;
+
+    const initializeGrowthPixel = () => {
+      if (!window.ttq) {
+        attempts += 1;
+
+        if (attempts <= 10) {
+          retryTimer = setTimeout(initializeGrowthPixel, 300);
+        }
+
+        return;
+      }
+
+      if (!window.__growthAssessmentPixelLoaded) {
+        window.ttq.load(GROWTH_ASSESSMENT_PIXEL_ID);
+        window.__growthAssessmentPixelLoaded = true;
+      }
+
+      window.ttq.page();
+      window.ttq.track("ViewContent", GROWTH_ASSESSMENT_CONTENT);
+    };
+
+    initializeGrowthPixel();
+
+    return () => clearTimeout(retryTimer);
+  }, []);
+
+  const trackTikTok = (eventName, payload = {}) => {
+    if (!window.ttq) return;
+
+    window.ttq.track(eventName, {
+      ...GROWTH_ASSESSMENT_CONTENT,
+      ...payload,
+    });
+  };
+
   const updateField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
@@ -167,9 +211,9 @@ export default function GrowthAssessment() {
     try {
       const response = await API.post("/growth-assessment", form);
 
-      if (window.ttq) {
-        window.ttq.track("CompleteRegistration");
-      }
+      trackTikTok("CompleteRegistration", {
+        status: "submitted",
+      });
 
       setResult(response.data.result);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -239,11 +283,21 @@ export default function GrowthAssessment() {
 
   const goToStep = (nextStep) => {
     setStep(nextStep);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    setTimeout(() => {
+      document
+        .getElementById("assessment-form")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   const nextStep = () => {
     if (!validateStep()) return;
+    trackTikTok("ClickButton", {
+      button_name: "growth_assessment_next",
+      current_step: step,
+      next_step: step + 1,
+    });
     goToStep(step + 1);
   };
 
