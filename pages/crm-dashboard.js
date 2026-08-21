@@ -193,16 +193,30 @@ export default function CrmDashboard() {
   return (
     <div className={styles.page}>
       <nav className={styles.dashboardNav}>
-        <label>
-          <span className={styles.navLabel}>Dashboard menu</span>
-          <select
-            value="/crm-dashboard"
-            onChange={(event) => router.push(event.target.value)}
+        <div>
+          <span className={styles.navLabel}>Main menu</span>
+          <strong>CRM Workspace</strong>
+        </div>
+
+        <div className={styles.navActions}>
+          <button
+            aria-current="page"
+            className={styles.navButton}
+            onClick={() => router.push("/crm-dashboard")}
+            type="button"
           >
-            <option value="/crm-dashboard">Setup Dashboard</option>
-            <option value="/crm-verification-dashboard">Verification Dashboard</option>
-          </select>
-        </label>
+            <span>Setup</span>
+            <small>Client onboarding</small>
+          </button>
+          <button
+            className={styles.navButton}
+            onClick={() => router.push("/crm-verification-dashboard")}
+            type="button"
+          >
+            <span>Verification</span>
+            <small>ID records</small>
+          </button>
+        </div>
       </nav>
 
       <header className={styles.header}>

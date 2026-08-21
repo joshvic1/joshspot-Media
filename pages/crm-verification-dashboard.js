@@ -97,11 +97,13 @@ export default function CrmVerificationDashboard() {
     event.preventDefault();
     setSaving(true);
 
+    const payload = {
+      ...form,
+      amountPaid: staff?.role === "SS" ? Number(form.amountPaid || 0) : undefined,
+    };
+
     try {
-      const response = await API.post("/crm/verification-clients", {
-        ...form,
-        amountPaid: Number(form.amountPaid || 0),
-      });
+      const response = await API.post("/crm/verification-clients", payload);
 
       setForm(emptyVerificationForm);
       setPendingScrollClientId(response.data._id);
@@ -119,19 +121,51 @@ export default function CrmVerificationDashboard() {
     router.push("/crm-login");
   };
 
+  const downloadIdCard = async (client) => {
+    try {
+      const response = await API.get(`/crm/verification-clients/${client._id}/id-card`, {
+        responseType: "blob",
+      });
+      const blobUrl = window.URL.createObjectURL(response.data);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = client.idCard?.fileName || "verification-id-card";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      alert(error.response?.data?.message || "Unable to download ID card");
+    }
+  };
+
   return (
     <div className={styles.page}>
       <nav className={styles.dashboardNav}>
-        <label>
-          <span className={styles.navLabel}>Dashboard menu</span>
-          <select
-            value="/crm-verification-dashboard"
-            onChange={(event) => router.push(event.target.value)}
+        <div>
+          <span className={styles.navLabel}>Main menu</span>
+          <strong>CRM Workspace</strong>
+        </div>
+
+        <div className={styles.navActions}>
+          <button
+            className={styles.navButton}
+            onClick={() => router.push("/crm-dashboard")}
+            type="button"
           >
-            <option value="/crm-dashboard">Setup Dashboard</option>
-            <option value="/crm-verification-dashboard">Verification Dashboard</option>
-          </select>
-        </label>
+            <span>Setup</span>
+            <small>Client onboarding</small>
+          </button>
+          <button
+            aria-current="page"
+            className={styles.navButton}
+            onClick={() => router.push("/crm-verification-dashboard")}
+            type="button"
+          >
+            <span>Verification</span>
+            <small>ID records</small>
+          </button>
+        </div>
       </nav>
 
       <header className={styles.header}>
@@ -185,16 +219,18 @@ export default function CrmVerificationDashboard() {
               />
             </label>
 
-            <label>
-              <span>Amount paid</span>
-              <input
-                type="number"
-                min="0"
-                value={form.amountPaid}
-                onChange={(event) => handleChange("amountPaid", event.target.value)}
-                required
-              />
-            </label>
+            {staff?.role === "SS" && (
+              <label>
+                <span>Amount paid</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.amountPaid}
+                  onChange={(event) => handleChange("amountPaid", event.target.value)}
+                  required
+                />
+              </label>
+            )}
 
             <label>
               <span>Client number</span>
@@ -254,7 +290,11 @@ export default function CrmVerificationDashboard() {
                   </p>
                   <p>
                     <strong>Amount paid:</strong>{" "}
-                    <span>{Number(client.amountPaid || 0).toLocaleString()}</span>
+                    <span>
+                      {client.amountPaid === "******"
+                        ? "******"
+                        : Number(client.amountPaid || 0).toLocaleString()}
+                    </span>
                   </p>
                   <p>
                     <strong>Client number:</strong>{" "}
@@ -266,14 +306,14 @@ export default function CrmVerificationDashboard() {
                   </p>
                   <p>
                     <strong>ID card:</strong>{" "}
-                    {client.idCard?.data ? (
-                      <a
+                    {client.idCard?.key ? (
+                      <button
                         className={styles.fileLink}
-                        download={client.idCard.fileName || "verification-id-card"}
-                        href={client.idCard.data}
+                        onClick={() => downloadIdCard(client)}
+                        type="button"
                       >
                         View / Download
-                      </a>
+                      </button>
                     ) : (
                       <span>-</span>
                     )}
