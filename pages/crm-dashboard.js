@@ -192,11 +192,24 @@ export default function CrmDashboard() {
 
   return (
     <div className={styles.page}>
+      <nav className={styles.dashboardNav}>
+        <label>
+          <span className={styles.navLabel}>Dashboard menu</span>
+          <select
+            value="/crm-dashboard"
+            onChange={(event) => router.push(event.target.value)}
+          >
+            <option value="/crm-dashboard">Setup Dashboard</option>
+            <option value="/crm-verification-dashboard">Verification Dashboard</option>
+          </select>
+        </label>
+      </nav>
+
       <header className={styles.header}>
         <div>
-          <span className={styles.badge}>CRM Dashboard</span>
-          <h1>Client Onboarding</h1>
-          <p>Manage client setup details with role-based access.</p>
+          <span className={styles.badge}>Setup Dashboard</span>
+          <h1>Setup Clients</h1>
+          <p>Manage ad setup client details with role-based access.</p>
         </div>
 
         <div className={styles.staffCard}>

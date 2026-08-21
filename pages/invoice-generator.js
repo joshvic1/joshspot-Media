@@ -1,24 +1,14 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useState } from "react";
 import API from "../utils/api";
 import styles from "../styles/Invoice.module.css";
 
 export default function InvoiceGenerator() {
-  const router = useRouter();
   const [amount, setAmount] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [note, setNote] = useState("");
   const [invoiceUrl, setInvoiceUrl] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-
-    if (!token) {
-      router.push("/admin-login-0tT6Yc1");
-    }
-  }, [router]);
 
   const createInvoice = async (event) => {
     event.preventDefault();

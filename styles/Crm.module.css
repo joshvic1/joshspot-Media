@@ -122,6 +122,36 @@
   color: #93c5fd;
 }
 
+.dashboardNav {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.dashboardNav label {
+  display: grid;
+  gap: 7px;
+}
+
+.navLabel {
+  color: #bfdbfe;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboardNav select {
+  min-width: 240px;
+  padding: 12px 14px;
+  border: 1px solid rgba(147, 197, 253, 0.32);
+  border-radius: 8px;
+  background: rgba(8, 35, 78, 0.86);
+  color: #eff6ff;
+  font: inherit;
+  font-weight: 800;
+}
+
 .staffCard button,
 .secondaryBtn,
 .clientTop button {
@@ -258,6 +288,16 @@
   color: #93c5fd;
 }
 
+.fileHint {
+  color: #bae6fd;
+  font-weight: 700;
+}
+
+.fileLink {
+  color: #7dd3fc;
+  font-weight: 800;
+}
+
 .emptyState {
   padding: 18px;
   border-radius: 8px;
@@ -283,5 +323,13 @@
 
   .searchBar {
     grid-template-columns: 1fr;
+  }
+
+  .dashboardNav {
+    justify-content: stretch;
+  }
+
+  .dashboardNav select {
+    width: 100%;
   }
 }
