@@ -25,9 +25,11 @@ export default function CrmVerificationDashboard() {
   const [staff, setStaff] = useState(null);
   const [clients, setClients] = useState([]);
   const [form, setForm] = useState(emptyVerificationForm);
+  const [editingId, setEditingId] = useState("");
   const [saving, setSaving] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
+  const formRef = useRef(null);
   const clientRefs = useRef({});
 
   const fetchClients = useCallback(async () => {
@@ -94,19 +96,45 @@ export default function CrmVerificationDashboard() {
     }));
   };
 
+  const startEdit = (client) => {
+    setEditingId(client._id);
+    setForm({
+      name: client.name || "",
+      businessName: client.businessName || "",
+      clientLoginDetails: client.clientLoginDetails || "",
+      amountPaid: client.amountPaid === "******" ? "" : client.amountPaid || "",
+      clientNumber: client.clientNumber || "",
+      idCard: client.idCard || null,
+    });
+
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  };
+
+  const resetForm = () => {
+    setEditingId("");
+    setForm(emptyVerificationForm);
+  };
+
   const saveClient = async (event) => {
     event.preventDefault();
     setSaving(true);
 
-    const payload = {
-      ...form,
-      amountPaid: staff?.role === "SS" ? Number(form.amountPaid || 0) : undefined,
-    };
+    const payload = Object.fromEntries(
+      Object.entries({
+        ...form,
+        amountPaid: staff?.role === "SS" ? Number(form.amountPaid || 0) : undefined,
+        idCard: form.idCard?.data ? form.idCard : undefined,
+      }).filter(([, value]) => value !== undefined),
+    );
 
     try {
-      const response = await API.post("/crm/verification-clients", payload);
+      const response = editingId
+        ? await API.put(`/crm/verification-clients/${editingId}`, payload)
+        : await API.post("/crm/verification-clients", payload);
 
-      setForm(emptyVerificationForm);
+      resetForm();
       setPendingScrollClientId(response.data._id);
       await fetchClients();
     } catch (error) {
@@ -203,9 +231,9 @@ export default function CrmVerificationDashboard() {
       </header>
 
       <section className={styles.contentGrid}>
-        <div className={styles.panel}>
+        <div className={styles.panel} ref={formRef}>
           <div className={styles.panelHeader}>
-            <h2>Add Verification Client</h2>
+            <h2>{editingId ? "Update Verification Client" : "Add Verification Client"}</h2>
             <span>Service: Verification</span>
           </div>
 
@@ -267,7 +295,7 @@ export default function CrmVerificationDashboard() {
                 accept="image/*,.pdf"
                 type="file"
                 onChange={(event) => handleFileUpload(event.target.files?.[0])}
-                required
+                required={!editingId}
               />
               {form.idCard?.fileName && (
                 <small className={styles.fileHint}>{form.idCard.fileName}</small>
@@ -275,8 +303,22 @@ export default function CrmVerificationDashboard() {
             </label>
 
             <button type="submit" disabled={saving}>
-              {saving ? "Saving..." : "Create Verification Client"}
+              {saving
+                ? "Saving..."
+                : editingId
+                  ? "Save Changes"
+                  : "Create Verification Client"}
             </button>
+
+            {editingId && (
+              <button
+                className={styles.cancelButton}
+                onClick={resetForm}
+                type="button"
+              >
+                Cancel Update
+              </button>
+            )}
           </form>
         </div>
 
@@ -302,6 +344,7 @@ export default function CrmVerificationDashboard() {
                     <h3>{client.businessName}</h3>
                     <span>{client.service || "Verification"}</span>
                   </div>
+                  <button onClick={() => startEdit(client)}>Update</button>
                 </div>
 
                 <div className={styles.clientFields}>

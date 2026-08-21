@@ -77,13 +77,15 @@ export default function PayInvoice() {
           </div>
         ) : (
           <>
-            <span className={styles.badge}>Joshspot Media Invoice</span>
-            <h1>{formatMoney(invoice.amount)}</h1>
-            <p>
-              {invoice.customerName
-                ? `${invoice.customerName}, pay the exact amount to the account below.`
-                : "Pay the exact amount to the account below."}
-            </p>
+            <div className={styles.invoiceHero}>
+              <span className={styles.badge}>Joshspot Media Invoice</span>
+              <h1>{formatMoney(invoice.amount)}</h1>
+              <p>
+                {invoice.customerName
+                  ? `${invoice.customerName}, pay the exact amount using the account details below.`
+                  : "Pay the exact amount using the account details below."}
+              </p>
+            </div>
             {!hasTransferDetails && !isExpired && (
               <p className={styles.waitingText}>Preparing payment account...</p>
             )}
@@ -106,7 +108,7 @@ export default function PayInvoice() {
 
         {hasTransferDetails && (
           <div className={styles.transferBox}>
-            <h2>Transfer Details</h2>
+            <h2>Pay to this account</h2>
 
             <CopyRow
               label="Amount"

@@ -84,6 +84,7 @@
 .form button,
 .staffCard button,
 .secondaryBtn,
+.cancelButton,
 .clientTop button {
   border: 0;
   border-radius: 8px;
@@ -253,10 +254,16 @@
 
 .staffCard button,
 .secondaryBtn,
+.cancelButton,
 .clientTop button {
   padding: 9px 12px;
   background: rgba(219, 234, 254, 0.14);
   color: #eff6ff;
+}
+
+.cancelButton {
+  width: 100%;
+  margin-top: 10px;
 }
 
 .summaryGrid {

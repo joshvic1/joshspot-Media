@@ -46,16 +46,34 @@ export default function InvoiceGenerator() {
   };
 
   const hasTransferDetails = invoice?.accountNumber && invoice?.bankName;
+  const paymentMessage = hasTransferDetails
+    ? `Pay ${formatMoney(invoice.amount)} via the link below
+${invoiceUrl}
+
+Or pay to the account below
+${invoice.accountNumber}
+${invoice.bankName}
+${invoice.accountName || "Joshspot Media"}
+
+Send receipt after payment`
+    : "";
+
+  const copyPaymentMessage = async () => {
+    await navigator.clipboard.writeText(paymentMessage);
+    alert("Payment message copied");
+  };
 
   return (
     <main className={styles.invoicePage}>
       <section className={styles.generatorPanel}>
-        <span className={styles.badge}>Invoice generator</span>
-        <h1>Create a payment invoice</h1>
-        <p>
-          Enter an amount, generate a private payment link, and send it to your
-          client. The client will see temporary Paystack bank transfer details.
-        </p>
+        <div className={styles.invoiceHero}>
+          <span className={styles.badge}>Invoice generator</span>
+          <h1>Create a clean payment message.</h1>
+          <p>
+            Enter the invoice details, generate the payment account, then copy
+            one ready-to-send message for your client.
+          </p>
+        </div>
 
         <form className={styles.generatorForm} onSubmit={createInvoice}>
           <label>
@@ -103,6 +121,22 @@ export default function InvoiceGenerator() {
           </button>
         </form>
 
+        {hasTransferDetails && (
+          <div className={styles.messageBox}>
+            <div className={styles.messageHeader}>
+              <div>
+                <span>Client payment message</span>
+                <h2>Copy once and send</h2>
+              </div>
+              <button onClick={copyPaymentMessage}>
+                <FaCopy /> Copy Message
+              </button>
+            </div>
+
+            <pre>{paymentMessage}</pre>
+          </div>
+        )}
+
         {invoiceUrl && (
           <div className={styles.linkBox}>
             <span>Invoice link</span>
@@ -130,7 +164,7 @@ export default function InvoiceGenerator() {
 
         {hasTransferDetails && (
           <div className={styles.transferBox}>
-            <h2>Transfer Details</h2>
+            <h2>Account details</h2>
 
             <CopyRow
               label="Amount"
