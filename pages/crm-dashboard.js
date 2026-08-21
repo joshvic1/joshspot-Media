@@ -41,6 +41,7 @@ export default function CrmDashboard() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
@@ -188,34 +189,53 @@ export default function CrmDashboard() {
     router.push("/crm-login");
   };
 
+  const navigateDashboard = (path) => {
+    setIsMenuOpen(false);
+    router.push(path);
+  };
+
   const canShowForm = isFormOpen || editingId;
 
   return (
     <div className={styles.page}>
       <nav className={styles.dashboardNav}>
-        <div>
-          <span className={styles.navLabel}>Main menu</span>
-          <strong>CRM Workspace</strong>
+        <div className={styles.navBrand}>
+          <strong>Setup</strong>
+          <span>Dashboard</span>
         </div>
 
-        <div className={styles.navActions}>
+        <div className={styles.menuWrap}>
           <button
-            aria-current="page"
-            className={styles.navButton}
-            onClick={() => router.push("/crm-dashboard")}
+            aria-expanded={isMenuOpen}
+            aria-label="Open dashboard menu"
+            className={styles.menuButton}
+            onClick={() => setIsMenuOpen((current) => !current)}
             type="button"
           >
-            <span>Setup</span>
-            <small>Client onboarding</small>
+            <span />
+            <span />
+            <span />
           </button>
-          <button
-            className={styles.navButton}
-            onClick={() => router.push("/crm-verification-dashboard")}
-            type="button"
-          >
-            <span>Verification</span>
-            <small>ID records</small>
-          </button>
+
+          {isMenuOpen && (
+            <div className={styles.dropdownMenu}>
+              <button
+                aria-current="page"
+                onClick={() => navigateDashboard("/crm-dashboard")}
+                type="button"
+              >
+                <strong>Setup Dashboard</strong>
+                <span>Client onboarding</span>
+              </button>
+              <button
+                onClick={() => navigateDashboard("/crm-verification-dashboard")}
+                type="button"
+              >
+                <strong>Verification Dashboard</strong>
+                <span>ID records</span>
+              </button>
+            </div>
+          )}
         </div>
       </nav>
 

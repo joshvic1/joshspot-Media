@@ -11,7 +11,6 @@ export default function PayInvoice() {
   const { token } = router.query;
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [startingPayment, setStartingPayment] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -34,19 +33,6 @@ export default function PayInvoice() {
       setInvoice(null);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const startTransfer = async () => {
-    setStartingPayment(true);
-
-    try {
-      const response = await API.post(`/invoice/${token}/transfer`);
-      setInvoice(response.data);
-    } catch (error) {
-      alert(error.response?.data?.message || "Unable to generate account");
-    } finally {
-      setStartingPayment(false);
     }
   };
 
@@ -98,15 +84,8 @@ export default function PayInvoice() {
                 ? `${invoice.customerName}, pay the exact amount to the account below.`
                 : "Pay the exact amount to the account below."}
             </p>
-
             {!hasTransferDetails && !isExpired && (
-              <button
-                className={styles.payButton}
-                disabled={startingPayment}
-                onClick={startTransfer}
-              >
-                {startingPayment ? "Generating Account..." : "Pay Now"}
-              </button>
+              <p className={styles.waitingText}>Preparing payment account...</p>
             )}
           </>
         )}

@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { FaCopy } from "react-icons/fa";
 import API from "../utils/api";
 import styles from "../styles/Invoice.module.css";
+
+const formatMoney = (value) => `NGN ${Number(value || 0).toLocaleString()}`;
 
 export default function InvoiceGenerator() {
   const [amount, setAmount] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [note, setNote] = useState("");
+  const [invoice, setInvoice] = useState(null);
   const [invoiceUrl, setInvoiceUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +27,7 @@ export default function InvoiceGenerator() {
       });
 
       setInvoiceUrl(response.data.invoiceUrl);
+      setInvoice(response.data.invoice);
     } catch (error) {
       alert(error.response?.data?.message || "Unable to create invoice");
     } finally {
@@ -34,6 +39,13 @@ export default function InvoiceGenerator() {
     await navigator.clipboard.writeText(invoiceUrl);
     alert("Invoice link copied");
   };
+
+  const copyText = async (label, value) => {
+    await navigator.clipboard.writeText(value);
+    alert(`${label} copied`);
+  };
+
+  const hasTransferDetails = invoice?.accountNumber && invoice?.bankName;
 
   return (
     <main className={styles.invoicePage}>
@@ -87,18 +99,72 @@ export default function InvoiceGenerator() {
           </label>
 
           <button type="submit" disabled={loading}>
-            {loading ? "Generating..." : "Generate Invoice Link"}
+            {loading ? "Preparing Payment..." : "Pay Now"}
           </button>
         </form>
 
         {invoiceUrl && (
           <div className={styles.linkBox}>
             <span>Invoice link</span>
-            <strong>{invoiceUrl}</strong>
-            <button onClick={copyLink}>Copy Link</button>
+            <a
+              className={styles.invoiceLink}
+              href={invoiceUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {invoiceUrl}
+            </a>
+            <div className={styles.inlineActions}>
+              <button onClick={copyLink}>Copy Link</button>
+              <a
+                className={styles.openLinkButton}
+                href={invoiceUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Open Link
+              </a>
+            </div>
+          </div>
+        )}
+
+        {hasTransferDetails && (
+          <div className={styles.transferBox}>
+            <h2>Transfer Details</h2>
+
+            <CopyRow
+              label="Amount"
+              value={formatMoney(invoice.amount)}
+              onCopy={copyText}
+            />
+            <CopyRow label="Bank Name" value={invoice.bankName} onCopy={copyText} />
+            <CopyRow
+              label="Account Number"
+              value={invoice.accountNumber}
+              onCopy={copyText}
+            />
+            <CopyRow
+              label="Account Name"
+              value={invoice.accountName || "Joshspot Media"}
+              onCopy={copyText}
+            />
           </div>
         )}
       </section>
     </main>
+  );
+}
+
+function CopyRow({ label, value, onCopy }) {
+  return (
+    <div className={styles.copyRow}>
+      <div>
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </div>
+      <button onClick={() => onCopy(label, value)} title={`Copy ${label}`}>
+        <FaCopy />
+      </button>
+    </div>
   );
 }
