@@ -47,6 +47,7 @@ export default function CrmAdsDashboard() {
   const [activeSearch, setActiveSearch] = useState("");
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const formRef = useRef(null);
   const clientRefs = useRef({});
 
@@ -77,11 +78,22 @@ export default function CrmAdsDashboard() {
 
       setClients(res.data.clients);
       setPermissions(res.data.permissions);
+      setLoadError("");
       return res.data.clients;
-    } catch {
-      localStorage.removeItem("crmToken");
-      localStorage.removeItem("crmStaff");
-      router.push("/crm-login");
+    } catch (error) {
+      const status = error.response?.status;
+
+      if (status === 401 || status === 403) {
+        localStorage.removeItem("crmToken");
+        localStorage.removeItem("crmStaff");
+        router.push("/crm-login");
+      } else {
+        setLoadError(
+          error.response?.data?.message ||
+            "Unable to load ads clients. Please refresh the page.",
+        );
+      }
+
       return [];
     }
   }, [router]);
@@ -339,6 +351,8 @@ export default function CrmAdsDashboard() {
               {filteredClients.length} of {clients.length} records
             </span>
           </div>
+
+          {loadError && <p className={styles.errorState}>{loadError}</p>}
 
           <form className={styles.searchBar} onSubmit={searchClients}>
             <input

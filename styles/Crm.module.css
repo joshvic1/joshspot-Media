@@ -417,6 +417,16 @@
   color: #bfdbfe;
 }
 
+.errorState {
+  padding: 14px;
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  background: rgba(127, 29, 29, 0.28);
+  color: #fecaca;
+  font-weight: 700;
+}
+
 @media (max-width: 900px) {
   .page {
     padding: 22px;
