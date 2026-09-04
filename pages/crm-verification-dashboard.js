@@ -211,6 +211,13 @@ export default function CrmVerificationDashboard() {
                 <strong>Verification Dashboard</strong>
                 <span>ID records</span>
               </button>
+              <button
+                onClick={() => navigateDashboard("/crm-ads-dashboard")}
+                type="button"
+              >
+                <strong>Ads Dashboard</strong>
+                <span>Ad client delivery</span>
+              </button>
             </div>
           )}
         </div>

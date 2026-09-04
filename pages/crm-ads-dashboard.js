@@ -3,37 +3,38 @@ import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
 
+const serviceOptions = [
+  "TikTok Ads Landing Page",
+  "TikTok DM Ads",
+  "Meta Ads Landing Page",
+  "Meta DM Ads",
+];
+
 const emptyForm = {
   businessName: "",
   amountPaid: "",
-  servicePaidFor: "Meta ads setup",
-  clientLoginDetails: "",
-  landingPageLogins: "",
-  landingPageLink: "",
-  clientNumber: "",
+  videoLinks: "",
+  servicePaidFor: serviceOptions[0],
+  note: "",
 };
 
 const fieldLabels = {
-  businessName: "Name / Business name",
+  businessName: "Business name",
   amountPaid: "Amount paid",
+  videoLinks: "Links to videos",
   servicePaidFor: "Service paid for",
-  clientLoginDetails: "Client login details",
-  landingPageLogins: "Landing page logins",
-  landingPageLink: "Landing page link",
-  clientNumber: "Client number",
+  note: "Note",
 };
 
 const fieldOrder = [
   "businessName",
   "amountPaid",
+  "videoLinks",
   "servicePaidFor",
-  "clientLoginDetails",
-  "landingPageLogins",
-  "landingPageLink",
-  "clientNumber",
+  "note",
 ];
 
-export default function CrmDashboard() {
+export default function CrmAdsDashboard() {
   const router = useRouter();
   const [staff, setStaff] = useState(null);
   const [clients, setClients] = useState([]);
@@ -72,7 +73,7 @@ export default function CrmDashboard() {
 
   const fetchClients = useCallback(async () => {
     try {
-      const res = await API.get("/crm/clients");
+      const res = await API.get("/crm/ads-clients");
 
       setClients(res.data.clients);
       setPermissions(res.data.permissions);
@@ -142,6 +143,12 @@ export default function CrmDashboard() {
     }, 0);
   };
 
+  const resetForm = () => {
+    setEditingId("");
+    setForm(emptyForm);
+    setIsFormOpen(false);
+  };
+
   const searchClients = (event) => {
     event.preventDefault();
     setActiveSearch(searchInput);
@@ -163,21 +170,20 @@ export default function CrmDashboard() {
 
     try {
       if (editingId) {
-        await API.put(`/crm/clients/${editingId}`, payload);
+        const response = await API.put(`/crm/ads-clients/${editingId}`, payload);
+        setPendingScrollClientId(response.data._id);
         await fetchClients();
       } else {
-        const res = await API.post("/crm/clients", payload);
+        const response = await API.post("/crm/ads-clients", payload);
         setActiveSearch("");
         setSearchInput("");
-        setIsFormOpen(false);
-        setPendingScrollClientId(res.data._id);
+        setPendingScrollClientId(response.data._id);
         await fetchClients();
       }
 
-      setForm(emptyForm);
-      setEditingId("");
+      resetForm();
     } catch (error) {
-      alert(error.response?.data?.message || "Unable to save client");
+      alert(error.response?.data?.message || "Unable to save ads client");
     } finally {
       setSaving(false);
     }
@@ -200,7 +206,7 @@ export default function CrmDashboard() {
     <div className={styles.page}>
       <nav className={styles.dashboardNav}>
         <div className={styles.navBrand}>
-          <strong>Setup</strong>
+          <strong>Ads</strong>
           <span>Dashboard</span>
         </div>
 
@@ -220,7 +226,6 @@ export default function CrmDashboard() {
           {isMenuOpen && (
             <div className={styles.dropdownMenu}>
               <button
-                aria-current="page"
                 onClick={() => navigateDashboard("/crm-dashboard")}
                 type="button"
               >
@@ -235,6 +240,7 @@ export default function CrmDashboard() {
                 <span>ID records</span>
               </button>
               <button
+                aria-current="page"
                 onClick={() => navigateDashboard("/crm-ads-dashboard")}
                 type="button"
               >
@@ -248,9 +254,9 @@ export default function CrmDashboard() {
 
       <header className={styles.header}>
         <div>
-          <span className={styles.badge}>Setup Dashboard</span>
-          <h1>Setup Clients</h1>
-          <p>Manage ad setup client details with role-based access.</p>
+          <span className={styles.badge}>Ads Dashboard</span>
+          <h1>Ads Clients</h1>
+          <p>Track ad delivery clients, video links, services, and notes.</p>
         </div>
 
         <div className={styles.staffCard}>
@@ -263,10 +269,10 @@ export default function CrmDashboard() {
       <section className={styles.contentGrid}>
         <div className={styles.panel} ref={formRef}>
           <div className={styles.panelHeader}>
-            <h2>{editingId ? "Update Client" : "Add New Client"}</h2>
+            <h2>{editingId ? "Update Ads Client" : "Add Ads Client"}</h2>
             {permissions.canCreate && (
               <button className={styles.secondaryBtn} onClick={startCreate}>
-                + Add new client
+                + Add client
               </button>
             )}
           </div>
@@ -279,43 +285,56 @@ export default function CrmDashboard() {
                   {field === "servicePaidFor" ? (
                     <select
                       value={form[field]}
-                      onChange={(e) => handleChange(field, e.target.value)}
+                      onChange={(event) => handleChange(field, event.target.value)}
+                      required
                     >
-                      <option>Meta ads setup</option>
-                      <option>TikTok ads setup - DM</option>
-                      <option>Tiktok Ads Setup - Landing Page</option>
+                      {serviceOptions.map((service) => (
+                        <option key={service}>{service}</option>
+                      ))}
                     </select>
-                  ) : field.includes("Details") || field.includes("Logins") ? (
+                  ) : field === "videoLinks" || field === "note" ? (
                     <textarea
                       value={form[field]}
-                      onChange={(e) => handleChange(field, e.target.value)}
+                      onChange={(event) => handleChange(field, event.target.value)}
+                      required={field !== "note"}
                     />
                   ) : (
                     <input
                       type={field === "amountPaid" ? "number" : "text"}
                       value={form[field]}
-                      onChange={(e) => handleChange(field, e.target.value)}
+                      onChange={(event) => handleChange(field, event.target.value)}
+                      required={field !== "note"}
                     />
                   )}
                 </label>
               ))}
 
               <button type="submit" disabled={saving}>
-                {saving ? "Saving..." : editingId ? "Save Changes" : "Create Client"}
+                {saving ? "Saving..." : editingId ? "Save Changes" : "Create Ads Client"}
               </button>
+
+              {editingId && (
+                <button
+                  className={styles.cancelButton}
+                  onClick={resetForm}
+                  type="button"
+                >
+                  Cancel Update
+                </button>
+              )}
             </form>
           ) : (
             <p className={styles.emptyState}>
               {permissions.canCreate
-                ? "Click + Add new client to open the form."
-                : "Setup staff can update existing clients only. Select a client below."}
+                ? "Click + Add client to open the form."
+                : "Setup staff can update existing ads clients only. Select a client below."}
             </p>
           )}
         </div>
 
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
-            <h2>Existing Clients</h2>
+            <h2>Existing Ads Clients</h2>
             <span>
               {filteredClients.length} of {clients.length} records
             </span>
@@ -323,9 +342,9 @@ export default function CrmDashboard() {
 
           <form className={styles.searchBar} onSubmit={searchClients}>
             <input
-              placeholder="Search by business name, number, service, link, login details..."
+              placeholder="Search by business name, service, video link, note..."
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={(event) => setSearchInput(event.target.value)}
             />
             <button type="submit">Search</button>
             {activeSearch && (
@@ -370,11 +389,11 @@ export default function CrmDashboard() {
             ))}
 
             {clients.length === 0 && (
-              <p className={styles.emptyState}>No clients have been added yet.</p>
+              <p className={styles.emptyState}>No ads clients have been added yet.</p>
             )}
 
             {clients.length > 0 && filteredClients.length === 0 && (
-              <p className={styles.emptyState}>No client matched your search.</p>
+              <p className={styles.emptyState}>No ads client matched your search.</p>
             )}
           </div>
         </div>
