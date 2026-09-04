@@ -13,6 +13,7 @@ const serviceOptions = [
 const emptyForm = {
   businessName: "",
   amountPaid: "",
+  clientLoginDetails: "",
   videoLinks: "",
   servicePaidFor: serviceOptions[0],
   note: "",
@@ -21,6 +22,7 @@ const emptyForm = {
 const fieldLabels = {
   businessName: "Business name",
   amountPaid: "Amount paid",
+  clientLoginDetails: "Client login details",
   videoLinks: "Links to videos",
   servicePaidFor: "Service paid for",
   note: "Note",
@@ -29,6 +31,7 @@ const fieldLabels = {
 const fieldOrder = [
   "businessName",
   "amountPaid",
+  "clientLoginDetails",
   "videoLinks",
   "servicePaidFor",
   "note",
@@ -304,11 +307,11 @@ export default function CrmAdsDashboard() {
                         <option key={service}>{service}</option>
                       ))}
                     </select>
-                  ) : field === "videoLinks" || field === "note" ? (
+                  ) : field === "clientLoginDetails" || field === "videoLinks" || field === "note" ? (
                     <textarea
                       value={form[field]}
                       onChange={(event) => handleChange(field, event.target.value)}
-                      required={field !== "note"}
+                      required={field !== "note" && field !== "clientLoginDetails"}
                     />
                   ) : (
                     <input
