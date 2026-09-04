@@ -377,6 +377,67 @@
   font-size: 18px;
 }
 
+.publishToggle {
+  align-items: center;
+  display: inline-flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 9px 11px;
+  border: 1px solid rgba(125, 211, 252, 0.24);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.26);
+  color: #dbeafe;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  user-select: none;
+}
+
+.publishToggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggleControl {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(186, 230, 253, 0.55);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.6);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.toggleControl::after {
+  content: "";
+  width: 7px;
+  height: 11px;
+  border: solid #082f49;
+  border-width: 0 2px 2px 0;
+  opacity: 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.publishToggle input:checked + .toggleControl {
+  border-color: #38bdf8;
+  background: #38bdf8;
+  box-shadow: 0 0 0 5px rgba(56, 189, 248, 0.12);
+}
+
+.publishToggle input:checked + .toggleControl::after {
+  opacity: 1;
+}
+
+.toggleText {
+  color: #dbeafe;
+}
+
 .clientFields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

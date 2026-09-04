@@ -204,6 +204,31 @@ export default function CrmAdsDashboard() {
     }
   };
 
+  const toggleAdsPublished = async (client) => {
+    const nextValue = !client.adsPublished;
+
+    setClients((current) =>
+      current.map((item) =>
+        item._id === client._id ? { ...item, adsPublished: nextValue } : item,
+      ),
+    );
+
+    try {
+      await API.put(`/crm/ads-clients/${client._id}`, {
+        adsPublished: nextValue,
+      });
+    } catch (error) {
+      setClients((current) =>
+        current.map((item) =>
+          item._id === client._id
+            ? { ...item, adsPublished: client.adsPublished }
+            : item,
+        ),
+      );
+      alert(error.response?.data?.message || "Unable to update ads published status");
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("crmToken");
     localStorage.removeItem("crmStaff");
@@ -389,6 +414,18 @@ export default function CrmAdsDashboard() {
                   </div>
                   <button onClick={() => startEdit(client)}>Update</button>
                 </div>
+
+                <label className={styles.publishToggle}>
+                  <input
+                    checked={Boolean(client.adsPublished)}
+                    onChange={() => toggleAdsPublished(client)}
+                    type="checkbox"
+                  />
+                  <span className={styles.toggleControl} />
+                  <span className={styles.toggleText}>
+                    {client.adsPublished ? "Ads Published" : "Mark Ads Published"}
+                  </span>
+                </label>
 
                 <div className={styles.clientFields}>
                   {fieldOrder.map((field) => (
