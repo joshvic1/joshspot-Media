@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   adsPricingConfig,
   calculateTotal,
+  formatCompactNaira,
   formatNaira,
   generateBreakdownMessage,
   generateSimpleMessage,
@@ -15,23 +16,23 @@ const enabledPresets = adsPricingConfig.recommendationPresets.filter(
 const customerTypes = [
   {
     label: "Low-budget / Just testing",
+    hint: "For customers who only want to test TikTok ads first.",
     presetKey: "quick-test",
-    higherPresetKey: "starter",
   },
   {
     label: "Normal first-time advertiser",
+    hint: "Best default option for most new advertisers.",
     presetKey: "starter",
-    higherPresetKey: "growth",
   },
   {
-    label: "Serious business / Wants stronger campaign",
+    label: "Serious business / Stronger campaign",
+    hint: "For businesses that want more room to test and optimize.",
     presetKey: "growth",
-    higherPresetKey: "scale",
   },
   {
     label: "High-budget advertiser",
+    hint: "For customers ready for a more serious campaign.",
     presetKey: "scale",
-    higherPresetKey: "high-budget",
   },
 ];
 
@@ -40,7 +41,6 @@ const getPreset = (key) => enabledPresets.find((preset) => preset.key === key);
 export default function AdsCalculator() {
   const [mode, setMode] = useState("recommend");
   const [customerType, setCustomerType] = useState(customerTypes[1].label);
-  const [selectedPresetKey, setSelectedPresetKey] = useState("starter");
   const [customInputs, setCustomInputs] = useState({
     advertisingBudget: "100000",
     duration: "15",
@@ -53,58 +53,50 @@ export default function AdsCalculator() {
     overrideManagementFee: "",
   });
 
-  const activePreset = useMemo(() => {
-    const typePreset = customerTypes.find((type) => type.label === customerType);
-    return getPreset(typePreset?.presetKey) || getPreset(selectedPresetKey) || enabledPresets[0];
-  }, [customerType, selectedPresetKey]);
+  const selectedCustomerType = useMemo(
+    () => customerTypes.find((type) => type.label === customerType) || customerTypes[1],
+    [customerType],
+  );
 
-  const higherPreset = useMemo(() => {
-    const typePreset = customerTypes.find((type) => type.label === customerType);
-    return getPreset(typePreset?.higherPresetKey);
-  }, [customerType]);
+  const activePreset = useMemo(
+    () => getPreset(selectedCustomerType.presetKey) || enabledPresets[0],
+    [selectedCustomerType],
+  );
 
   const result = useMemo(() => {
-    const source =
-      mode === "recommend"
-        ? {
-            advertisingBudget: activePreset.advertisingBudget,
-            duration: activePreset.duration,
-            creativeLimit: activePreset.creativeLimit,
-            requestedCreatives: activePreset.creativeLimit,
-            needsScriptSupport: false,
-            overrideAdvertisingBudget: customInputs.overrideAdvertisingBudget,
-            overrideDuration: customInputs.overrideDuration,
-            overrideCreativeLimit: customInputs.overrideCreativeLimit,
-            overrideManagementFee: customInputs.overrideManagementFee,
-          }
-        : customInputs;
+    if (mode === "recommend") {
+      return calculateTotal({
+        advertisingBudget: activePreset.advertisingBudget,
+        duration: activePreset.duration,
+        creativeLimit: activePreset.creativeLimit,
+        requestedCreatives: activePreset.creativeLimit,
+        needsScriptSupport: false,
+        overrideAdvertisingBudget: customInputs.overrideAdvertisingBudget,
+        overrideDuration: customInputs.overrideDuration,
+        overrideCreativeLimit: customInputs.overrideCreativeLimit,
+        overrideManagementFee:
+          customInputs.overrideManagementFee || activePreset.managementFee,
+      });
+    }
 
-    return calculateTotal(source);
+    return calculateTotal(customInputs);
   }, [activePreset, customInputs, mode]);
-
-  const validationMessages = useMemo(() => {
-    const messages = [];
-
-    if (result.advertisingBudget < adsPricingConfig.minimumAdBudget) {
-      messages.push(
-        `Ad budget is below the current minimum of ${formatNaira(
-          adsPricingConfig.minimumAdBudget,
-        )}.`,
-      );
-    }
-
-    if (result.duration <= 0) {
-      messages.push("Campaign duration must be at least 1 day.");
-    }
-
-    return messages;
-  }, [result]);
 
   const simpleMessage = useMemo(() => generateSimpleMessage(result), [result]);
   const breakdownMessage = useMemo(
     () => generateBreakdownMessage(result),
     [result],
   );
+
+  const validationMessage = useMemo(() => {
+    if (result.advertisingBudget < adsPricingConfig.minimumAdBudget) {
+      return `Ad budget is below the current minimum of ${formatNaira(
+        adsPricingConfig.minimumAdBudget,
+      )}.`;
+    }
+
+    return "";
+  }, [result.advertisingBudget]);
 
   const updateCustomInput = (field, value) => {
     setCustomInputs((current) => ({ ...current, [field]: value }));
@@ -119,125 +111,114 @@ export default function AdsCalculator() {
     <main className={styles.page}>
       <section className={styles.shell}>
         <header className={styles.header}>
-          <span className={styles.badge}>Internal CSR Tool</span>
-          <h1>TikTok Ads Pricing Calculator</h1>
-          <p>
-            Recommend a plan, calculate custom pricing, and copy simple client
-            messages without exposing internal math too early.
-          </p>
+          <div>
+            <span className={styles.badge}>Internal CSR Tool</span>
+            <h1>Ads price calculator</h1>
+            <p>Pick a customer situation, confirm the price, copy the message.</p>
+          </div>
+          <div className={styles.headerPrice}>
+            <span>Total to send</span>
+            <strong>{formatCompactNaira(result.total)}</strong>
+          </div>
         </header>
 
-        <section className={styles.grid}>
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <span>1</span>
-              <div>
-                <h2>Calculator Mode</h2>
-                <p>Choose how the customer is asking.</p>
-              </div>
-            </div>
-
-            <div className={styles.segmented}>
+        <section className={styles.workspace}>
+          <div className={styles.controlPanel}>
+            <div className={styles.modeCards}>
               <button
-                className={mode === "recommend" ? styles.activeSegment : ""}
+                className={mode === "recommend" ? styles.activeMode : ""}
                 onClick={() => setMode("recommend")}
                 type="button"
               >
-                Recommend a Plan
+                <strong>Customer needs recommendation</strong>
+                <span>Use this when they ask how much they should start with.</span>
               </button>
               <button
-                className={mode === "custom" ? styles.activeSegment : ""}
+                className={mode === "custom" ? styles.activeMode : ""}
                 onClick={() => setMode("custom")}
                 type="button"
               >
-                Custom Pricing
+                <strong>Customer has a budget</strong>
+                <span>Use this when they already know amount or duration.</span>
               </button>
             </div>
 
             {mode === "recommend" ? (
-              <div className={styles.formGroup}>
-                <label>
-                  <span>Customer type</span>
-                  <select
-                    value={customerType}
-                    onChange={(event) => {
-                      const nextType = customerTypes.find(
-                        (type) => type.label === event.target.value,
-                      );
-                      setCustomerType(event.target.value);
-                      setSelectedPresetKey(nextType?.presetKey || "starter");
-                    }}
-                  >
-                    {customerTypes.map((type) => (
-                      <option key={type.label}>{type.label}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <div className={styles.recommendedCard}>
-                  <span>Recommended</span>
-                  <h3>{formatNaira(activePreset.totalPrice)} plan</h3>
-                  <p>{activePreset.name}</p>
+              <section className={styles.card}>
+                <div className={styles.cardTitle}>
+                  <span>Step 1</span>
+                  <h2>Choose the closest customer type</h2>
                 </div>
 
-                {higherPreset && (
-                  <div className={styles.higherOption}>
-                    Higher option: <strong>{formatNaira(higherPreset.totalPrice)}</strong>{" "}
-                    for {higherPreset.duration} days
-                  </div>
-                )}
-              </div>
+                <div className={styles.choiceList}>
+                  {customerTypes.map((type) => (
+                    <button
+                      className={customerType === type.label ? styles.activeChoice : ""}
+                      key={type.label}
+                      onClick={() => setCustomerType(type.label)}
+                      type="button"
+                    >
+                      <strong>{type.label}</strong>
+                      <span>{type.hint}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
             ) : (
-              <div className={styles.formGrid}>
-                <label>
-                  <span>Advertising budget</span>
-                  <input
-                    min="0"
-                    type="number"
-                    value={customInputs.advertisingBudget}
-                    onChange={(event) =>
-                      updateCustomInput("advertisingBudget", event.target.value)
-                    }
-                  />
-                </label>
+              <section className={styles.card}>
+                <div className={styles.cardTitle}>
+                  <span>Step 1</span>
+                  <h2>Enter what the customer told you</h2>
+                </div>
 
-                <label>
-                  <span>Campaign days</span>
-                  <input
-                    min="1"
-                    type="number"
-                    value={customInputs.duration}
-                    onChange={(event) =>
-                      updateCustomInput("duration", event.target.value)
-                    }
-                  />
-                </label>
+                <div className={styles.inputGrid}>
+                  <label>
+                    <span>Advertising budget</span>
+                    <input
+                      min="0"
+                      type="number"
+                      value={customInputs.advertisingBudget}
+                      onChange={(event) =>
+                        updateCustomInput("advertisingBudget", event.target.value)
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span>Campaign days</span>
+                    <input
+                      min="1"
+                      type="number"
+                      value={customInputs.duration}
+                      onChange={(event) =>
+                        updateCustomInput("duration", event.target.value)
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span>Videos customer wants</span>
+                    <input
+                      min="0"
+                      type="number"
+                      value={customInputs.requestedCreatives}
+                      onChange={(event) =>
+                        updateCustomInput("requestedCreatives", event.target.value)
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span>Videos included</span>
+                    <input
+                      min="0"
+                      type="number"
+                      value={customInputs.creativeLimit}
+                      onChange={(event) =>
+                        updateCustomInput("creativeLimit", event.target.value)
+                      }
+                    />
+                  </label>
+                </div>
 
-                <label>
-                  <span>Video creatives customer wants</span>
-                  <input
-                    min="0"
-                    type="number"
-                    value={customInputs.requestedCreatives}
-                    onChange={(event) =>
-                      updateCustomInput("requestedCreatives", event.target.value)
-                    }
-                  />
-                </label>
-
-                <label>
-                  <span>Creative allowance</span>
-                  <input
-                    min="0"
-                    type="number"
-                    value={customInputs.creativeLimit}
-                    onChange={(event) =>
-                      updateCustomInput("creativeLimit", event.target.value)
-                    }
-                  />
-                </label>
-
-                <label className={styles.checkboxRow}>
+                <label className={styles.switchRow}>
                   <input
                     checked={customInputs.needsScriptSupport}
                     type="checkbox"
@@ -245,114 +226,116 @@ export default function AdsCalculator() {
                       updateCustomInput("needsScriptSupport", event.target.checked)
                     }
                   />
-                  <span>Creative/Script Support needed</span>
+                  <span>Customer also needs Creative/Script Support</span>
+                </label>
+              </section>
+            )}
+
+            <details className={styles.overrideCard}>
+              <summary>Fine tune manually, only when needed</summary>
+              <div className={styles.inputGrid}>
+                <label>
+                  <span>Override ad budget</span>
+                  <input
+                    min="0"
+                    placeholder="Leave blank"
+                    type="number"
+                    value={customInputs.overrideAdvertisingBudget}
+                    onChange={(event) =>
+                      updateCustomInput("overrideAdvertisingBudget", event.target.value)
+                    }
+                  />
+                </label>
+                <label>
+                  <span>Override days</span>
+                  <input
+                    min="1"
+                    placeholder="Leave blank"
+                    type="number"
+                    value={customInputs.overrideDuration}
+                    onChange={(event) =>
+                      updateCustomInput("overrideDuration", event.target.value)
+                    }
+                  />
+                </label>
+                <label>
+                  <span>Override videos included</span>
+                  <input
+                    min="0"
+                    placeholder="Leave blank"
+                    type="number"
+                    value={customInputs.overrideCreativeLimit}
+                    onChange={(event) =>
+                      updateCustomInput("overrideCreativeLimit", event.target.value)
+                    }
+                  />
+                </label>
+                <label>
+                  <span>Override management fee</span>
+                  <input
+                    min="0"
+                    placeholder="Leave blank"
+                    type="number"
+                    value={customInputs.overrideManagementFee}
+                    onChange={(event) =>
+                      updateCustomInput("overrideManagementFee", event.target.value)
+                    }
+                  />
                 </label>
               </div>
+            </details>
+          </div>
+
+          <aside className={styles.resultPanel}>
+            <span className={styles.resultEyebrow}>Step 2</span>
+            <h2>Price to quote</h2>
+            <strong className={styles.total}>{formatNaira(result.total)}</strong>
+
+            {validationMessage && (
+              <p className={styles.warningText}>{validationMessage}</p>
             )}
-          </div>
 
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <span>2</span>
-              <div>
-                <h2>Admin Override</h2>
-                <p>Optional internal adjustments.</p>
-              </div>
+            <div className={styles.breakdownList}>
+              <p>
+                <span>Ad budget</span>
+                <strong>{formatNaira(result.advertisingBudget)}</strong>
+              </p>
+              <p>
+                <span>Management</span>
+                <strong>{formatNaira(result.managementFee)}</strong>
+              </p>
+              <p>
+                <span>Duration</span>
+                <strong>{result.duration} days</strong>
+              </p>
+              <p>
+                <span>Videos allowed</span>
+                <strong>{result.creativeLimit}</strong>
+              </p>
+              <p>
+                <span>Add-ons</span>
+                <strong>{formatNaira(result.addOnsTotal)}</strong>
+              </p>
+              <p>
+                <span>Internal ratio</span>
+                <strong>{result.managementRatio.toFixed(1)}%</strong>
+              </p>
             </div>
-
-            <div className={styles.formGrid}>
-              <label>
-                <span>Override advertising budget</span>
-                <input
-                  min="0"
-                  placeholder="Leave blank"
-                  type="number"
-                  value={customInputs.overrideAdvertisingBudget}
-                  onChange={(event) =>
-                    updateCustomInput("overrideAdvertisingBudget", event.target.value)
-                  }
-                />
-              </label>
-              <label>
-                <span>Override duration</span>
-                <input
-                  min="1"
-                  placeholder="Leave blank"
-                  type="number"
-                  value={customInputs.overrideDuration}
-                  onChange={(event) =>
-                    updateCustomInput("overrideDuration", event.target.value)
-                  }
-                />
-              </label>
-              <label>
-                <span>Override creative limit</span>
-                <input
-                  min="0"
-                  placeholder="Leave blank"
-                  type="number"
-                  value={customInputs.overrideCreativeLimit}
-                  onChange={(event) =>
-                    updateCustomInput("overrideCreativeLimit", event.target.value)
-                  }
-                />
-              </label>
-              <label>
-                <span>Override management fee</span>
-                <input
-                  min="0"
-                  placeholder="Leave blank"
-                  type="number"
-                  value={customInputs.overrideManagementFee}
-                  onChange={(event) =>
-                    updateCustomInput("overrideManagementFee", event.target.value)
-                  }
-                />
-              </label>
-            </div>
-          </div>
+          </aside>
         </section>
 
-        {validationMessages.length > 0 && (
-          <div className={styles.warningBox}>
-            {validationMessages.map((message) => (
-              <p key={message}>{message}</p>
-            ))}
-          </div>
-        )}
-
-        <section className={styles.resultGrid}>
-          <div className={styles.resultCard}>
-            <span>Advertising Budget</span>
-            <strong>{formatNaira(result.advertisingBudget)}</strong>
-          </div>
-          <div className={styles.resultCard}>
-            <span>Management Fee</span>
-            <strong>{formatNaira(result.managementFee)}</strong>
-            <small>Internal ratio: {result.managementRatio.toFixed(1)}%</small>
-          </div>
-          <div className={styles.resultCard}>
-            <span>Add-ons</span>
-            <strong>{formatNaira(result.addOnsTotal)}</strong>
-          </div>
-          <div className={styles.resultCard}>
-            <span>Total Amount</span>
-            <strong>{formatNaira(result.total)}</strong>
-          </div>
-        </section>
-
-        <section className={styles.messageGrid}>
+        <section className={styles.messages}>
           <MessagePanel
-            buttonLabel="Copy Simple Message"
+            buttonLabel="Copy message to send first"
             message={simpleMessage}
             onCopy={() => copyMessage(simpleMessage, "Simple message")}
-            title="Simple Customer Message"
+            title="Step 3: Send this first"
           />
           <MessagePanel
-            buttonLabel="Copy Breakdown"
+            buttonLabel="Copy breakdown if asked"
             message={breakdownMessage}
             onCopy={() => copyMessage(breakdownMessage, "Breakdown")}
-            title="Detailed Breakdown"
+            title="Breakdown"
           />
         </section>
       </section>
@@ -362,8 +345,8 @@ export default function AdsCalculator() {
 
 function MessagePanel({ buttonLabel, message, onCopy, title }) {
   return (
-    <article className={styles.messagePanel}>
-      <div className={styles.messageTop}>
+    <article className={styles.messageCard}>
+      <div>
         <h2>{title}</h2>
         <button onClick={onCopy} type="button">
           {buttonLabel}

@@ -48,10 +48,10 @@ export const adsPricingConfig = {
     {
       key: "quick-test",
       name: "Quick Test",
-      totalPrice: 65000,
+      totalPrice: 60000,
       duration: 7,
       advertisingBudget: 35000,
-      managementFee: 30000,
+      managementFee: 25000,
       creativeLimit: 1,
       recommendedFor: "Low-budget / Just testing",
       enabled: true,
