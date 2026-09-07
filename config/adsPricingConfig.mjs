@@ -1,11 +1,11 @@
 export const adsPricingConfig = {
-  minimumAdBudget: 30000,
-  minimumManagementFee: 30000,
+  minimumAdBudget: 35000,
+  minimumManagementFee: 25000,
   roundingIncrement: 5000,
   scriptSupportPrice: 25000,
   managementFeeAnchors: {
     7: [
-      { budget: 30000, fee: 30000 },
+      { budget: 35000, fee: 25000 },
       { budget: 50000, fee: 30000 },
       { budget: 100000, fee: 40000 },
       { budget: 150000, fee: 55000 },
@@ -46,58 +46,47 @@ export const adsPricingConfig = {
   },
   recommendationPresets: [
     {
-      key: "quick-test",
-      name: "Quick Test",
+      key: "7-days-60000",
+      name: "7 days - ₦60,000",
       totalPrice: 60000,
       duration: 7,
       advertisingBudget: 35000,
       managementFee: 25000,
       creativeLimit: 1,
-      recommendedFor: "Low-budget / Just testing",
+      recommendedFor: "Lowest entry option",
       enabled: true,
     },
     {
-      key: "starter",
-      name: "Starter",
-      totalPrice: 145000,
-      duration: 15,
+      key: "10-days-150000",
+      name: "10 days - ₦150,000",
+      totalPrice: 150000,
+      duration: 10,
       advertisingBudget: 100000,
-      managementFee: 45000,
-      creativeLimit: 1,
-      recommendedFor: "Normal first-time advertiser",
-      enabled: true,
-    },
-    {
-      key: "growth",
-      name: "Growth",
-      totalPrice: 430000,
-      duration: 15,
-      advertisingBudget: 300000,
-      managementFee: 130000,
-      creativeLimit: 2,
-      recommendedFor: "Serious business / Wants stronger campaign",
-      enabled: true,
-    },
-    {
-      key: "scale",
-      name: "Scale",
-      totalPrice: 700000,
-      duration: 30,
-      advertisingBudget: 500000,
-      managementFee: 200000,
+      managementFee: 50000,
       creativeLimit: 3,
-      recommendedFor: "High-budget advertiser",
+      recommendedFor: "First-time advertiser with more testing room",
       enabled: true,
     },
     {
-      key: "high-budget",
-      name: "Custom / High Budget",
-      totalPrice: 1350000,
+      key: "15-days-285000",
+      name: "15 days - ₦285,000",
+      totalPrice: 285000,
+      duration: 15,
+      advertisingBudget: 200000,
+      managementFee: 85000,
+      creativeLimit: 6,
+      recommendedFor: "Stronger recommended campaign",
+      enabled: true,
+    },
+    {
+      key: "30-days-450000",
+      name: "30 days - ₦450,000",
+      totalPrice: 450000,
       duration: 30,
-      advertisingBudget: 1000000,
-      managementFee: 350000,
-      creativeLimit: 4,
-      recommendedFor: "Custom / High Budget",
+      advertisingBudget: 300000,
+      managementFee: 150000,
+      creativeLimit: 10,
+      recommendedFor: "Longest recommended campaign",
       enabled: true,
     },
   ],
@@ -237,6 +226,7 @@ export const calculateTotal = ({
   creativeLimit,
   requestedCreatives,
   needsScriptSupport,
+  setupFee,
   overrideAdvertisingBudget,
   overrideDuration,
   overrideCreativeLimit,
@@ -264,7 +254,8 @@ export const calculateTotal = ({
   const scriptSupportFee = needsScriptSupport
     ? adsPricingConfig.scriptSupportPrice
     : 0;
-  const addOnsTotal = creativeFee + scriptSupportFee;
+  const setupServiceFee = clampNumber(setupFee);
+  const addOnsTotal = creativeFee + scriptSupportFee + setupServiceFee;
   const total = finalAdvertisingBudget + finalManagementFee + addOnsTotal;
 
   return {
@@ -281,27 +272,38 @@ export const calculateTotal = ({
     extraCreatives,
     creativeFee,
     scriptSupportFee,
+    setupServiceFee,
     addOnsTotal,
     total,
   };
 };
 
-const creativeText = (count) =>
-  `${count} video content${Number(count) === 1 ? "" : "s"}`;
+export const creativeAllowanceText = (count) => {
+  const creativeCount = Math.max(0, Math.ceil(Number(count || 0)));
+  return creativeCount === 1
+    ? "1 video content"
+    : `up to ${creativeCount} video contents`;
+};
 
-export const generateSimpleMessage = (result) =>
-  `I recommend you to go for our ${formatCompactNaira(
+const sentenceCase = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
+export const generateSimpleMessage = (result) => {
+  const setupText =
+    result.setupServiceFee > 0 ? " This also includes TikTok Ads Manager setup." : "";
+
+  return `I recommend you to go for our ${formatCompactNaira(
     result.total,
   )} plan. This includes us managing your ads for ${
     result.duration
-  } days. You are allowed a max of ${creativeText(result.creativeLimit)}.`;
+  } days. You are allowed ${creativeAllowanceText(result.creativeLimit)}.${setupText}`;
+};
 
 export const generateBreakdownMessage = (result) => {
   const lines = [
     `Ads duration: ${result.duration} days`,
     `Advertising Budget: ${formatNaira(result.advertisingBudget)}`,
-    `Campaign Management: ${formatNaira(result.managementFee)}`,
-    `${creativeText(result.creativeLimit)} allowed.`,
+    `Our service fee: ${formatNaira(result.managementFee)}`,
+    `${sentenceCase(creativeAllowanceText(result.creativeLimit))} allowed.`,
   ];
 
   if (result.extraCreatives > 0) {
@@ -316,11 +318,15 @@ export const generateBreakdownMessage = (result) => {
     lines.push(`Creative/Script Support: ${formatNaira(result.scriptSupportFee)}`);
   }
 
+  if (result.setupServiceFee > 0) {
+    lines.push(`TikTok Ads Manager Setup: ${formatNaira(result.setupServiceFee)}`);
+  }
+
   lines.push(
     "",
     `Total amount: ${formatNaira(result.total)}`,
     "",
-    "This management fee covers campaign setup, audience targeting, monitoring, optimization, targeting adjustments and retargeting where appropriate throughout the campaign period.",
+    "Our service fee covers campaign setup, audience targeting, monitoring, optimization, targeting adjustments and retargeting where appropriate throughout the campaign period.",
     "",
     "Please note that ad results also depend on your content, offer, audience, pricing and other factors.",
   );

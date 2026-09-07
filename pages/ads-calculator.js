@@ -2,45 +2,34 @@ import { useMemo, useState } from "react";
 import {
   adsPricingConfig,
   calculateTotal,
+  creativeAllowanceText,
   formatCompactNaira,
   formatNaira,
   generateBreakdownMessage,
   generateSimpleMessage,
 } from "../config/adsPricingConfig.mjs";
+import { services } from "../config/services";
 import styles from "../styles/AdsCalculator.module.css";
 
-const enabledPresets = adsPricingConfig.recommendationPresets.filter(
+const recommendedPlans = adsPricingConfig.recommendationPresets.filter(
   (preset) => preset.enabled,
 );
 
-const customerTypes = [
-  {
-    label: "Low-budget / Just testing",
-    hint: "For customers who only want to test TikTok ads first.",
-    presetKey: "quick-test",
-  },
-  {
-    label: "Normal first-time advertiser",
-    hint: "Best default option for most new advertisers.",
-    presetKey: "starter",
-  },
-  {
-    label: "Serious business / Stronger campaign",
-    hint: "For businesses that want more room to test and optimize.",
-    presetKey: "growth",
-  },
-  {
-    label: "High-budget advertiser",
-    hint: "For customers ready for a more serious campaign.",
-    presetKey: "scale",
-  },
-];
-
-const getPreset = (key) => enabledPresets.find((preset) => preset.key === key);
+const setupService = services.find(
+  (service) => service.title === "TikTok/Meta Ads Account Setup",
+);
+const tikTokSetupOption = setupService?.options?.find(
+  (option) => option.label === "TikTok only",
+);
+const tikTokSetupFee = tikTokSetupOption?.price || 0;
 
 export default function AdsCalculator() {
   const [mode, setMode] = useState("recommend");
-  const [customerType, setCustomerType] = useState(customerTypes[1].label);
+  const [activeTab, setActiveTab] = useState("recommendation");
+  const [selectedPlanKey, setSelectedPlanKey] = useState(
+    recommendedPlans[1]?.key || recommendedPlans[0]?.key,
+  );
+  const [needsSetup, setNeedsSetup] = useState(false);
   const [customInputs, setCustomInputs] = useState({
     advertisingBudget: "100000",
     duration: "15",
@@ -53,34 +42,33 @@ export default function AdsCalculator() {
     overrideManagementFee: "",
   });
 
-  const selectedCustomerType = useMemo(
-    () => customerTypes.find((type) => type.label === customerType) || customerTypes[1],
-    [customerType],
-  );
-
-  const activePreset = useMemo(
-    () => getPreset(selectedCustomerType.presetKey) || enabledPresets[0],
-    [selectedCustomerType],
+  const activePlan = useMemo(
+    () =>
+      recommendedPlans.find((plan) => plan.key === selectedPlanKey) ||
+      recommendedPlans[0],
+    [selectedPlanKey],
   );
 
   const result = useMemo(() => {
+    const setupFee = needsSetup ? tikTokSetupFee : 0;
+
     if (mode === "recommend") {
       return calculateTotal({
-        advertisingBudget: activePreset.advertisingBudget,
-        duration: activePreset.duration,
-        creativeLimit: activePreset.creativeLimit,
-        requestedCreatives: activePreset.creativeLimit,
+        advertisingBudget: activePlan.advertisingBudget,
+        duration: activePlan.duration,
+        creativeLimit: activePlan.creativeLimit,
+        requestedCreatives: activePlan.creativeLimit,
         needsScriptSupport: false,
-        overrideAdvertisingBudget: customInputs.overrideAdvertisingBudget,
-        overrideDuration: customInputs.overrideDuration,
-        overrideCreativeLimit: customInputs.overrideCreativeLimit,
-        overrideManagementFee:
-          customInputs.overrideManagementFee || activePreset.managementFee,
+        setupFee,
+        overrideManagementFee: activePlan.managementFee,
       });
     }
 
-    return calculateTotal(customInputs);
-  }, [activePreset, customInputs, mode]);
+    return calculateTotal({
+      ...customInputs,
+      setupFee,
+    });
+  }, [activePlan, customInputs, mode, needsSetup]);
 
   const simpleMessage = useMemo(() => generateSimpleMessage(result), [result]);
   const breakdownMessage = useMemo(
@@ -107,6 +95,18 @@ export default function AdsCalculator() {
     alert(`${label} copied`);
   };
 
+  const openTab = (tab) => {
+    setActiveTab(tab);
+
+    if (tab === "recommendation") {
+      setMode("recommend");
+    }
+
+    if (tab === "budget") {
+      setMode("custom");
+    }
+  };
+
   return (
     <main className={styles.page}>
       <section className={styles.shell}>
@@ -114,180 +114,298 @@ export default function AdsCalculator() {
           <div>
             <span className={styles.badge}>Internal CSR Tool</span>
             <h1>Ads price calculator</h1>
-            <p>Pick a customer situation, confirm the price, copy the message.</p>
+            <p>Choose a recommended plan, or enter the customer’s exact budget.</p>
           </div>
           <div className={styles.headerPrice}>
-            <span>Total to send</span>
+            <span>Total customer pays</span>
             <strong>{formatCompactNaira(result.total)}</strong>
           </div>
         </header>
 
         <section className={styles.workspace}>
           <div className={styles.controlPanel}>
-            <div className={styles.modeCards}>
+            <nav className={styles.tabBar} aria-label="Calculator sections">
               <button
-                className={mode === "recommend" ? styles.activeMode : ""}
-                onClick={() => setMode("recommend")}
+                className={
+                  activeTab === "recommendation" ? styles.activeTab : ""
+                }
+                onClick={() => openTab("recommendation")}
                 type="button"
               >
-                <strong>Customer needs recommendation</strong>
-                <span>Use this when they ask how much they should start with.</span>
+                Recommendation
               </button>
               <button
-                className={mode === "custom" ? styles.activeMode : ""}
-                onClick={() => setMode("custom")}
+                className={activeTab === "budget" ? styles.activeTab : ""}
+                onClick={() => openTab("budget")}
                 type="button"
               >
-                <strong>Customer has a budget</strong>
-                <span>Use this when they already know amount or duration.</span>
+                Budget
               </button>
-            </div>
+              <button
+                className={activeTab === "messages" ? styles.activeTab : ""}
+                onClick={() => setActiveTab("messages")}
+                type="button"
+              >
+                Copy text
+              </button>
+            </nav>
 
-            {mode === "recommend" ? (
-              <section className={styles.card}>
-                <div className={styles.cardTitle}>
-                  <span>Step 1</span>
-                  <h2>Choose the closest customer type</h2>
-                </div>
+            {activeTab === "recommendation" && (
+              <>
+                <section className={styles.infoCard}>
+                  <h2>For the ads</h2>
+                  <p>
+                    How much you spend on your ads depends on your budget and
+                    how long you want to run them for. If you're not sure how
+                    much to start with, you can choose from any of our
+                    recommended plans below:
+                  </p>
+                  <div className={styles.recommendationTextPlans}>
+                    <p>
+                      <strong>7 days – ₦60,000</strong>
+                      <span>1 video content</span>
+                    </p>
+                    <p>
+                      <strong>10 days – ₦150,000</strong>
+                      <span>Up to 3 video contents</span>
+                    </p>
+                    <p>
+                      <strong>15 days – ₦285,000</strong>
+                      <span>Up to 6 video contents</span>
+                    </p>
+                    <p>
+                      <strong>30 days – ₦450,000</strong>
+                      <span>Up to 10 video contents</span>
+                    </p>
+                  </div>
+                  <h3>Note:</h3>
+                  <ol>
+                    <li>
+                      These are only our recommended plans. You can also
+                      customize how much you want to spend on ads and how many
+                      days you want us to run them for.
+                    </li>
+                    <li>
+                      There's no best or worst amount to spend on ads. However,
+                      a higher ad budget gives us more room to reach more
+                      people and optimize your ads.
+                    </li>
+                  </ol>
+                  <p>Let us know which of the options you'd like to go for.</p>
+                </section>
 
-                <div className={styles.choiceList}>
-                  {customerTypes.map((type) => (
-                    <button
-                      className={customerType === type.label ? styles.activeChoice : ""}
-                      key={type.label}
-                      onClick={() => setCustomerType(type.label)}
-                      type="button"
-                    >
-                      <strong>{type.label}</strong>
-                      <span>{type.hint}</span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            ) : (
-              <section className={styles.card}>
-                <div className={styles.cardTitle}>
-                  <span>Step 1</span>
-                  <h2>Enter what the customer told you</h2>
-                </div>
+                <section className={styles.card}>
+                  <div className={styles.cardTitle}>
+                    <span>Plans</span>
+                    <h2>Select one</h2>
+                  </div>
 
-                <div className={styles.inputGrid}>
-                  <label>
-                    <span>Advertising budget</span>
-                    <input
-                      min="0"
-                      type="number"
-                      value={customInputs.advertisingBudget}
-                      onChange={(event) =>
-                        updateCustomInput("advertisingBudget", event.target.value)
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>Campaign days</span>
-                    <input
-                      min="1"
-                      type="number"
-                      value={customInputs.duration}
-                      onChange={(event) =>
-                        updateCustomInput("duration", event.target.value)
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>Videos customer wants</span>
-                    <input
-                      min="0"
-                      type="number"
-                      value={customInputs.requestedCreatives}
-                      onChange={(event) =>
-                        updateCustomInput("requestedCreatives", event.target.value)
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>Videos included</span>
-                    <input
-                      min="0"
-                      type="number"
-                      value={customInputs.creativeLimit}
-                      onChange={(event) =>
-                        updateCustomInput("creativeLimit", event.target.value)
-                      }
-                    />
-                  </label>
-                </div>
-
-                <label className={styles.switchRow}>
-                  <input
-                    checked={customInputs.needsScriptSupport}
-                    type="checkbox"
-                    onChange={(event) =>
-                      updateCustomInput("needsScriptSupport", event.target.checked)
-                    }
-                  />
-                  <span>Customer also needs Creative/Script Support</span>
-                </label>
-              </section>
+                  <div className={styles.planGrid}>
+                    {recommendedPlans.map((plan) => (
+                      <button
+                        className={
+                          selectedPlanKey === plan.key ? styles.activePlan : ""
+                        }
+                        key={plan.key}
+                        onClick={() => {
+                          setMode("recommend");
+                          setSelectedPlanKey(plan.key);
+                        }}
+                        type="button"
+                      >
+                        <strong>{formatNaira(plan.totalPrice)}</strong>
+                        <span>{plan.duration} days</span>
+                        <small>{creativeAllowanceText(plan.creativeLimit)}</small>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              </>
             )}
 
-            <details className={styles.overrideCard}>
-              <summary>Fine tune manually, only when needed</summary>
-              <div className={styles.inputGrid}>
-                <label>
-                  <span>Override ad budget</span>
-                  <input
-                    min="0"
-                    placeholder="Leave blank"
-                    type="number"
-                    value={customInputs.overrideAdvertisingBudget}
-                    onChange={(event) =>
-                      updateCustomInput("overrideAdvertisingBudget", event.target.value)
-                    }
-                  />
-                </label>
-                <label>
-                  <span>Override days</span>
-                  <input
-                    min="1"
-                    placeholder="Leave blank"
-                    type="number"
-                    value={customInputs.overrideDuration}
-                    onChange={(event) =>
-                      updateCustomInput("overrideDuration", event.target.value)
-                    }
-                  />
-                </label>
-                <label>
-                  <span>Override videos included</span>
-                  <input
-                    min="0"
-                    placeholder="Leave blank"
-                    type="number"
-                    value={customInputs.overrideCreativeLimit}
-                    onChange={(event) =>
-                      updateCustomInput("overrideCreativeLimit", event.target.value)
-                    }
-                  />
-                </label>
-                <label>
-                  <span>Override management fee</span>
-                  <input
-                    min="0"
-                    placeholder="Leave blank"
-                    type="number"
-                    value={customInputs.overrideManagementFee}
-                    onChange={(event) =>
-                      updateCustomInput("overrideManagementFee", event.target.value)
-                    }
-                  />
-                </label>
-              </div>
-            </details>
+            {activeTab === "budget" && (
+              <>
+                <section className={styles.card}>
+                  <div className={styles.cardTitle}>
+                    <span>Custom</span>
+                    <h2>Enter customer budget</h2>
+                  </div>
+
+                  <div className={styles.inputGrid}>
+                    <label>
+                      <span>Advertising budget</span>
+                      <input
+                        min="0"
+                        type="number"
+                        value={customInputs.advertisingBudget}
+                        onChange={(event) =>
+                          updateCustomInput(
+                            "advertisingBudget",
+                            event.target.value,
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Campaign days</span>
+                      <input
+                        min="1"
+                        type="number"
+                        value={customInputs.duration}
+                        onChange={(event) =>
+                          updateCustomInput("duration", event.target.value)
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Videos customer wants to use</span>
+                      <input
+                        min="0"
+                        type="number"
+                        value={customInputs.requestedCreatives}
+                        onChange={(event) =>
+                          updateCustomInput(
+                            "requestedCreatives",
+                            event.target.value,
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Videos allowed without extra fee</span>
+                      <input
+                        min="0"
+                        type="number"
+                        value={customInputs.creativeLimit}
+                        onChange={(event) =>
+                          updateCustomInput("creativeLimit", event.target.value)
+                        }
+                      />
+                    </label>
+                  </div>
+                </section>
+
+                <section className={styles.setupCard}>
+                  <label className={styles.switchRow}>
+                    <input
+                      checked={customInputs.needsScriptSupport}
+                      type="checkbox"
+                      onChange={(event) =>
+                        updateCustomInput(
+                          "needsScriptSupport",
+                          event.target.checked,
+                        )
+                      }
+                    />
+                    <span>
+                      Add Creative/Script Support (
+                      {formatNaira(adsPricingConfig.scriptSupportPrice)})
+                    </span>
+                  </label>
+                  <label className={styles.switchRow}>
+                    <input
+                      checked={needsSetup}
+                      disabled={!tikTokSetupFee}
+                      type="checkbox"
+                      onChange={(event) => setNeedsSetup(event.target.checked)}
+                    />
+                    <span>
+                      Add TikTok Ads Manager setup
+                      {tikTokSetupFee
+                        ? ` (${formatNaira(tikTokSetupFee)})`
+                        : " (add setup price in services config)"}
+                    </span>
+                  </label>
+                </section>
+
+                <details className={styles.overrideCard}>
+                  <summary>Manual override</summary>
+                  <div className={styles.inputGrid}>
+                    <label>
+                      <span>Override ad budget</span>
+                      <input
+                        min="0"
+                        placeholder="Leave blank"
+                        type="number"
+                        value={customInputs.overrideAdvertisingBudget}
+                        onChange={(event) =>
+                          updateCustomInput(
+                            "overrideAdvertisingBudget",
+                            event.target.value,
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Override days</span>
+                      <input
+                        min="1"
+                        placeholder="Leave blank"
+                        type="number"
+                        value={customInputs.overrideDuration}
+                        onChange={(event) =>
+                          updateCustomInput(
+                            "overrideDuration",
+                            event.target.value,
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Override videos allowed</span>
+                      <input
+                        min="0"
+                        placeholder="Leave blank"
+                        type="number"
+                        value={customInputs.overrideCreativeLimit}
+                        onChange={(event) =>
+                          updateCustomInput(
+                            "overrideCreativeLimit",
+                            event.target.value,
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Override service fee</span>
+                      <input
+                        min="0"
+                        placeholder="Leave blank"
+                        type="number"
+                        value={customInputs.overrideManagementFee}
+                        onChange={(event) =>
+                          updateCustomInput(
+                            "overrideManagementFee",
+                            event.target.value,
+                          )
+                        }
+                      />
+                    </label>
+                  </div>
+                </details>
+              </>
+            )}
+
+            {activeTab === "messages" && (
+              <section className={styles.messages}>
+                <MessagePanel
+                  buttonLabel="Copy simple message"
+                  message={simpleMessage}
+                  onCopy={() => copyMessage(simpleMessage, "Simple message")}
+                  title="Send this first"
+                />
+                <MessagePanel
+                  buttonLabel="Copy breakdown"
+                  message={breakdownMessage}
+                  onCopy={() => copyMessage(breakdownMessage, "Breakdown")}
+                  title="Breakdown if customer asks"
+                />
+              </section>
+            )}
           </div>
 
           <aside className={styles.resultPanel}>
-            <span className={styles.resultEyebrow}>Step 2</span>
+            <span className={styles.resultEyebrow}>Quote</span>
             <h2>Price to quote</h2>
             <strong className={styles.total}>{formatNaira(result.total)}</strong>
 
@@ -297,11 +415,11 @@ export default function AdsCalculator() {
 
             <div className={styles.breakdownList}>
               <p>
-                <span>Ad budget</span>
+                <span>Advertising budget</span>
                 <strong>{formatNaira(result.advertisingBudget)}</strong>
               </p>
               <p>
-                <span>Management</span>
+                <span>Our service fee</span>
                 <strong>{formatNaira(result.managementFee)}</strong>
               </p>
               <p>
@@ -310,7 +428,7 @@ export default function AdsCalculator() {
               </p>
               <p>
                 <span>Videos allowed</span>
-                <strong>{result.creativeLimit}</strong>
+                <strong>{creativeAllowanceText(result.creativeLimit)}</strong>
               </p>
               <p>
                 <span>Add-ons</span>
@@ -321,22 +439,13 @@ export default function AdsCalculator() {
                 <strong>{result.managementRatio.toFixed(1)}%</strong>
               </p>
             </div>
-          </aside>
-        </section>
 
-        <section className={styles.messages}>
-          <MessagePanel
-            buttonLabel="Copy message to send first"
-            message={simpleMessage}
-            onCopy={() => copyMessage(simpleMessage, "Simple message")}
-            title="Step 3: Send this first"
-          />
-          <MessagePanel
-            buttonLabel="Copy breakdown if asked"
-            message={breakdownMessage}
-            onCopy={() => copyMessage(breakdownMessage, "Breakdown")}
-            title="Breakdown"
-          />
+            <p className={styles.noteText}>
+              Video allowance means finished videos the client provides for us to
+              test. It does not include video production, editing or script writing
+              unless Creative/Script Support is selected.
+            </p>
+          </aside>
         </section>
       </section>
     </main>

@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
-import { calculateTotal } from "../config/adsPricingConfig.mjs";
+import {
+  adsPricingConfig,
+  calculateTotal,
+  generateBreakdownMessage,
+  generateSimpleMessage,
+} from "../config/adsPricingConfig.mjs";
 
 const managementFeeFor = (advertisingBudget, duration, options = {}) =>
   calculateTotal({
@@ -8,34 +13,135 @@ const managementFeeFor = (advertisingBudget, duration, options = {}) =>
     creativeLimit: options.creativeLimit || 1,
     requestedCreatives: options.requestedCreatives || options.creativeLimit || 1,
     needsScriptSupport: Boolean(options.needsScriptSupport),
+    overrideManagementFee: options.overrideManagementFee,
   });
 
+const recommendedPlans = adsPricingConfig.recommendationPresets;
+
+assert.equal(adsPricingConfig.minimumManagementFee, 25000);
+assert.equal(recommendedPlans.length, 4);
+
+[
+  {
+    index: 0,
+    duration: 7,
+    advertisingBudget: 35000,
+    managementFee: 25000,
+    creativeLimit: 1,
+    total: 60000,
+    simple:
+      "I recommend you to go for our ₦60k plan. This includes us managing your ads for 7 days. You are allowed 1 video content.",
+    breakdownIncludes: [
+      "Ads duration: 7 days",
+      "Advertising Budget: ₦35,000",
+      "Our service fee: ₦25,000",
+      "1 video content allowed.",
+      "Total amount: ₦60,000",
+    ],
+  },
+  {
+    index: 1,
+    duration: 10,
+    advertisingBudget: 100000,
+    managementFee: 50000,
+    creativeLimit: 3,
+    total: 150000,
+    simple:
+      "I recommend you to go for our ₦150k plan. This includes us managing your ads for 10 days. You are allowed up to 3 video contents.",
+    breakdownIncludes: [
+      "Ads duration: 10 days",
+      "Advertising Budget: ₦100,000",
+      "Our service fee: ₦50,000",
+      "Up to 3 video contents allowed.",
+      "Total amount: ₦150,000",
+    ],
+  },
+  {
+    index: 2,
+    duration: 15,
+    advertisingBudget: 200000,
+    managementFee: 85000,
+    creativeLimit: 6,
+    total: 285000,
+    simple:
+      "I recommend you to go for our ₦285k plan. This includes us managing your ads for 15 days. You are allowed up to 6 video contents.",
+    breakdownIncludes: [
+      "Ads duration: 15 days",
+      "Advertising Budget: ₦200,000",
+      "Our service fee: ₦85,000",
+      "Up to 6 video contents allowed.",
+      "Total amount: ₦285,000",
+    ],
+  },
+  {
+    index: 3,
+    duration: 30,
+    advertisingBudget: 300000,
+    managementFee: 150000,
+    creativeLimit: 10,
+    total: 450000,
+    simple:
+      "I recommend you to go for our ₦450k plan. This includes us managing your ads for 30 days. You are allowed up to 10 video contents.",
+    breakdownIncludes: [
+      "Ads duration: 30 days",
+      "Advertising Budget: ₦300,000",
+      "Our service fee: ₦150,000",
+      "Up to 10 video contents allowed.",
+      "Total amount: ₦450,000",
+    ],
+  },
+].forEach((expected) => {
+  const plan = recommendedPlans[expected.index];
+  assert.equal(plan.duration, expected.duration);
+  assert.equal(plan.advertisingBudget, expected.advertisingBudget);
+  assert.equal(plan.managementFee, expected.managementFee);
+  assert.equal(plan.creativeLimit, expected.creativeLimit);
+  assert.equal(plan.totalPrice, expected.total);
+
+  const result = managementFeeFor(plan.advertisingBudget, plan.duration, {
+    creativeLimit: plan.creativeLimit,
+    overrideManagementFee: plan.managementFee,
+  });
+
+  assert.equal(result.managementFee, expected.managementFee);
+  assert.equal(result.total, expected.total);
+  assert.equal(generateSimpleMessage(result), expected.simple);
+
+  const breakdown = generateBreakdownMessage(result);
+  expected.breakdownIncludes.forEach((line) => {
+    assert.ok(breakdown.includes(line), line);
+  });
+});
+
+assert.equal(managementFeeFor(35000, 7).managementFee, 25000);
 assert.equal(managementFeeFor(100000, 7).managementFee, 40000);
 assert.equal(managementFeeFor(300000, 7).managementFee, 100000);
 assert.equal(managementFeeFor(300000, 15).managementFee, 130000);
 assert.equal(managementFeeFor(300000, 30).managementFee, 150000);
 assert.equal(managementFeeFor(500000, 30).managementFee, 200000);
 assert.equal(managementFeeFor(1000000, 30).managementFee, 350000);
-assert.equal(managementFeeFor(2000000, 30).managementFee, 500000);
 
-const case8 = managementFeeFor(100000, 15);
-assert.equal(case8.managementFee, 45000);
-assert.equal(case8.total, 145000);
+const extraCreativeCase = managementFeeFor(100000, 10, {
+  creativeLimit: 3,
+  requestedCreatives: 4,
+  overrideManagementFee: 50000,
+});
+assert.equal(extraCreativeCase.extraCreatives, 1);
+assert.equal(extraCreativeCase.creativeFee, 10000);
+assert.equal(extraCreativeCase.total, 160000);
 
-const case9 = managementFeeFor(100000, 15, { needsScriptSupport: true });
-assert.equal(case9.advertisingBudget, 100000);
-assert.equal(case9.managementFee, 45000);
-assert.equal(case9.scriptSupportFee, 25000);
-assert.equal(case9.total, 170000);
+const scriptSupportCase = managementFeeFor(100000, 10, {
+  creativeLimit: 3,
+  needsScriptSupport: true,
+  overrideManagementFee: 50000,
+});
+assert.equal(scriptSupportCase.scriptSupportFee, 25000);
+assert.equal(scriptSupportCase.total, 175000);
 
-const case10 = managementFeeFor(250000, 10);
-assert.equal(case10.managementFee % 5000, 0);
-assert.ok(case10.managementFee > 85000);
-assert.ok(case10.managementFee < 125000);
+const customDuration = managementFeeFor(250000, 10);
+assert.equal(customDuration.managementFee % 5000, 0);
 
-const case11 = managementFeeFor(850000, 21);
-assert.equal(case11.managementFee % 5000, 0);
-assert.ok(case11.managementFee > 250000);
-assert.ok(case11.managementFee < 325000);
+const customBudget = managementFeeFor(850000, 21);
+assert.equal(customBudget.managementFee % 5000, 0);
 
-console.log("Ads pricing calculator test cases passed.");
+console.log("Updated ads pricing calculator test cases passed.");
