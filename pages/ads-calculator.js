@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { FiCheck, FiCopy } from "react-icons/fi";
 import {
   adsPricingConfig,
   calculateTotal,
@@ -23,13 +24,38 @@ const tikTokSetupOption = setupService?.options?.find(
 );
 const tikTokSetupFee = tikTokSetupOption?.price || 0;
 
+const recommendationGuideText = `For the ads
+
+How much you spend on your ads depends on your budget and how long you want to run them for. If you're not sure how much to start with, you can choose from any of our recommended plans below:
+
+7 days – ₦60,000
+1 video content
+
+10 days – ₦150,000
+Up to 3 video contents
+
+15 days – ₦285,000
+Up to 6 video contents
+
+30 days – ₦450,000
+Up to 10 video contents
+
+Note:
+
+1. These are only our recommended plans. You can also customize how much you want to spend on ads and how many days you want us to run them for.
+
+2. There's no best or worst amount to spend on ads. However, the more you spend, the more people will see your ads and the better your chances of getting better results.
+
+Let us know which of the options you'd like to go for.`;
+
 export default function AdsCalculator() {
   const [mode, setMode] = useState("recommend");
-  const [activeTab, setActiveTab] = useState("recommendation");
   const [selectedPlanKey, setSelectedPlanKey] = useState(
     recommendedPlans[1]?.key || recommendedPlans[0]?.key,
   );
   const [needsSetup, setNeedsSetup] = useState(false);
+  const [messageView, setMessageView] = useState("simple");
+  const [copiedKey, setCopiedKey] = useState("");
   const [customInputs, setCustomInputs] = useState({
     advertisingBudget: "100000",
     duration: "15",
@@ -58,7 +84,7 @@ export default function AdsCalculator() {
         duration: activePlan.duration,
         creativeLimit: activePlan.creativeLimit,
         requestedCreatives: activePlan.creativeLimit,
-        needsScriptSupport: false,
+        needsScriptSupport: customInputs.needsScriptSupport,
         setupFee,
         overrideManagementFee: activePlan.managementFee,
       });
@@ -75,6 +101,8 @@ export default function AdsCalculator() {
     () => generateBreakdownMessage(result),
     [result],
   );
+  const activeMessage =
+    messageView === "simple" ? simpleMessage : breakdownMessage;
 
   const validationMessage = useMemo(() => {
     if (result.advertisingBudget < adsPricingConfig.minimumAdBudget) {
@@ -90,237 +118,172 @@ export default function AdsCalculator() {
     setCustomInputs((current) => ({ ...current, [field]: value }));
   };
 
-  const copyMessage = async (message, label) => {
+  const copyMessage = async (message, key) => {
     await navigator.clipboard.writeText(message);
-    alert(`${label} copied`);
+    setCopiedKey(key);
+    window.setTimeout(() => {
+      setCopiedKey((current) => (current === key ? "" : current));
+    }, 1600);
   };
 
-  const openTab = (tab) => {
-    setActiveTab(tab);
-
-    if (tab === "recommendation") {
-      setMode("recommend");
-    }
-
-    if (tab === "budget") {
-      setMode("custom");
-    }
+  const selectMode = (nextMode) => {
+    setMode(nextMode);
   };
 
   return (
     <main className={styles.page}>
       <section className={styles.shell}>
-        <header className={styles.header}>
+        <header className={styles.topBar}>
           <div>
-            <span className={styles.badge}>Internal CSR Tool</span>
-            <h1>Ads price calculator</h1>
-            <p>Choose a recommended plan, or enter the customer’s exact budget.</p>
+            <span className={styles.eyebrow}>Internal CSR pricing tool</span>
+            <h1>TikTok Ads Pricing Calculator</h1>
           </div>
-          <div className={styles.headerPrice}>
-            <span>Total customer pays</span>
+          <div className={styles.topTotal}>
+            <span>Total</span>
             <strong>{formatCompactNaira(result.total)}</strong>
           </div>
         </header>
 
-        <section className={styles.workspace}>
-          <div className={styles.controlPanel}>
-            <nav className={styles.tabBar} aria-label="Calculator sections">
-              <button
-                className={
-                  activeTab === "recommendation" ? styles.activeTab : ""
-                }
-                onClick={() => openTab("recommendation")}
-                type="button"
-              >
-                Recommendation
-              </button>
-              <button
-                className={activeTab === "budget" ? styles.activeTab : ""}
-                onClick={() => openTab("budget")}
-                type="button"
-              >
-                Budget
-              </button>
-              <button
-                className={activeTab === "messages" ? styles.activeTab : ""}
-                onClick={() => setActiveTab("messages")}
-                type="button"
-              >
-                Copy text
-              </button>
-            </nav>
+        <section className={styles.appSurface}>
+          <div className={styles.leftPane}>
+            <section className={styles.decisionPanel}>
+              <p className={styles.stepLabel}>
+                1. What does the customer need?
+              </p>
+              <div className={styles.pathGrid}>
+                <button
+                  className={mode === "recommend" ? styles.activePath : ""}
+                  onClick={() => selectMode("recommend")}
+                  type="button"
+                >
+                  <span>Recommended options</span>
+                  <strong>
+                    Customer is not sure what budget to start with
+                  </strong>
+                </button>
+                <button
+                  className={mode === "custom" ? styles.activePath : ""}
+                  onClick={() => selectMode("custom")}
+                  type="button"
+                >
+                  <span>Custom plan</span>
+                  <strong>Customer already has a budget or duration</strong>
+                </button>
+              </div>
+            </section>
 
-            {activeTab === "recommendation" && (
-              <>
-                <section className={styles.infoCard}>
-                  <h2>For the ads</h2>
+            {mode === "recommend" ? (
+              <section className={styles.recommendArea}>
+                <div className={styles.sectionHeader}>
+                  <p className={styles.stepLabel}>2. Select a recommendation</p>
+                  <span>{activePlan.duration} days selected</span>
+                </div>
+
+                <div className={styles.planList}>
+                  {recommendedPlans.map((plan, index) => (
+                    <button
+                      className={
+                        selectedPlanKey === plan.key ? styles.activePlan : ""
+                      }
+                      key={plan.key}
+                      onClick={() => setSelectedPlanKey(plan.key)}
+                      type="button"
+                    >
+                      <small>{String(index + 1).padStart(2, "0")}</small>
+                      <strong>{formatNaira(plan.totalPrice)}</strong>
+                      <span>{plan.duration} days</span>
+                      <em>{creativeAllowanceText(plan.creativeLimit)}</em>
+                    </button>
+                  ))}
+                </div>
+
+                <div className={styles.selectedBreakdown}>
                   <p>
-                    How much you spend on your ads depends on your budget and
-                    how long you want to run them for. If you're not sure how
-                    much to start with, you can choose from any of our
-                    recommended plans below:
+                    <span>Advertising budget</span>
+                    <strong>{formatNaira(activePlan.advertisingBudget)}</strong>
                   </p>
-                  <div className={styles.recommendationTextPlans}>
-                    <p>
-                      <strong>7 days – ₦60,000</strong>
-                      <span>1 video content</span>
-                    </p>
-                    <p>
-                      <strong>10 days – ₦150,000</strong>
-                      <span>Up to 3 video contents</span>
-                    </p>
-                    <p>
-                      <strong>15 days – ₦285,000</strong>
-                      <span>Up to 6 video contents</span>
-                    </p>
-                    <p>
-                      <strong>30 days – ₦450,000</strong>
-                      <span>Up to 10 video contents</span>
-                    </p>
-                  </div>
-                  <h3>Note:</h3>
-                  <ol>
-                    <li>
-                      These are only our recommended plans. You can also
-                      customize how much you want to spend on ads and how many
-                      days you want us to run them for.
-                    </li>
-                    <li>
-                      There's no best or worst amount to spend on ads. However,
-                      a higher ad budget gives us more room to reach more
-                      people and optimize your ads.
-                    </li>
-                  </ol>
-                  <p>Let us know which of the options you'd like to go for.</p>
-                </section>
+                  <p>
+                    <span>Our service fee</span>
+                    <strong>{formatNaira(activePlan.managementFee)}</strong>
+                  </p>
+                  <p>
+                    <span>Creative allowance</span>
+                    <strong>
+                      {creativeAllowanceText(activePlan.creativeLimit)}
+                    </strong>
+                  </p>
+                </div>
+              </section>
+            ) : (
+              <section className={styles.customArea}>
+                <div className={styles.sectionHeader}>
+                  <p className={styles.stepLabel}>2. Enter campaign details</p>
+                  <span>Updates instantly</span>
+                </div>
 
-                <section className={styles.card}>
-                  <div className={styles.cardTitle}>
-                    <span>Plans</span>
-                    <h2>Select one</h2>
-                  </div>
-
-                  <div className={styles.planGrid}>
-                    {recommendedPlans.map((plan) => (
-                      <button
-                        className={
-                          selectedPlanKey === plan.key ? styles.activePlan : ""
-                        }
-                        key={plan.key}
-                        onClick={() => {
-                          setMode("recommend");
-                          setSelectedPlanKey(plan.key);
-                        }}
-                        type="button"
-                      >
-                        <strong>{formatNaira(plan.totalPrice)}</strong>
-                        <span>{plan.duration} days</span>
-                        <small>{creativeAllowanceText(plan.creativeLimit)}</small>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              </>
-            )}
-
-            {activeTab === "budget" && (
-              <>
-                <section className={styles.card}>
-                  <div className={styles.cardTitle}>
-                    <span>Custom</span>
-                    <h2>Enter customer budget</h2>
-                  </div>
-
-                  <div className={styles.inputGrid}>
-                    <label>
-                      <span>Advertising budget</span>
-                      <input
-                        min="0"
-                        type="number"
-                        value={customInputs.advertisingBudget}
-                        onChange={(event) =>
-                          updateCustomInput(
-                            "advertisingBudget",
-                            event.target.value,
-                          )
-                        }
-                      />
-                    </label>
-                    <label>
-                      <span>Campaign days</span>
-                      <input
-                        min="1"
-                        type="number"
-                        value={customInputs.duration}
-                        onChange={(event) =>
-                          updateCustomInput("duration", event.target.value)
-                        }
-                      />
-                    </label>
-                    <label>
-                      <span>Videos customer wants to use</span>
-                      <input
-                        min="0"
-                        type="number"
-                        value={customInputs.requestedCreatives}
-                        onChange={(event) =>
-                          updateCustomInput(
-                            "requestedCreatives",
-                            event.target.value,
-                          )
-                        }
-                      />
-                    </label>
-                    <label>
-                      <span>Videos allowed without extra fee</span>
-                      <input
-                        min="0"
-                        type="number"
-                        value={customInputs.creativeLimit}
-                        onChange={(event) =>
-                          updateCustomInput("creativeLimit", event.target.value)
-                        }
-                      />
-                    </label>
-                  </div>
-                </section>
-
-                <section className={styles.setupCard}>
-                  <label className={styles.switchRow}>
+                <div className={styles.primaryInputs}>
+                  <label>
+                    <span>Advertising budget</span>
                     <input
-                      checked={customInputs.needsScriptSupport}
-                      type="checkbox"
+                      min="0"
+                      type="number"
+                      value={customInputs.advertisingBudget}
                       onChange={(event) =>
                         updateCustomInput(
-                          "needsScriptSupport",
-                          event.target.checked,
+                          "advertisingBudget",
+                          event.target.value,
                         )
                       }
                     />
-                    <span>
-                      Add Creative/Script Support (
-                      {formatNaira(adsPricingConfig.scriptSupportPrice)})
-                    </span>
                   </label>
-                  <label className={styles.switchRow}>
+                  <label>
+                    <span>Number of days</span>
                     <input
-                      checked={needsSetup}
-                      disabled={!tikTokSetupFee}
-                      type="checkbox"
-                      onChange={(event) => setNeedsSetup(event.target.checked)}
+                      min="1"
+                      type="number"
+                      value={customInputs.duration}
+                      onChange={(event) =>
+                        updateCustomInput("duration", event.target.value)
+                      }
                     />
-                    <span>
-                      Add TikTok Ads Manager setup
-                      {tikTokSetupFee
-                        ? ` (${formatNaira(tikTokSetupFee)})`
-                        : " (add setup price in services config)"}
-                    </span>
                   </label>
-                </section>
+                </div>
 
-                <details className={styles.overrideCard}>
-                  <summary>Manual override</summary>
-                  <div className={styles.inputGrid}>
+                <div className={styles.secondaryInputs}>
+                  <label>
+                    <span>Videos customer wants to use</span>
+                    <input
+                      min="0"
+                      type="number"
+                      value={customInputs.requestedCreatives}
+                      onChange={(event) =>
+                        updateCustomInput(
+                          "requestedCreatives",
+                          event.target.value,
+                        )
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span>Videos allowed without extra fee</span>
+                    <input
+                      min="0"
+                      type="number"
+                      value={customInputs.creativeLimit}
+                      onChange={(event) =>
+                        updateCustomInput("creativeLimit", event.target.value)
+                      }
+                    />
+                  </label>
+                </div>
+
+                {validationMessage && (
+                  <p className={styles.warningText}>{validationMessage}</p>
+                )}
+
+                <details className={styles.advancedPanel}>
+                  <summary>Adjust manually</summary>
+                  <div className={styles.secondaryInputs}>
                     <label>
                       <span>Override ad budget</span>
                       <input
@@ -383,85 +346,147 @@ export default function AdsCalculator() {
                     </label>
                   </div>
                 </details>
-              </>
-            )}
-
-            {activeTab === "messages" && (
-              <section className={styles.messages}>
-                <MessagePanel
-                  buttonLabel="Copy simple message"
-                  message={simpleMessage}
-                  onCopy={() => copyMessage(simpleMessage, "Simple message")}
-                  title="Send this first"
-                />
-                <MessagePanel
-                  buttonLabel="Copy breakdown"
-                  message={breakdownMessage}
-                  onCopy={() => copyMessage(breakdownMessage, "Breakdown")}
-                  title="Breakdown if customer asks"
-                />
               </section>
             )}
+
+            <section className={styles.addOnsPanel}>
+              <div>
+                <p className={styles.stepLabel}>3. Add-ons</p>
+                <span>Only select what applies</span>
+              </div>
+              <div className={styles.addOnRows}>
+                <label>
+                  <input
+                    checked={customInputs.needsScriptSupport}
+                    type="checkbox"
+                    onChange={(event) =>
+                      updateCustomInput(
+                        "needsScriptSupport",
+                        event.target.checked,
+                      )
+                    }
+                  />
+                  <span>CONTENT SCRIPT</span>
+                  <strong>
+                    {formatNaira(adsPricingConfig.scriptSupportPrice)}
+                  </strong>
+                </label>
+                <label>
+                  <input
+                    checked={needsSetup}
+                    disabled={!tikTokSetupFee}
+                    type="checkbox"
+                    onChange={(event) => setNeedsSetup(event.target.checked)}
+                  />
+                  <span>TikTok Ads Manager setup</span>
+                  <strong>
+                    {tikTokSetupFee ? formatNaira(tikTokSetupFee) : "Not set"}
+                  </strong>
+                </label>
+              </div>
+            </section>
           </div>
 
-          <aside className={styles.resultPanel}>
-            <span className={styles.resultEyebrow}>Quote</span>
-            <h2>Price to quote</h2>
-            <strong className={styles.total}>{formatNaira(result.total)}</strong>
+          <aside className={styles.rightPane}>
+            <section className={styles.resultPanel}>
+              <span className={styles.eyebrow}>Price to quote</span>
+              <strong>{formatNaira(result.total)}</strong>
 
-            {validationMessage && (
-              <p className={styles.warningText}>{validationMessage}</p>
-            )}
+              <div className={styles.breakdownList}>
+                <p>
+                  <span>Ads budget</span>
+                  <b>{formatNaira(result.advertisingBudget)}</b>
+                </p>
+                <p>
+                  <span>Our service fee</span>
+                  <b>{formatNaira(result.managementFee)}</b>
+                </p>
+                <p>
+                  <span>Add-ons</span>
+                  <b>{formatNaira(result.addOnsTotal)}</b>
+                </p>
+                <p>
+                  <span>Duration</span>
+                  <b>{result.duration} days</b>
+                </p>
+                <p>
+                  <span>Videos allowed</span>
+                  <b>{creativeAllowanceText(result.creativeLimit)}</b>
+                </p>
+                <p>
+                  <span>Internal ratio</span>
+                  <b>{result.managementRatio.toFixed(1)}%</b>
+                </p>
+              </div>
+            </section>
 
-            <div className={styles.breakdownList}>
-              <p>
-                <span>Advertising budget</span>
-                <strong>{formatNaira(result.advertisingBudget)}</strong>
-              </p>
-              <p>
-                <span>Our service fee</span>
-                <strong>{formatNaira(result.managementFee)}</strong>
-              </p>
-              <p>
-                <span>Duration</span>
-                <strong>{result.duration} days</strong>
-              </p>
-              <p>
-                <span>Videos allowed</span>
-                <strong>{creativeAllowanceText(result.creativeLimit)}</strong>
-              </p>
-              <p>
-                <span>Add-ons</span>
-                <strong>{formatNaira(result.addOnsTotal)}</strong>
-              </p>
-              <p>
-                <span>Internal ratio</span>
-                <strong>{result.managementRatio.toFixed(1)}%</strong>
-              </p>
-            </div>
+            <section className={styles.messagePanel}>
+              <div className={styles.messageHead}>
+                <div>
+                  <span className={styles.eyebrow}>Customer message</span>
+                  <h2>Copy and send</h2>
+                </div>
+                <div className={styles.messageSwitch}>
+                  <button
+                    className={
+                      messageView === "simple" ? styles.activeMessage : ""
+                    }
+                    onClick={() => setMessageView("simple")}
+                    type="button"
+                  >
+                    Simple
+                  </button>
+                  <button
+                    className={
+                      messageView === "breakdown" ? styles.activeMessage : ""
+                    }
+                    onClick={() => setMessageView("breakdown")}
+                    type="button"
+                  >
+                    Breakdown
+                  </button>
+                </div>
+              </div>
 
-            <p className={styles.noteText}>
-              Video allowance means finished videos the client provides for us to
-              test. It does not include video production, editing or script writing
-              unless Creative/Script Support is selected.
-            </p>
+              <CopyBox
+                copied={copiedKey === messageView}
+                label={`Copy ${messageView} message`}
+                onCopy={() => copyMessage(activeMessage, messageView)}
+                text={activeMessage}
+              />
+            </section>
           </aside>
+        </section>
+
+        <section className={styles.guidePanel}>
+          <div>
+            <span className={styles.eyebrow}>Customer guide</span>
+            <h2>Recommended plan explanation</h2>
+          </div>
+          <CopyBox
+            copied={copiedKey === "guide"}
+            label="Copy recommendation guide"
+            onCopy={() => copyMessage(recommendationGuideText, "guide")}
+            text={recommendationGuideText}
+          />
         </section>
       </section>
     </main>
   );
 }
 
-function MessagePanel({ buttonLabel, message, onCopy, title }) {
+function CopyBox({ copied, label, onCopy, text }) {
   return (
-    <article className={styles.messageCard}>
-      <div>
-        <h2>{title}</h2>
-        <button onClick={onCopy} type="button">
-          {buttonLabel}
-        </button>
-      </div>
-      <pre>{message}</pre>
-    </article>
+    <div className={styles.copyBox}>
+      <button aria-label={label} onClick={onCopy} type="button">
+        {copied ? (
+          <FiCheck aria-hidden="true" />
+        ) : (
+          <FiCopy aria-hidden="true" />
+        )}
+        <span>{copied ? "Copied" : "Copy"}</span>
+      </button>
+      <pre>{text}</pre>
+    </div>
   );
 }

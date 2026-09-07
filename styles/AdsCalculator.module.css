@@ -1,460 +1,528 @@
 .page {
   min-height: 100vh;
-  padding: 18px;
+  padding: 24px;
   background:
-    radial-gradient(circle at 20% 0%, rgba(45, 212, 191, 0.2), transparent 30%),
-    radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.18), transparent 28%),
-    #f5f7fb;
+    linear-gradient(90deg, #10162f 0 82px, transparent 82px),
+    radial-gradient(circle at 18% 0%, rgba(123, 92, 255, 0.18), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(70, 211, 205, 0.16), transparent 28%),
+    #eef2ff;
   color: #111827;
 }
 
 .shell {
-  width: min(1040px, 100%);
+  width: min(1120px, calc(100% - 88px));
   margin: 0 auto;
 }
 
-.header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 14px;
+.topBar {
+  display: flex;
   align-items: end;
-  margin-bottom: 12px;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
 }
 
-.badge {
-  display: inline-flex;
-  width: fit-content;
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: #111827;
-  color: #ffffff;
-  font-size: 10px;
+.eyebrow {
+  color: #6568e8;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.header h1 {
-  margin-top: 8px;
+.topBar h1 {
+  margin-top: 6px;
+  font-size: clamp(26px, 4vw, 42px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.topTotal {
+  min-width: 154px;
+  padding: 12px 14px;
+  border: 1px solid rgba(29, 38, 93, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 44px rgba(22, 30, 70, 0.12);
+}
+
+.topTotal span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.topTotal strong {
+  display: block;
+  margin-top: 4px;
   font-size: 28px;
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
-.header p {
-  max-width: 470px;
-  margin-top: 6px;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.headerPrice {
-  min-width: 158px;
-  padding: 12px;
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-  backdrop-filter: blur(18px);
-}
-
-.headerPrice span,
-.resultEyebrow,
-.cardTitle span {
-  color: #6366f1;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.headerPrice strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 25px;
-  line-height: 1;
-}
-
-.workspace {
+.appSurface {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 285px;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 14px;
   align-items: start;
 }
 
-.controlPanel,
+.leftPane,
+.rightPane {
+  display: grid;
+  gap: 12px;
+}
+
+.decisionPanel,
+.recommendArea,
+.customArea,
+.addOnsPanel,
 .resultPanel,
-.messageCard,
-.card,
-.infoCard,
-.setupCard,
-.overrideCard {
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+.messagePanel,
+.guidePanel {
+  border: 1px solid rgba(29, 38, 93, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 42px rgba(22, 30, 70, 0.1);
 }
 
-.controlPanel {
-  display: grid;
-  gap: 10px;
-  padding: 10px;
+.decisionPanel,
+.recommendArea,
+.customArea,
+.addOnsPanel,
+.resultPanel,
+.messagePanel,
+.guidePanel {
+  padding: 16px;
 }
 
-.tabBar {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  padding: 5px;
-  border-radius: 8px;
-  background: #e8edf5;
-}
-
-.tabBar button,
-.messageCard button,
-.planGrid button {
-  border: 0;
-  border-radius: 7px;
-  cursor: pointer;
-  font: inherit;
-}
-
-.tabBar button {
-  padding: 9px 8px;
-  background: transparent;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.tabBar .activeTab {
-  background: #111827;
-  color: #ffffff;
-  box-shadow: 0 10px 22px rgba(17, 24, 39, 0.18);
-}
-
-.card,
-.infoCard,
-.setupCard,
-.overrideCard {
-  padding: 12px;
-  box-shadow: none;
-}
-
-.infoCard {
-  display: grid;
-  gap: 8px;
-  background: #ffffff;
-  color: #475569;
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.infoCard h2,
-.infoCard h3 {
-  color: #111827;
-  letter-spacing: -0.02em;
-}
-
-.infoCard h2 {
-  font-size: 17px;
-}
-
-.infoCard h3 {
-  margin-top: 2px;
-  font-size: 13px;
-}
-
-.recommendationTextPlans {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
-}
-
-.recommendationTextPlans p {
-  display: grid;
-  gap: 1px;
-  padding: 8px;
-  border: 1px solid #e5e7eb;
-  border-radius: 7px;
-  background: #f8fafc;
-}
-
-.recommendationTextPlans strong {
+.stepLabel {
   color: #111827;
   font-size: 13px;
-}
-
-.recommendationTextPlans span {
-  color: #64748b;
-  font-size: 11px;
   font-weight: 800;
 }
 
-.infoCard ol {
+.pathGrid {
   display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 17px;
-}
-
-.cardTitle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
-.cardTitle h2,
-.resultPanel h2,
-.messageCard h2 {
-  font-size: 16px;
-  letter-spacing: -0.03em;
-}
-
-.planGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 7px;
-}
-
-.planGrid button {
-  min-height: 92px;
-  padding: 10px;
-  border: 1px solid #e5e7eb;
-  background: #f8fafc;
+.pathGrid button {
+  min-height: 86px;
+  padding: 14px;
+  border: 1px solid #e3e7f5;
+  border-radius: 14px;
+  background: #f8faff;
   color: #111827;
+  cursor: pointer;
   text-align: left;
   transition:
     border-color 160ms ease,
+    background 160ms ease,
     box-shadow 160ms ease,
     transform 160ms ease;
 }
 
-.planGrid button:hover {
+.pathGrid button:hover {
   transform: translateY(-1px);
 }
 
-.planGrid button strong {
+.pathGrid button span {
   display: block;
-  font-size: 18px;
-  line-height: 1;
+  color: #6568e8;
+  font-size: 13px;
+  font-weight: 800;
 }
 
-.planGrid button span,
-.planGrid button small {
+.pathGrid button strong {
   display: block;
   margin-top: 7px;
-}
-
-.planGrid button span {
-  color: #111827;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.planGrid button small {
-  color: #64748b;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   line-height: 1.35;
 }
 
-.planGrid .activePlan {
-  border-color: #6366f1;
-  background: linear-gradient(135deg, #eef2ff, #ffffff);
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.16);
+.pathGrid .activePath {
+  border-color: #6568e8;
+  background: #f1f3ff;
+  box-shadow: inset 0 0 0 1px rgba(101, 104, 232, 0.18);
 }
 
-.inputGrid {
+.sectionHeader,
+.addOnsPanel > div:first-child,
+.messageHead,
+.guidePanel > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.sectionHeader span,
+.addOnsPanel > div:first-child span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.planList {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.planList button {
+  min-height: 124px;
+  padding: 13px;
+  border: 1px solid #e3e7f5;
+  border-radius: 16px;
+  background: #fbfcff;
+  color: #111827;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.planList button:hover {
+  transform: translateY(-2px);
+}
+
+.planList small {
+  display: inline-grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #6568e8;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.planList strong {
+  display: block;
+  margin-top: 14px;
+  font-size: clamp(18px, 2.1vw, 24px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.planList span {
+  display: block;
+  margin-top: 8px;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.planList em {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.planList .activePlan {
+  border-color: #6568e8;
+  background: linear-gradient(180deg, #f4f6ff, #ffffff);
+  box-shadow: 0 16px 28px rgba(101, 104, 232, 0.14);
+}
+
+.selectedBreakdown {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1fb;
+}
+
+.selectedBreakdown p {
+  display: grid;
+  gap: 3px;
+}
+
+.selectedBreakdown span,
+.breakdownList span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.selectedBreakdown strong,
+.breakdownList b {
+  color: #111827;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.primaryInputs,
+.secondaryInputs {
+  display: grid;
+  gap: 10px;
+}
+
+.primaryInputs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.secondaryInputs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 10px;
+}
+
+.primaryInputs label,
+.secondaryInputs label {
+  display: grid;
+  gap: 7px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.primaryInputs input,
+.secondaryInputs input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #dce2f2;
+  border-radius: 13px;
+  background: #fbfcff;
+  color: #111827;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.primaryInputs input {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.primaryInputs input:focus,
+.secondaryInputs input:focus {
+  border-color: #6568e8;
+  box-shadow: 0 0 0 4px rgba(101, 104, 232, 0.12);
+}
+
+.warningText {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 13px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.advancedPanel {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1fb;
+}
+
+.advancedPanel summary {
+  cursor: pointer;
+  color: #6568e8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.addOnsPanel {
+  display: grid;
+}
+
+.addOnRows {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-.inputGrid label {
+.addOnRows label {
   display: grid;
-  gap: 5px;
-  color: #334155;
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.inputGrid input {
-  width: 100%;
-  min-width: 0;
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #111827;
-  font: inherit;
-  font-size: 13px;
-  outline: none;
-}
-
-.inputGrid input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
-}
-
-.switchRow {
-  display: flex;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
   align-items: center;
-  gap: 8px;
-  padding: 9px 10px;
-  border-radius: 7px;
-  background: #f8fafc;
-  color: #334155;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.setupCard {
-  display: grid;
-  gap: 8px;
-  background: #ffffff;
-}
-
-.switchRow input {
-  width: 15px;
-  height: 15px;
-  accent-color: #6366f1;
-}
-
-.overrideCard summary {
-  cursor: pointer;
+  padding: 11px 12px;
+  border: 1px solid #e3e7f5;
+  border-radius: 14px;
+  background: #fbfcff;
   color: #111827;
-  font-size: 12px;
-  font-weight: 900;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
 }
 
-.overrideCard .inputGrid {
-  margin-top: 10px;
+.addOnRows input {
+  width: 16px;
+  height: 16px;
+  accent-color: #6568e8;
+}
+
+.addOnRows strong {
+  color: #6568e8;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .resultPanel {
   position: sticky;
-  top: 14px;
-  padding: 14px;
+  top: 18px;
+  background:
+    linear-gradient(180deg, #ffffff, #f7f8ff),
+    #ffffff;
 }
 
-.total {
+.resultPanel > strong {
   display: block;
-  margin: 6px 0 10px;
-  color: #111827;
-  font-size: 34px;
-  line-height: 0.98;
-  letter-spacing: -0.05em;
-}
-
-.warningText {
-  padding: 9px;
-  border-radius: 7px;
-  background: #fff7ed;
-  color: #9a3412;
-  font-size: 11px;
-  font-weight: 800;
+  margin-top: 8px;
+  font-size: clamp(36px, 4.4vw, 52px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.06em;
 }
 
 .breakdownList {
   display: grid;
-  gap: 3px;
-  margin-top: 10px;
+  gap: 2px;
+  margin-top: 14px;
 }
 
 .breakdownList p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid #edf2f7;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid #edf1fb;
 }
 
 .breakdownList p:last-child {
   border-bottom: 0;
 }
 
-.breakdownList span {
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.breakdownList strong {
-  font-size: 12px;
+.breakdownList b {
   text-align: right;
 }
 
-.noteText {
-  margin-top: 10px;
-  padding: 9px;
-  border-radius: 7px;
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 11px;
+.messagePanel h2,
+.guidePanel h2 {
+  margin-top: 4px;
+  font-size: 17px;
   font-weight: 700;
-  line-height: 1.45;
+  letter-spacing: -0.03em;
 }
 
-.messages {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.messageCard {
-  padding: 12px;
-  box-shadow: none;
-}
-
-.messageCard > div {
+.messageSwitch {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #eef2ff;
 }
 
-.messageCard button {
-  padding: 9px 10px;
-  background: #111827;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 900;
+.messageSwitch button {
+  min-width: 78px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.messageCard pre {
-  max-height: 260px;
-  min-height: 170px;
-  margin: 0;
-  padding: 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 7px;
-  background: #f8fafc;
+.messageSwitch .activeMessage {
+  background: #ffffff;
   color: #111827;
-  font: 700 11px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  box-shadow: 0 8px 18px rgba(22, 30, 70, 0.12);
+}
+
+.copyBox {
+  position: relative;
+}
+
+.copyBox button {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 11px;
+  background: #10162f;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(16, 22, 47, 0.2);
+}
+
+.copyBox button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.copyBox pre {
+  height: 132px;
+  margin: 0;
+  padding: 14px 100px 14px 14px;
+  border: 1px solid #e3e7f5;
+  border-radius: 15px;
+  background:
+    linear-gradient(180deg, #fbfcff, #f5f7ff),
+    #f8fafc;
+  color: #111827;
+  font: 700 13px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   overflow: auto;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
-@media (max-width: 880px) {
+.guidePanel {
+  margin-top: 14px;
+}
+
+@media (max-width: 980px) {
   .page {
-    padding: 12px;
+    padding: 16px;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(123, 92, 255, 0.18), transparent 30%),
+      radial-gradient(circle at 90% 10%, rgba(70, 211, 205, 0.16), transparent 28%),
+      #eef2ff;
   }
 
-  .header,
-  .workspace {
+  .shell {
+    width: 100%;
+  }
+
+  .appSurface {
     grid-template-columns: 1fr;
   }
 
-  .headerPrice {
-    width: 100%;
+  .rightPane {
+    grid-template-columns: 0.85fr 1.15fr;
   }
 
   .resultPanel {
@@ -462,24 +530,67 @@
   }
 }
 
-@media (max-width: 620px) {
-  .header h1 {
-    font-size: 24px;
-  }
-
-  .recommendationTextPlans,
-  .planGrid,
-  .inputGrid,
-  .messages {
-    grid-template-columns: 1fr;
-  }
-
-  .tabBar {
-    grid-template-columns: 1fr;
-  }
-
-  .messageCard > div {
+@media (max-width: 760px) {
+  .topBar,
+  .sectionHeader,
+  .addOnsPanel > div:first-child,
+  .messageHead,
+  .guidePanel > div:first-child {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .topTotal {
+    width: 100%;
+  }
+
+  .pathGrid,
+  .planList,
+  .selectedBreakdown,
+  .primaryInputs,
+  .secondaryInputs,
+  .addOnRows,
+  .rightPane {
+    grid-template-columns: 1fr;
+  }
+
+  .planList button {
+    min-height: auto;
+  }
+
+  .messageSwitch {
+    width: 100%;
+  }
+
+  .messageSwitch button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 10px;
+  }
+
+  .decisionPanel,
+  .recommendArea,
+  .customArea,
+  .addOnsPanel,
+  .resultPanel,
+  .messagePanel,
+  .guidePanel {
+    padding: 13px;
+    border-radius: 15px;
+  }
+
+  .copyBox pre {
+    height: 118px;
+    padding-right: 14px;
+    padding-top: 52px;
+  }
+
+  .copyBox button {
+    left: 9px;
+    right: auto;
   }
 }

@@ -136,7 +136,8 @@ export const interpolateBudgetFee = (budget, anchors) => {
     const upper = sortedAnchors[index + 1];
 
     if (adBudget >= lower.budget && adBudget <= upper.budget) {
-      const progress = (adBudget - lower.budget) / (upper.budget - lower.budget);
+      const progress =
+        (adBudget - lower.budget) / (upper.budget - lower.budget);
       return lower.fee + progress * (upper.fee - lower.fee);
     }
   }
@@ -148,7 +149,11 @@ export const interpolateBudgetFee = (budget, anchors) => {
   return last.fee + (adBudget - last.budget) * slope;
 };
 
-export const interpolateDurationFee = (budget, duration, config = adsPricingConfig) => {
+export const interpolateDurationFee = (
+  budget,
+  duration,
+  config = adsPricingConfig,
+) => {
   const campaignDays = clampNumber(duration);
   const durationAnchors = Object.keys(config.managementFeeAnchors)
     .map(Number)
@@ -182,7 +187,11 @@ export const interpolateDurationFee = (budget, duration, config = adsPricingConf
   return lastFee + (campaignDays - lastDays) * dailySlope;
 };
 
-export const getManagementFee = (budget, duration, config = adsPricingConfig) => {
+export const getManagementFee = (
+  budget,
+  duration,
+  config = adsPricingConfig,
+) => {
   const fee = interpolateDurationFee(budget, duration, config);
   const roundedFee = roundToIncrement(fee, config.roundingIncrement);
 
@@ -196,7 +205,8 @@ export const calculateCreativeFee = (
 ) => {
   const extraCreatives = Math.max(
     0,
-    Math.ceil(clampNumber(requestedCreatives)) - Math.ceil(clampNumber(includedCreatives)),
+    Math.ceil(clampNumber(requestedCreatives)) -
+      Math.ceil(clampNumber(includedCreatives)),
   );
 
   if (extraCreatives === 0) {
@@ -235,7 +245,10 @@ export const calculateTotal = ({
   const finalAdvertisingBudget = clampNumber(
     overrideAdvertisingBudget || advertisingBudget,
   );
-  const finalDuration = Math.max(1, clampNumber(overrideDuration || duration, 1));
+  const finalDuration = Math.max(
+    1,
+    clampNumber(overrideDuration || duration, 1),
+  );
   const finalCreativeLimit = Math.max(
     0,
     Math.ceil(clampNumber(overrideCreativeLimit || creativeLimit)),
@@ -289,11 +302,13 @@ const sentenceCase = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export const generateSimpleMessage = (result) => {
   const setupText =
-    result.setupServiceFee > 0 ? " This also includes TikTok Ads Manager setup." : "";
+    result.setupServiceFee > 0
+      ? " This also includes TikTok Ads Manager setup."
+      : "";
 
-  return `I recommend you to go for our ${formatCompactNaira(
+  return `This will cost you ${formatCompactNaira(
     result.total,
-  )} plan. This includes us managing your ads for ${
+  )} . This includes us managing your ads for ${
     result.duration
   } days. You are allowed ${creativeAllowanceText(result.creativeLimit)}.${setupText}`;
 };
@@ -315,11 +330,13 @@ export const generateBreakdownMessage = (result) => {
   }
 
   if (result.scriptSupportFee > 0) {
-    lines.push(`Creative/Script Support: ${formatNaira(result.scriptSupportFee)}`);
+    lines.push(`CONTENT SCRIPT: ${formatNaira(result.scriptSupportFee)}`);
   }
 
   if (result.setupServiceFee > 0) {
-    lines.push(`TikTok Ads Manager Setup: ${formatNaira(result.setupServiceFee)}`);
+    lines.push(
+      `TikTok Ads Manager Setup: ${formatNaira(result.setupServiceFee)}`,
+    );
   }
 
   lines.push(
