@@ -20,6 +20,19 @@ const readFileAsDataUrl = (file) =>
     reader.readAsDataURL(file);
   });
 
+const formatAddedDate = (date) => {
+  if (!date) {
+    return "Date not available";
+  }
+
+  return new Intl.DateTimeFormat("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(date));
+};
+
+const PAGE_SIZE = 20;
+
 export default function CrmVerificationDashboard() {
   const router = useRouter();
   const [staff, setStaff] = useState(null);
@@ -28,6 +41,7 @@ export default function CrmVerificationDashboard() {
   const [editingId, setEditingId] = useState("");
   const [saving, setSaving] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const formRef = useRef(null);
   const clientRefs = useRef({});
@@ -36,6 +50,7 @@ export default function CrmVerificationDashboard() {
     try {
       const response = await API.get("/crm/verification-clients");
       setClients(response.data);
+      setCurrentPage(1);
       return response.data;
     } catch {
       localStorage.removeItem("crmToken");
@@ -73,6 +88,12 @@ export default function CrmVerificationDashboard() {
       setPendingScrollClientId("");
     }
   }, [clients, pendingScrollClientId]);
+
+  const totalPages = Math.max(1, Math.ceil(clients.length / PAGE_SIZE));
+  const paginatedClients = clients.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   const handleChange = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -336,7 +357,7 @@ export default function CrmVerificationDashboard() {
           </div>
 
           <div className={styles.clientList}>
-            {clients.map((client) => (
+            {paginatedClients.map((client) => (
               <article
                 className={styles.clientCard}
                 key={client._id}
@@ -350,6 +371,9 @@ export default function CrmVerificationDashboard() {
                   <div>
                     <h3>{client.businessName}</h3>
                     <span>{client.service || "Verification"}</span>
+                    <small className={styles.clientDate}>
+                      Added {formatAddedDate(client.createdAt)}
+                    </small>
                   </div>
                   <button onClick={() => startEdit(client)}>Update</button>
                 </div>
@@ -396,6 +420,30 @@ export default function CrmVerificationDashboard() {
               <p className={styles.emptyState}>
                 No verification clients have been added yet.
               </p>
+            )}
+
+            {clients.length > PAGE_SIZE && (
+              <div className={styles.pagination}>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  type="button"
+                >
+                  Previous
+                </button>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() =>
+                    setCurrentPage((page) => Math.min(totalPages, page + 1))
+                  }
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
             )}
           </div>
         </div>

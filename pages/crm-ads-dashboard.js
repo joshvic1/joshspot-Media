@@ -37,6 +37,19 @@ const fieldOrder = [
   "note",
 ];
 
+const PAGE_SIZE = 20;
+
+const formatAddedDate = (date) => {
+  if (!date) {
+    return "Date not available";
+  }
+
+  return new Intl.DateTimeFormat("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(date));
+};
+
 export default function CrmAdsDashboard() {
   const router = useRouter();
   const [staff, setStaff] = useState(null);
@@ -48,6 +61,7 @@ export default function CrmAdsDashboard() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState("");
@@ -75,6 +89,12 @@ export default function CrmAdsDashboard() {
     );
   }, [activeSearch, clients]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredClients.length / PAGE_SIZE));
+  const paginatedClients = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredClients.slice(start, start + PAGE_SIZE);
+  }, [currentPage, filteredClients]);
+
   const fetchClients = useCallback(async () => {
     try {
       const res = await API.get("/crm/ads-clients");
@@ -82,6 +102,7 @@ export default function CrmAdsDashboard() {
       setClients(res.data.clients);
       setPermissions(res.data.permissions);
       setLoadError("");
+      setCurrentPage(1);
       return res.data.clients;
     } catch (error) {
       const status = error.response?.status;
@@ -166,12 +187,14 @@ export default function CrmAdsDashboard() {
 
   const searchClients = (event) => {
     event.preventDefault();
+    setCurrentPage(1);
     setActiveSearch(searchInput);
   };
 
   const clearSearch = () => {
     setSearchInput("");
     setActiveSearch("");
+    setCurrentPage(1);
   };
 
   const saveClient = async (event) => {
@@ -397,7 +420,7 @@ export default function CrmAdsDashboard() {
           </form>
 
           <div className={styles.clientList}>
-            {filteredClients.map((client) => (
+            {paginatedClients.map((client) => (
               <article
                 key={client._id}
                 className={styles.clientCard}
@@ -411,6 +434,9 @@ export default function CrmAdsDashboard() {
                   <div>
                     <h3>{client.businessName}</h3>
                     <span>{client.servicePaidFor}</span>
+                    <small className={styles.clientDate}>
+                      Added {formatAddedDate(client.createdAt)}
+                    </small>
                   </div>
                   <button onClick={() => startEdit(client)}>Update</button>
                 </div>
@@ -448,6 +474,30 @@ export default function CrmAdsDashboard() {
 
             {clients.length > 0 && filteredClients.length === 0 && (
               <p className={styles.emptyState}>No ads client matched your search.</p>
+            )}
+
+            {filteredClients.length > PAGE_SIZE && (
+              <div className={styles.pagination}>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  type="button"
+                >
+                  Previous
+                </button>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() =>
+                    setCurrentPage((page) => Math.min(totalPages, page + 1))
+                  }
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
             )}
           </div>
         </div>

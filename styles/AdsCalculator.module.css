@@ -1,0 +1,310 @@
+.page {
+  min-height: 100vh;
+  padding: 32px;
+  background:
+    radial-gradient(circle at 8% 10%, rgba(56, 189, 248, 0.28), transparent 28%),
+    radial-gradient(circle at 90% 0%, rgba(29, 78, 216, 0.24), transparent 30%),
+    linear-gradient(135deg, #061a3a 0%, #0b3b82 52%, #071a34 100%);
+  color: #eff6ff;
+}
+
+.shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 8px 11px;
+  border: 1px solid rgba(125, 211, 252, 0.24);
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.14);
+  color: #bae6fd;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  max-width: 760px;
+  margin-top: 14px;
+  font-size: clamp(34px, 7vw, 64px);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+}
+
+.header p {
+  max-width: 720px;
+  margin-top: 14px;
+  color: #bfdbfe;
+  line-height: 1.7;
+}
+
+.grid,
+.messageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.panel,
+.messagePanel,
+.resultCard,
+.warningBox {
+  border: 1px solid rgba(191, 219, 254, 0.18);
+  border-radius: 8px;
+  background: rgba(8, 35, 78, 0.74);
+  box-shadow: 0 24px 70px rgba(2, 8, 23, 0.24);
+}
+
+.panel {
+  padding: 20px;
+}
+
+.panelHeader {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.panelHeader > span {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #38bdf8;
+  color: #082f49;
+  font-weight: 1000;
+}
+
+.panelHeader h2,
+.messageTop h2 {
+  font-size: 20px;
+}
+
+.panelHeader p {
+  margin-top: 4px;
+  color: #bfdbfe;
+  font-size: 13px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.segmented button,
+.messageTop button {
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+.segmented button {
+  padding: 12px;
+  background: transparent;
+  color: #dbeafe;
+}
+
+.segmented .activeSegment {
+  background: #38bdf8;
+  color: #082f49;
+}
+
+.formGroup,
+.formGrid {
+  margin-top: 16px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.formGroup label,
+.formGrid label {
+  display: grid;
+  gap: 8px;
+  color: #dbeafe;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.formGroup input,
+.formGroup select,
+.formGrid input,
+.formGrid select {
+  min-width: 0;
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(147, 197, 253, 0.32);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.46);
+  color: #eff6ff;
+  font: inherit;
+  outline: none;
+}
+
+.checkboxRow {
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  min-height: 50px;
+  padding: 12px;
+  border: 1px solid rgba(147, 197, 253, 0.22);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.checkboxRow input {
+  width: 20px;
+  height: 20px;
+}
+
+.recommendedCard {
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(14, 165, 233, 0.08));
+}
+
+.recommendedCard span,
+.higherOption {
+  color: #bae6fd;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.recommendedCard h3 {
+  margin-top: 8px;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.recommendedCard p {
+  margin-top: 8px;
+  color: #dbeafe;
+}
+
+.higherOption {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.warningBox {
+  margin-top: 18px;
+  padding: 14px;
+  border-color: rgba(250, 204, 21, 0.28);
+  background: rgba(113, 63, 18, 0.28);
+  color: #fef3c7;
+  font-weight: 800;
+}
+
+.resultGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.resultCard {
+  padding: 16px;
+}
+
+.resultCard span {
+  color: #bfdbfe;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.resultCard strong {
+  display: block;
+  margin-top: 8px;
+  font-size: clamp(22px, 4vw, 30px);
+  line-height: 1;
+}
+
+.resultCard small {
+  display: block;
+  margin-top: 8px;
+  color: #7dd3fc;
+  font-weight: 800;
+}
+
+.messagePanel {
+  padding: 18px;
+}
+
+.messageTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.messageTop button {
+  padding: 11px 14px;
+  background: #38bdf8;
+  color: #082f49;
+}
+
+.messagePanel pre {
+  min-height: 180px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid rgba(147, 197, 253, 0.22);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.38);
+  color: #eff6ff;
+  font: 600 14px/1.75 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 22px;
+  }
+
+  .grid,
+  .messageGrid,
+  .resultGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 14px;
+  }
+
+  .formGrid,
+  .segmented {
+    grid-template-columns: 1fr;
+  }
+
+  .messageTop {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

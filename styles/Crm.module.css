@@ -377,6 +377,14 @@
   font-size: 18px;
 }
 
+.clientDate {
+  display: block;
+  margin-top: 7px;
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .publishToggle {
   align-items: center;
   display: inline-flex;
@@ -488,6 +496,36 @@
   font-weight: 700;
 }
 
+.pagination {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 6px;
+  padding-top: 8px;
+}
+
+.pagination button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #38bdf8;
+  color: #082f49;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.pagination span {
+  color: #bfdbfe;
+  font-size: 13px;
+  font-weight: 800;
+}
+
 @media (max-width: 900px) {
   .page {
     padding: 22px;
@@ -505,6 +543,11 @@
   }
 
   .searchBar {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination {
+    display: grid;
     grid-template-columns: 1fr;
   }
 
