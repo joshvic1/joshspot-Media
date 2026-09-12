@@ -24,34 +24,36 @@ const tikTokSetupOption = setupService?.options?.find(
 );
 const tikTokSetupFee = tikTokSetupOption?.price || 0;
 
-const recommendationGuideText = `For the ads
+const setupAddonLabel = "Tiktok setup/Customer wants ads straight up & account not set";
 
-How much you spend on your ads depends on your budget and how long you want to run them for. If you're not sure how much to start with, you can choose from any of our recommended plans below:
+const buildRecommendationGuideText = (setupFee = 0) => `For the ads
 
-7 days – ₦60,000
-1 video content
+You should be the one to tell us your budget and how much ads you want to run and for how many days, But if you're not sure of how much to start with, you can choose from any of our recommended plans below:
 
-10 days – ₦150,000
-Up to 3 video contents
+7 days – ${formatNaira(60000 + setupFee)}
+2 video content
 
-15 days – ₦285,000
+10 days – ${formatNaira(150000 + setupFee)}
+Up to 4 video contents
+
+15 days – ${formatNaira(285000 + setupFee)}
 Up to 6 video contents
 
-30 days – ₦450,000
+30 days – ${formatNaira(450000 + setupFee)}
 Up to 10 video contents
 
 Note:
 
-1. These are only our recommended plans. You can also customize how much you want to spend on ads and how many days you want us to run them for.
+1. These are only our recommended plans. You can also customize how much you want us to spend on the ads daily and how many days you want us to run them for.
 
-2. There's no best or worst amount to spend on ads. However, the more you spend, the more people will see your ads and the better your chances of getting better results.
+2. There's no best or worst amount to spend on ads. Just know that, the more you spend, the more people will see your ads and the better the results.
 
 Let us know which of the options you'd like to go for.`;
 
 export default function AdsCalculator() {
   const [mode, setMode] = useState("recommend");
   const [selectedPlanKey, setSelectedPlanKey] = useState(
-    recommendedPlans[1]?.key || recommendedPlans[0]?.key,
+    recommendedPlans[0]?.key,
   );
   const [needsSetup, setNeedsSetup] = useState(false);
   const [messageView, setMessageView] = useState("simple");
@@ -74,10 +76,13 @@ export default function AdsCalculator() {
       recommendedPlans[0],
     [selectedPlanKey],
   );
+  const setupFee = needsSetup ? tikTokSetupFee : 0;
+  const recommendationGuideText = useMemo(
+    () => buildRecommendationGuideText(setupFee),
+    [setupFee],
+  );
 
   const result = useMemo(() => {
-    const setupFee = needsSetup ? tikTokSetupFee : 0;
-
     if (mode === "recommend") {
       return calculateTotal({
         advertisingBudget: activePlan.advertisingBudget,
@@ -190,28 +195,11 @@ export default function AdsCalculator() {
                       type="button"
                     >
                       <small>{String(index + 1).padStart(2, "0")}</small>
-                      <strong>{formatNaira(plan.totalPrice)}</strong>
+                      <strong>{formatNaira(plan.totalPrice + setupFee)}</strong>
                       <span>{plan.duration} days</span>
                       <em>{creativeAllowanceText(plan.creativeLimit)}</em>
                     </button>
                   ))}
-                </div>
-
-                <div className={styles.selectedBreakdown}>
-                  <p>
-                    <span>Advertising budget</span>
-                    <strong>{formatNaira(activePlan.advertisingBudget)}</strong>
-                  </p>
-                  <p>
-                    <span>Our service fee</span>
-                    <strong>{formatNaira(activePlan.managementFee)}</strong>
-                  </p>
-                  <p>
-                    <span>Creative allowance</span>
-                    <strong>
-                      {creativeAllowanceText(activePlan.creativeLimit)}
-                    </strong>
-                  </p>
                 </div>
               </section>
             ) : (
@@ -378,7 +366,7 @@ export default function AdsCalculator() {
                     type="checkbox"
                     onChange={(event) => setNeedsSetup(event.target.checked)}
                   />
-                  <span>TikTok Ads Manager setup</span>
+                  <span>{setupAddonLabel}</span>
                   <strong>
                     {tikTokSetupFee ? formatNaira(tikTokSetupFee) : "Not set"}
                   </strong>
@@ -388,38 +376,6 @@ export default function AdsCalculator() {
           </div>
 
           <aside className={styles.rightPane}>
-            <section className={styles.resultPanel}>
-              <span className={styles.eyebrow}>Price to quote</span>
-              <strong>{formatNaira(result.total)}</strong>
-
-              <div className={styles.breakdownList}>
-                <p>
-                  <span>Ads budget</span>
-                  <b>{formatNaira(result.advertisingBudget)}</b>
-                </p>
-                <p>
-                  <span>Our service fee</span>
-                  <b>{formatNaira(result.managementFee)}</b>
-                </p>
-                <p>
-                  <span>Add-ons</span>
-                  <b>{formatNaira(result.addOnsTotal)}</b>
-                </p>
-                <p>
-                  <span>Duration</span>
-                  <b>{result.duration} days</b>
-                </p>
-                <p>
-                  <span>Videos allowed</span>
-                  <b>{creativeAllowanceText(result.creativeLimit)}</b>
-                </p>
-                <p>
-                  <span>Internal ratio</span>
-                  <b>{result.managementRatio.toFixed(1)}%</b>
-                </p>
-              </div>
-            </section>
-
             <section className={styles.messagePanel}>
               <div className={styles.messageHead}>
                 <div>

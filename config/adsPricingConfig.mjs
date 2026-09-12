@@ -298,55 +298,50 @@ export const creativeAllowanceText = (count) => {
     : `up to ${creativeCount} video contents`;
 };
 
-const sentenceCase = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+const setupAddonLabel =
+  "Tiktok setup/Customer wants ads straight up & account not set";
+
+const formatDailyAdSpend = (result) =>
+  formatNaira(result.duration > 0 ? result.advertisingBudget / result.duration : 0);
+
+const customerContentAllowanceText = (count) => {
+  const creativeCount = Math.max(0, Math.ceil(Number(count || 0)));
+  return creativeCount === 1
+    ? "1 video content"
+    : `${creativeCount} video contents`;
+};
 
 export const generateSimpleMessage = (result) => {
   const setupText =
     result.setupServiceFee > 0
-      ? " This also includes TikTok Ads Manager setup."
+      ? ` This also includes ${setupAddonLabel}.`
       : "";
 
-  return `This will cost you ${formatCompactNaira(
+  return `I recommend you to go for our ${formatCompactNaira(
     result.total,
-  )} . This includes us managing your ads for ${
+  )} plan. This includes us managing your ads for ${
     result.duration
   } days. You are allowed ${creativeAllowanceText(result.creativeLimit)}.${setupText}`;
 };
 
 export const generateBreakdownMessage = (result) => {
-  const lines = [
-    `Ads duration: ${result.duration} days`,
-    `Advertising Budget: ${formatNaira(result.advertisingBudget)}`,
-    `Our service fee: ${formatNaira(result.managementFee)}`,
-    `${sentenceCase(creativeAllowanceText(result.creativeLimit))} allowed.`,
-  ];
+  const setupIntro =
+    result.setupServiceFee > 0
+      ? "We will setup your ads account for you and make it ready to run ads anytime. We will also run"
+      : "We will run";
 
-  if (result.extraCreatives > 0) {
-    lines.push(
-      `Additional video content (${result.extraCreatives}): ${formatNaira(
-        result.creativeFee,
-      )}`,
-    );
-  }
+  return `Here's a breakdown.
+${setupIntro} ${formatDailyAdSpend(result)} for ${result.duration} days (That's ${formatNaira(
+    result.advertisingBudget,
+  )}). Our service fee for helping you run the ads is ${formatNaira(
+    result.managementFee,
+  )}. And you can use up to ${customerContentAllowanceText(
+    result.creativeLimit,
+  )} for the ads.
 
-  if (result.scriptSupportFee > 0) {
-    lines.push(`CONTENT SCRIPT: ${formatNaira(result.scriptSupportFee)}`);
-  }
+Total amount is ${formatNaira(result.total)}
 
-  if (result.setupServiceFee > 0) {
-    lines.push(
-      `TikTok Ads Manager Setup: ${formatNaira(result.setupServiceFee)}`,
-    );
-  }
+Throughout this ${result.duration} days, we will create your ads for you, handle your ads management, targeting, adjustments and retargeting if needed.
 
-  lines.push(
-    "",
-    `Total amount: ${formatNaira(result.total)}`,
-    "",
-    "Our service fee covers campaign setup, audience targeting, monitoring, optimization, targeting adjustments and retargeting where appropriate throughout the campaign period.",
-    "",
-    "Please note that ad results also depend on your content, offer, audience, pricing and other factors.",
-  );
-
-  return lines.join("\n");
+Do you understand?`;
 };

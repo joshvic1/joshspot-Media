@@ -32,11 +32,11 @@ assert.equal(recommendedPlans.length, 4);
     simple:
       "I recommend you to go for our ₦60k plan. This includes us managing your ads for 7 days. You are allowed 1 video content.",
     breakdownIncludes: [
-      "Ads duration: 7 days",
-      "Advertising Budget: ₦35,000",
-      "Our service fee: ₦25,000",
-      "1 video content allowed.",
-      "Total amount: ₦60,000",
+      "Here's a breakdown.",
+      "We will run ₦5,000 for 7 days (That's ₦35,000).",
+      "Our service fee for helping you run the ads is ₦25,000.",
+      "And you can use up to 1 video content for the ads.",
+      "Total amount is ₦60,000",
     ],
   },
   {
@@ -49,11 +49,11 @@ assert.equal(recommendedPlans.length, 4);
     simple:
       "I recommend you to go for our ₦150k plan. This includes us managing your ads for 10 days. You are allowed up to 3 video contents.",
     breakdownIncludes: [
-      "Ads duration: 10 days",
-      "Advertising Budget: ₦100,000",
-      "Our service fee: ₦50,000",
-      "Up to 3 video contents allowed.",
-      "Total amount: ₦150,000",
+      "Here's a breakdown.",
+      "We will run ₦10,000 for 10 days (That's ₦100,000).",
+      "Our service fee for helping you run the ads is ₦50,000.",
+      "And you can use up to 3 video contents for the ads.",
+      "Total amount is ₦150,000",
     ],
   },
   {
@@ -66,11 +66,11 @@ assert.equal(recommendedPlans.length, 4);
     simple:
       "I recommend you to go for our ₦285k plan. This includes us managing your ads for 15 days. You are allowed up to 6 video contents.",
     breakdownIncludes: [
-      "Ads duration: 15 days",
-      "Advertising Budget: ₦200,000",
-      "Our service fee: ₦85,000",
-      "Up to 6 video contents allowed.",
-      "Total amount: ₦285,000",
+      "Here's a breakdown.",
+      "We will run ₦13,333 for 15 days (That's ₦200,000).",
+      "Our service fee for helping you run the ads is ₦85,000.",
+      "And you can use up to 6 video contents for the ads.",
+      "Total amount is ₦285,000",
     ],
   },
   {
@@ -83,11 +83,11 @@ assert.equal(recommendedPlans.length, 4);
     simple:
       "I recommend you to go for our ₦450k plan. This includes us managing your ads for 30 days. You are allowed up to 10 video contents.",
     breakdownIncludes: [
-      "Ads duration: 30 days",
-      "Advertising Budget: ₦300,000",
-      "Our service fee: ₦150,000",
-      "Up to 10 video contents allowed.",
-      "Total amount: ₦450,000",
+      "Here's a breakdown.",
+      "We will run ₦10,000 for 30 days (That's ₦300,000).",
+      "Our service fee for helping you run the ads is ₦150,000.",
+      "And you can use up to 10 video contents for the ads.",
+      "Total amount is ₦450,000",
     ],
   },
 ].forEach((expected) => {
@@ -137,6 +137,28 @@ const scriptSupportCase = managementFeeFor(100000, 10, {
 });
 assert.equal(scriptSupportCase.scriptSupportFee, 25000);
 assert.equal(scriptSupportCase.total, 175000);
+
+const setupCase = calculateTotal({
+  advertisingBudget: 100000,
+  duration: 10,
+  creativeLimit: 3,
+  requestedCreatives: 3,
+  needsScriptSupport: false,
+  setupFee: 20000,
+  overrideManagementFee: 50000,
+});
+assert.equal(setupCase.setupServiceFee, 20000);
+assert.equal(setupCase.total, 170000);
+assert.ok(
+  generateSimpleMessage(setupCase).includes(
+    "Tiktok setup/Customer wants ads straight up & account not set",
+  ),
+);
+assert.ok(
+  generateBreakdownMessage(setupCase).includes(
+    "We will setup your ads account for you and make it ready to run ads anytime.",
+  ),
+);
 
 const customDuration = managementFeeFor(250000, 10);
 assert.equal(customDuration.managementFee % 5000, 0);

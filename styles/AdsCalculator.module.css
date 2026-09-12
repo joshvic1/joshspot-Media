@@ -64,7 +64,7 @@
 
 .appSurface {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) 420px;
   gap: 14px;
   align-items: start;
 }
@@ -79,7 +79,6 @@
 .recommendArea,
 .customArea,
 .addOnsPanel,
-.resultPanel,
 .messagePanel,
 .guidePanel {
   border: 1px solid rgba(29, 38, 93, 0.08);
@@ -92,7 +91,6 @@
 .recommendArea,
 .customArea,
 .addOnsPanel,
-.resultPanel,
 .messagePanel,
 .guidePanel {
   padding: 16px;
@@ -172,7 +170,7 @@
 
 .planList {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 9px;
 }
 
@@ -239,34 +237,6 @@
   border-color: #6568e8;
   background: linear-gradient(180deg, #f4f6ff, #ffffff);
   box-shadow: 0 16px 28px rgba(101, 104, 232, 0.14);
-}
-
-.selectedBreakdown {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #edf1fb;
-}
-
-.selectedBreakdown p {
-  display: grid;
-  gap: 3px;
-}
-
-.selectedBreakdown span,
-.breakdownList span {
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.selectedBreakdown strong,
-.breakdownList b {
-  color: #111827;
-  font-size: 13px;
-  font-weight: 800;
 }
 
 .primaryInputs,
@@ -379,46 +349,6 @@
   white-space: nowrap;
 }
 
-.resultPanel {
-  position: sticky;
-  top: 18px;
-  background:
-    linear-gradient(180deg, #ffffff, #f7f8ff),
-    #ffffff;
-}
-
-.resultPanel > strong {
-  display: block;
-  margin-top: 8px;
-  font-size: clamp(36px, 4.4vw, 52px);
-  font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: -0.06em;
-}
-
-.breakdownList {
-  display: grid;
-  gap: 2px;
-  margin-top: 14px;
-}
-
-.breakdownList p {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 9px 0;
-  border-bottom: 1px solid #edf1fb;
-}
-
-.breakdownList p:last-child {
-  border-bottom: 0;
-}
-
-.breakdownList b {
-  text-align: right;
-}
-
 .messagePanel h2,
 .guidePanel h2 {
   margin-top: 4px;
@@ -525,9 +455,6 @@
     grid-template-columns: 0.85fr 1.15fr;
   }
 
-  .resultPanel {
-    position: static;
-  }
 }
 
 @media (max-width: 760px) {
@@ -544,14 +471,16 @@
     width: 100%;
   }
 
-  .pathGrid,
   .planList,
-  .selectedBreakdown,
   .primaryInputs,
   .secondaryInputs,
   .addOnRows,
   .rightPane {
     grid-template-columns: 1fr;
+  }
+
+  .pathGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .planList button {
@@ -576,7 +505,6 @@
   .recommendArea,
   .customArea,
   .addOnsPanel,
-  .resultPanel,
   .messagePanel,
   .guidePanel {
     padding: 13px;
