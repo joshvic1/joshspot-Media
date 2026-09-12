@@ -302,7 +302,9 @@ const setupAddonLabel =
   "Tiktok setup/Customer wants ads straight up & account not set";
 
 const formatDailyAdSpend = (result) =>
-  formatNaira(result.duration > 0 ? result.advertisingBudget / result.duration : 0);
+  formatNaira(
+    result.duration > 0 ? result.advertisingBudget / result.duration : 0,
+  );
 
 const customerContentAllowanceText = (count) => {
   const creativeCount = Math.max(0, Math.ceil(Number(count || 0)));
@@ -313,13 +315,11 @@ const customerContentAllowanceText = (count) => {
 
 export const generateSimpleMessage = (result) => {
   const setupText =
-    result.setupServiceFee > 0
-      ? ` This also includes ${setupAddonLabel}.`
-      : "";
+    result.setupServiceFee > 0 ? ` This also includes ${setupAddonLabel}.` : "";
 
-  return `I recommend you to go for our ${formatCompactNaira(
+  return `This will cost you a total of ${formatCompactNaira(
     result.total,
-  )} plan. This includes us managing your ads for ${
+  )} . This includes us managing your ads for ${
     result.duration
   } days. You are allowed ${creativeAllowanceText(result.creativeLimit)}.${setupText}`;
 };

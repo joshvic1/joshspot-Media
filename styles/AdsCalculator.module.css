@@ -471,12 +471,15 @@
     width: 100%;
   }
 
-  .planList,
   .primaryInputs,
   .secondaryInputs,
   .addOnRows,
   .rightPane {
     grid-template-columns: 1fr;
+  }
+
+  .planList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pathGrid {
