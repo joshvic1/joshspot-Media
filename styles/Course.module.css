@@ -1,0 +1,908 @@
+.page,
+.page * {
+  box-sizing: border-box;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 15% 4%, rgba(255, 230, 0, 0.42), transparent 26%),
+    radial-gradient(circle at 82% 8%, rgba(255, 43, 117, 0.25), transparent 26%),
+    radial-gradient(circle at 50% 92%, rgba(37, 211, 102, 0.2), transparent 30%),
+    #08070d;
+  color: #fff;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.hero,
+.valueSection,
+.reviewSection,
+.priceSection,
+.priceTimer,
+.questionCard,
+.finalCta {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(330px, 0.9fr);
+  gap: 18px;
+  align-items: start;
+  min-height: auto;
+  padding: 18px 0 10px;
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 {
+  max-width: 660px;
+  font-size: clamp(27px, 4.3vw, 46px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.hero p {
+  max-width: 610px;
+  margin-top: 10px;
+  color: #d9d5e5;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.heroIncludes {
+  max-width: 620px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: visible;
+}
+
+.heroIncludes span {
+  display: block;
+  color: #fff86a;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.heroModuleGrid {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.heroModuleGrid article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  padding: 9px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  animation: riseIn 500ms ease both;
+}
+
+.heroModuleGrid svg {
+  margin-top: 2px;
+  color: #25d366;
+}
+
+.heroModuleGrid strong {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 1000;
+}
+
+.heroModuleGrid p {
+  margin-top: 3px;
+  color: #f4f0fb;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.priceStack {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.priceStack span {
+  width: 100%;
+  color: #fff86a;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.priceStack strong {
+  color: #fff;
+  font-size: clamp(34px, 5vw, 50px);
+  line-height: 0.88;
+  letter-spacing: -0.08em;
+  text-shadow: 0 0 28px rgba(255, 230, 0, 0.35);
+}
+
+.priceStack del {
+  color: #ff8ba7;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.heroActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.heroActions button,
+.finalCta button,
+.checkoutForm button,
+.timerAction button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff000;
+  color: #08070d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 1000;
+  box-shadow: 0 18px 34px rgba(255, 240, 0, 0.26);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.heroActions button:hover,
+.finalCta button:hover,
+.checkoutForm button:hover,
+.timerAction button:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 22px 42px rgba(255, 240, 0, 0.32);
+}
+
+.heroActions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.heroProof {
+  position: relative;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38);
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.heroProof img {
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  max-height: 430px;
+  object-fit: cover;
+  border-radius: 18px;
+}
+
+.valueSection,
+.reviewSection,
+.priceSection,
+.priceTimer,
+.questionCard,
+.finalCta {
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+}
+
+.sectionTitle span,
+.questionCard span {
+  color: #fff86a;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.reviewSection {
+  margin-top: 18px;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.reviewCard {
+  overflow: hidden;
+  min-height: 230px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  animation: bounceSoft 2.4s ease-in-out infinite;
+}
+
+.reviewCard:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.reviewCard:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+.reviewCard:nth-child(4) {
+  animation-delay: 450ms;
+}
+
+.reviewCard img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 230px;
+  object-fit: cover;
+}
+
+.reviewPlaceholder {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  min-height: 230px;
+  padding: 16px;
+  text-align: center;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.08) 10px,
+      rgba(255, 255, 255, 0.04) 10px,
+      rgba(255, 255, 255, 0.04) 20px
+    );
+}
+
+.reviewPlaceholder span {
+  color: #fff86a;
+  font-size: 12px;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.reviewPlaceholder strong {
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.priceSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+  background:
+    radial-gradient(circle at 15% 30%, rgba(255, 240, 0, 0.16), transparent 30%),
+    rgba(255, 255, 255, 0.08);
+}
+
+.priceSection .priceStack,
+.priceSection .heroActions {
+  margin-top: 0;
+}
+
+.priceTimer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin-top: 18px;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(255, 43, 117, 0.22), transparent 28%),
+    rgba(255, 255, 255, 0.08);
+}
+
+.priceTimer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #fff86a;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.priceTimer h2 {
+  margin-top: 8px;
+  font-size: clamp(22px, 3.6vw, 36px);
+  line-height: 1.03;
+  letter-spacing: -0.04em;
+}
+
+.priceTimer h2 strong {
+  color: #25d366;
+  white-space: nowrap;
+}
+
+.priceTimer p {
+  margin-top: 10px;
+  max-width: 680px;
+  color: #e5dfed;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.countingPrice {
+  display: inline-block;
+  color: #fff86a;
+  font-size: 1.15em;
+  min-width: 88px;
+  transform-origin: center;
+  animation: numberPop 900ms ease both;
+}
+
+.timerAction {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+  min-width: 180px;
+}
+
+.timerAction strong {
+  display: block;
+  color: #fff86a;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.sectionTitle h2,
+.questionCard h2,
+.finalCta h2 {
+  margin-top: 7px;
+  font-size: clamp(22px, 3.8vw, 38px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.moduleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.moduleGrid article {
+  display: flex;
+  gap: 10px;
+  min-height: 92px;
+  padding: 15px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  transform: translateY(0);
+  animation: riseIn 600ms ease both;
+}
+
+.moduleGrid article:nth-child(2n) {
+  animation-delay: 80ms;
+}
+
+.moduleGrid article:nth-child(3n) {
+  animation-delay: 160ms;
+}
+
+.moduleGrid svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #25d366;
+}
+
+.moduleGrid p {
+  color: #eeeaf7;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.questionCard {
+  display: grid;
+  gap: 12px;
+  min-height: 118px;
+  transition: min-height 240ms ease;
+}
+
+.questionCard:has(.chatBox) {
+  min-height: 190px;
+}
+
+.questionCard form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 50px;
+  gap: 8px;
+}
+
+.questionCard input {
+  min-height: 50px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  padding: 0 15px;
+}
+
+.questionCard input::placeholder {
+  color: #aaa4b8;
+}
+
+.questionCard button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 15px;
+  background: #ff2b75;
+  color: #fff;
+  cursor: pointer;
+}
+
+.chatBox {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.userBubble,
+.answerBubble {
+  width: fit-content;
+  max-width: min(680px, 88%);
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.55;
+  animation: bubbleIn 220ms ease both;
+}
+
+.userBubble {
+  justify-self: end;
+  border-radius: 17px 17px 4px 17px;
+  background: #fff000;
+  color: #08070d;
+}
+
+.answerBubble {
+  justify-self: start;
+  border-radius: 17px 17px 17px 4px;
+  background: rgba(255, 255, 255, 0.13);
+  color: #f2edf8;
+}
+
+.finalCta {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.finalCta > svg {
+  width: 34px;
+  height: 34px;
+  color: #25d366;
+}
+
+.finalCta p {
+  max-width: 620px;
+  margin: 10px auto 20px;
+  color: #d9d5e5;
+  line-height: 1.6;
+}
+
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(8, 7, 13, 0.7);
+  backdrop-filter: blur(12px);
+}
+
+.drawer {
+  position: relative;
+  width: min(430px, 100%);
+  height: 100%;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 12% 4%, rgba(255, 240, 0, 0.18), transparent 28%),
+    linear-gradient(180deg, #17111f 0%, #0b0810 100%);
+  color: #ffffff;
+  box-shadow: -24px 0 70px rgba(0, 0, 0, 0.28);
+  animation: drawerIn 220ms ease both;
+  overflow-y: auto;
+}
+
+.closeDrawer {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.drawerHeader {
+  padding-right: 44px;
+}
+
+.drawerHeader span {
+  color: #ff2b75;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.drawerHeader h2 {
+  margin-top: 7px;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.drawerHeader p {
+  margin-top: 10px;
+  color: #cfc7dc;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.checkoutForm {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.checkoutForm label {
+  display: grid;
+  gap: 7px;
+  color: #f5efff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.checkoutForm input {
+  min-height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font: inherit;
+  outline: none;
+  padding: 0 14px;
+}
+
+.phoneFields {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.phoneFields select,
+.phoneFields input {
+  min-width: 0;
+}
+
+.phoneFields select {
+  min-height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  outline: none;
+  padding: 0 10px;
+}
+
+.phoneFields select:focus {
+  border-color: #fff000;
+  box-shadow: 0 0 0 4px rgba(255, 240, 0, 0.12);
+}
+
+.checkoutForm input:focus {
+  border-color: #fff000;
+  box-shadow: 0 0 0 4px rgba(255, 240, 0, 0.12);
+}
+
+.checkoutForm button {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.checkoutForm button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.errorText {
+  margin: 0;
+  padding: 10px;
+  border-radius: 12px;
+  background: #fff1f2;
+  color: #be123c;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.transferBox {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.statusText {
+  margin: 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(37, 211, 102, 0.13);
+  color: #c8ffd9;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.5;
+}
+
+.copyRow {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) 38px;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.copyRow span {
+  color: #bfb7cc;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.copyRow strong {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.copyRow button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 11px;
+  background: #fff000;
+  color: #08070d;
+  cursor: pointer;
+}
+
+.confirmPaymentButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 14px;
+  background: #25d366;
+  color: #07120b;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 1000;
+}
+
+.confirmPaymentButton:disabled {
+  cursor: wait;
+  opacity: 0.82;
+}
+
+.spinIcon {
+  animation: spin 850ms linear infinite;
+}
+
+@keyframes floatCard {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(0.4deg);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceSoft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes numberPop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes drawerIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 920px) {
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-top: 20px;
+  }
+
+  .heroProof img {
+    min-height: 280px;
+  }
+
+  .moduleGrid,
+  .reviewGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .priceSection,
+  .priceTimer {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+}
+
+@media (max-width: 620px) {
+  .page {
+    padding: 10px;
+  }
+
+  .hero h1 {
+    font-size: clamp(28px, 10vw, 40px);
+  }
+
+  .heroActions,
+  .priceStack {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heroActions button,
+  .heroActions a {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .moduleGrid,
+  .reviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .valueSection,
+  .reviewSection,
+  .priceSection,
+  .priceTimer,
+  .questionCard,
+  .finalCta {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .questionCard form {
+    grid-template-columns: 1fr 48px;
+  }
+
+  .copyRow {
+    grid-template-columns: 1fr 38px;
+  }
+
+  .copyRow span {
+    grid-column: 1 / -1;
+  }
+
+  .timerAction {
+    justify-items: stretch;
+  }
+
+  .timerAction strong {
+    font-size: 30px;
+  }
+
+  .phoneFields {
+    grid-template-columns: 104px minmax(0, 1fr);
+  }
+}
