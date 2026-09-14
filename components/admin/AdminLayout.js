@@ -4,10 +4,12 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/router";
 import { FiMenu, FiX, FiGrid, FiCalendar, FiUsers, FiBarChart2, FiBookOpen, FiClipboard, FiLogOut, FiArrowUpRight } from "react-icons/fi";
 import styles from "../../styles/AdminShell.module.css";
+import RecordDeletion from "./RecordDeletion";
 
 export const adminPages = [
   ["overview", "Overview", FiGrid, "Your business at a glance."],
   ["courses", "Course payments", FiBookOpen, "Every checkout. Every customer. One clear view."],
+  ["invoices", "Paid invoices", FiClipboard, "Confirmed invoice payments, customer details and revenue."],
   ["bookings", "Bookings", FiClipboard, "Manage client bookings and service details."],
   ["schedule", "Schedule", FiCalendar, "Plan your day and keep work moving."],
   ["leads", "Growth leads", FiUsers, "Turn promising conversations into your next clients."],
@@ -66,7 +68,7 @@ export default function AdminLayout({ active, children }) {
       <div className={styles.profile}><span>J</span><div>Josh<small>Administrator</small></div></div>
     </div>
   </>;
-  return <div className={styles.shell}>
+  return <RecordDeletion><div className={styles.shell}>
     <Head><title>{`${page[1]} · Joshspot Admin`}</title><meta name="robots" content="noindex,nofollow" /></Head>
     <aside className={styles.desktopSidebar}>{navigation()}</aside>
     {open && <div className={styles.overlay} onClick={() => { setOpen(false); toggle.current?.focus(); }}>
@@ -84,5 +86,5 @@ export default function AdminLayout({ active, children }) {
         {router.isReady && (authorized || demo) ? children : <p role="status">Checking your session…</p>}
       </main>
     </div>
-  </div>;
+  </div></RecordDeletion>;
 }

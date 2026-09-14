@@ -1,5 +1,5 @@
 import AdminLayout from "../components/admin/AdminLayout";
-import AdminRecords from "../components/admin/AdminRecords";
+import Reports from "../components/admin/Reports";
 export default function AdminOverview() {
-  return <AdminLayout active="overview"><AdminRecords view="overview" /></AdminLayout>;
+  return <AdminLayout active="overview"><Reports /></AdminLayout>;
 }

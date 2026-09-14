@@ -5,7 +5,8 @@ import styles from "@/styles/PickADate.module.css";
 
 export default function PickADate() {
   const router = useRouter();
-  const { token } = router.query;
+  const { token, reference } = router.query;
+  const [paymentError, setPaymentError] = useState("");
 
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,10 +49,10 @@ export default function PickADate() {
   ];
 
   const [bookedTimes, setBookedTimes] = useState([]);
-  const firePurchaseEvent = () => {
+  const firePurchaseEvent = (paidBooking) => {
     if (typeof window === "undefined") return;
 
-    const tracked = localStorage.getItem("tiktok_purchase_tracked");
+    const tracked = localStorage.getItem(`tiktok_purchase_tracked_${token}`);
 
     if (tracked) {
       console.log("⚠️ purchase already tracked");
@@ -62,47 +63,45 @@ export default function PickADate() {
 
     if (window.ttq) {
       window.ttq.track("Purchase", {
-        value: 20000,
+        value: paidBooking.price,
         currency: "NGN",
         event_id: token,
         contents: [
           {
-            content_name: "TikTok Ads Account Setup",
+            content_name: paidBooking.serviceTitle,
             content_type: "service",
-            price: 20000,
+            price: paidBooking.price,
           },
         ],
       });
 
       console.log("✅ TikTok purchase event sent");
 
-      localStorage.setItem("tiktok_purchase_tracked", "true");
+      localStorage.setItem(`tiktok_purchase_tracked_${token}`, "true");
     } else {
       console.log("❌ TikTok Pixel not found");
     }
   };
   useEffect(() => {
-    if (!token) return;
-
-    firePurchaseEvent();
-  }, [token]);
-
-  useEffect(() => {
-    if (!token) return;
+    if (!token || booking?.paymentVerifiedAt) return;
     verifyBooking();
-  }, [token]);
+    const poll = setInterval(verifyBooking, 5000);
+    return () => clearInterval(poll);
+  }, [token, reference, booking?.paymentVerifiedAt]);
 
   const verifyBooking = async () => {
     try {
-      const res = await API.get(`/booking/verify/${token}`);
+      const res = await API.get(`/booking/verify/${encodeURIComponent(token)}`, { params: { reference } });
 
       setBooking(res.data);
+      setPaymentError("");
+      if (res.data.paid && res.data.paymentVerifiedAt) firePurchaseEvent(res.data);
 
       if (res.data.date) {
         setStep(5);
       }
     } catch {
-      alert("Invalid booking link");
+      setPaymentError("We could not confirm your payment yet. We will keep checking, or you can try again below.");
     } finally {
       setLoading(false);
     }
@@ -136,8 +135,8 @@ export default function PickADate() {
       }));
 
       setStep(5);
-    } catch {
-      alert("Booking failed");
+    } catch (error) {
+      alert(error.response?.data?.message || "Booking failed");
     }
   };
 
@@ -145,8 +144,10 @@ export default function PickADate() {
     return <p className={styles.loading}>Loading...</p>;
   }
 
-  if (!booking) {
-    return <p className={styles.loading}>Invalid booking</p>;
+  if (!booking?.paymentVerifiedAt) {
+    return <div className={styles.loading}><h2>Confirming your payment</h2>
+      <p>{paymentError || "We are checking your payment with Paystack. Once confirmed, you can choose your date."}</p>
+      <button onClick={verifyBooking} type="button">Check payment again</button></div>;
   }
   const dateConfig = {
     month: {

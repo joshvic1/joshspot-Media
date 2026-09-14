@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { FiArrowDownLeft, FiCheckCircle, FiClock, FiMail, FiRefreshCw, FiSearch, FiShoppingBag, FiX, FiArrowRight } from "react-icons/fi";
 import styles from "../../styles/CourseAdmin.module.css";
+import { DeleteButton } from "./RecordDeletion";
 
 const labels = { paid: "Successful", pending: "Pending", abandoned: "Abandoned", failed: "Unsuccessful" };
 const money = (amount) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(amount || 0);
@@ -121,7 +122,7 @@ export default function CoursePayments() {
                   onClick={() => { setError(""); setSelected(record); }}><FiMail /> Send email</button>
                 {!record.email && <small className={styles.meta}>No email provided</small>}
                 {record.reminderSentAt && <small className={styles.meta}>Last sent {date(record.reminderSentAt)} · {record.reminderCount} total</small>}
-              </>}</td>
+              </>}<DeleteButton kind="invoices" id={record.id} label={record.name || "course checkout"} onChange={() => setRefresh((value) => value + 1)} /></td>
             </tr>
           )) : <tr><td colSpan={7} className={styles.empty}><FiSearch /><h3>No matching checkouts</h3><p>{search || filter !== "all" ? "Try a different search or payment filter." : "Customer records will appear here when someone starts checkout."}</p></td></tr>}</tbody>
         </table>
