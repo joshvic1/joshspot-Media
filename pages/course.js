@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
   FiArrowRight,
@@ -15,8 +16,6 @@ import styles from "../styles/Course.module.css";
 
 const COURSE_PRICE = 8000;
 const SLASHED_PRICE = 20000;
-const WHATSAPP_REDIRECT =
-  "https://wa.me/2348143017102?text=I%20just%20paid";
 
 const modules = [
   {
@@ -105,12 +104,15 @@ const formatTime = (seconds) => {
 };
 
 export default function CoursePage() {
+  const router = useRouter();
+  const previewPaid = process.env.NODE_ENV === "development" && router.query.preview === "paid";
   const [timeLeft, setTimeLeft] = useState(PRICE_REVIEW_SECONDS);
   const [animatedNextPrice, setAnimatedNextPrice] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [name, setName] = useState("");
   const [countryCode, setCountryCode] = useState("+234");
   const [whatsapp, setWhatsapp] = useState("");
+  const [checkoutEmail, setCheckoutEmail] = useState("");
   const [invoice, setInvoice] = useState(null);
   const [paymentError, setPaymentError] = useState("");
   const [loadingPayment, setLoadingPayment] = useState(false);
@@ -120,6 +122,16 @@ export default function CoursePage() {
   const [answer, setAnswer] = useState("");
   const [askedQuestion, setAskedQuestion] = useState("");
   const [asking, setAsking] = useState(false);
+
+  const previewInvoice = previewPaid ? {
+    status: "paid",
+    preview: true,
+    courses: [
+      { title: "How to run TikTok ads", url: "https://t.me/+zpLNcLN6nAhhNDY8" },
+      { title: "Facebook & Instagram Ads", url: "https://t.me/+RwLlZhhBUXk2ZDk0" },
+    ],
+  } : null;
+  const accessInvoice = previewInvoice || invoice;
 
   useEffect(() => {
     const savedOffer = window.localStorage.getItem("courseOfferTimer");
@@ -175,7 +187,7 @@ export default function CoursePage() {
 
           if (data.status === "paid") {
             window.clearInterval(poll);
-            window.location.href = WHATSAPP_REDIRECT;
+            setDrawerOpen(true);
           }
         }
       } catch (error) {
@@ -229,6 +241,7 @@ export default function CoursePage() {
         body: JSON.stringify({
           name,
           whatsapp: fullWhatsapp,
+          email: checkoutEmail,
         }),
       });
       const data = await response.json();
@@ -262,7 +275,6 @@ export default function CoursePage() {
       setInvoice(data);
 
       if (data.status === "paid") {
-        window.location.href = WHATSAPP_REDIRECT;
         return;
       }
 
@@ -454,12 +466,15 @@ export default function CoursePage() {
         </section>
       </main>
 
-      {drawerOpen && (
+      {(drawerOpen || previewPaid) && (
         <aside className={styles.drawerOverlay}>
           <section className={styles.drawer}>
             <button
               className={styles.closeDrawer}
-              onClick={() => setDrawerOpen(false)}
+              onClick={() => {
+                setDrawerOpen(false);
+                if (previewPaid) router.replace("/course", undefined, { shallow: true });
+              }}
               type="button"
               aria-label="Close checkout"
             >
@@ -467,15 +482,19 @@ export default function CoursePage() {
             </button>
 
             <div className={styles.drawerHeader}>
-              <span>Course checkout</span>
-              <h2>Pay {formatMoney(COURSE_PRICE)} by transfer</h2>
-              <p>
-                Enter your details first. We will generate a Paystack transfer
-                account for this course payment.
-              </p>
+              {accessInvoice?.status !== "paid" && <span>Course checkout</span>}
+              <h2>{accessInvoice?.status === "paid" ? "Payment confirmed!" : `Pay ${formatMoney(COURSE_PRICE)} by transfer`}</h2>
+              {accessInvoice?.status !== "paid" && (
+                <p>Enter your details first. We will generate a Paystack transfer account for this course payment.</p>
+              )}
             </div>
 
-            {!invoice ? (
+            {previewPaid ? (
+              <>
+                <p className={styles.statusText} role="status">Local preview only. No payment was made. Email sending is simulated.</p>
+                <CourseAccess invoice={previewInvoice} />
+              </>
+            ) : !invoice ? (
               <form className={styles.checkoutForm} onSubmit={startTransferPayment}>
                 <label>
                   Name
@@ -508,17 +527,23 @@ export default function CoursePage() {
                     />
                   </div>
                 </label>
+                <label>
+                  Email address (optional)
+                  <input type="email" autoComplete="email" maxLength={254} placeholder="you@example.com"
+                    value={checkoutEmail} onChange={(event) => setCheckoutEmail(event.target.value)} />
+                  <span>Get your course links and a reminder if you have trouble completing payment.</span>
+                </label>
                 {paymentError && <p className={styles.errorText}>{paymentError}</p>}
                 <button disabled={loadingPayment} type="submit">
                   {loadingPayment ? "Generating account..." : "Pay with transfer"}
                 </button>
               </form>
+            ) : invoice.status === "paid" ? (
+              <CourseAccess invoice={invoice} />
             ) : (
               <div className={styles.transferBox}>
                 <p className={styles.statusText}>
-                  {invoice.status === "paid"
-                    ? "Payment confirmed. Redirecting..."
-                    : "Transfer the exact amount below. After payment, click I have paid so we can confirm it before sending you to WhatsApp."}
+                  Transfer the exact amount below. After payment, click I have paid. Once confirmed, your Telegram course buttons will appear here.
                 </p>
                 <CopyRow
                   copied={copied}
@@ -569,6 +594,65 @@ export default function CoursePage() {
         </aside>
       )}
     </>
+  );
+}
+
+function CourseAccess({ invoice }) {
+  const [email, setEmail] = useState("");
+  const [sending, setSending] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const sendLinks = async (event) => {
+    event.preventDefault();
+    if (sending) return;
+    setSending(true);
+    setMessage("");
+    setError("");
+    if (invoice.preview) {
+      setMessage("The video links has been sent to your email. Also check your spam folder too incase you can't find it in your inbox.");
+      setSending(false);
+      return;
+    }
+    try {
+      const response = await fetch("/api/course-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: invoice.token, email }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "The email did not send. Please try again.");
+      setMessage(data.message);
+    } catch (error) {
+      setError(error.message || "The email did not send. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className={styles.courseAccess}>
+      <section className={styles.emailAccess} aria-labelledby="save-course-links">
+        <h3 id="save-course-links">Enter your email below so i can send the courses link</h3>
+        <p>After you enter your email below, i will send the courses link to you so you dont ever lose access to it and you can watch it anytime.</p>
+        <form className={styles.checkoutForm} onSubmit={sendLinks}>
+          <label htmlFor="course-email">Your email address</label>
+          <input id="course-email" type="email" autoComplete="email" maxLength={254} required
+            placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
+          <button type="submit" disabled={sending}>{sending ? "Sending your links..." : "Send the links to me via email"}</button>
+          {message && <p className={styles.statusText} role="status">{message}</p>}
+          {error && <p className={styles.errorText} role="alert">{error}</p>}
+        </form>
+      </section>
+      <section className={styles.telegramAccess} aria-labelledby="join-courses">
+        <h3 id="join-courses">You can also, click the buttons below to access the courses directly</h3>
+        {invoice.courses?.map((course) => (
+          <a key={course.url} className={styles.telegramButton} href={course.url} target="_blank" rel="noopener noreferrer">
+            <FiSend aria-hidden="true" /> Join {course.title}
+          </a>
+        ))}
+      </section>
+    </div>
   );
 }
 

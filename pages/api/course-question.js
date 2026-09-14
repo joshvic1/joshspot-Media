@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   if (!process.env.OPENAI_API_KEY) {
     return res.status(200).json({
       answer:
-        "I can answer this once the OPENAI_API_KEY is added to the frontend environment. For now, you can ask on WhatsApp before payment.",
+        "The course covers TikTok, Facebook and Instagram ads, plus online store setup. Once your payment is confirmed, you can join the Telegram channels here and send the links to your email.",
     });
   }
 
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
           {
             role: "system",
             content:
-              "You are Joshspot Media's helpful course assistant. Answer questions about a ₦8,000 course that teaches TikTok ads, Facebook ads, Instagram ads, and online store creation. Keep answers short, practical, honest, and beginner-friendly. Let people know that once their payment is confirmed, they will be redirected to WhatsApp and get access to the course immediately on WhatsApp. Do not guarantee sales or income.",
+              "You are Joshspot Media's helpful course assistant. Answer questions about a ₦8,000 course that teaches TikTok ads, Facebook ads, Instagram ads, and online store creation. Keep answers short, practical, honest, and beginner-friendly. Let people know that once their payment is confirmed, they will see buttons to join the TikTok and Facebook & Instagram Telegram channels immediately, with an optional form above the buttons to send both course links to their email. Do not guarantee sales or income.",
           },
           {
             role: "user",
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       answer:
         answer ||
-        "The course covers TikTok, Facebook, Instagram ads and online store setup in a beginner-friendly way. Once your payment is confirmed, you will get access immediately on WhatsApp.",
+        "The course covers TikTok, Facebook, Instagram ads and online store setup in a beginner-friendly way. Once your payment is confirmed, you can join the course Telegram channels immediately and optionally send both links to your email.",
     });
   } catch (error) {
     console.log("COURSE QUESTION API ERROR:", error);

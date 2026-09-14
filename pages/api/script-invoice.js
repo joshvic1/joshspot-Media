@@ -3,14 +3,14 @@ const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "https://joshspot-media-backend-production.up.railway.app/api";
 
-const COURSE_PRICE = 8000;
+const SCRIPT_PRICE = 20000;
 
 export default async function handler(req, res) {
-  res.setHeader("Cache-Control", "no-store");
   try {
     if (req.method === "POST") {
       const name = String(req.body?.name || "").trim();
       const whatsapp = String(req.body?.whatsapp || "").trim();
+      const businessName = String(req.body?.businessName || "").trim();
 
       if (!name || !whatsapp) {
         return res.status(400).json({
@@ -24,21 +24,20 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: COURSE_PRICE,
+          amount: SCRIPT_PRICE,
           customerName: name,
-          customerPhone: whatsapp,
-          customerEmail: String(req.body?.email || "").trim(),
-          product: "ads-course",
-          note: `Course purchase - WhatsApp: ${whatsapp}`,
+          note: `Video script purchase - WhatsApp: ${whatsapp}${
+            businessName ? ` - Business: ${businessName}` : ""
+          }`,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        return res
-          .status(response.status)
-          .json({ message: data.message || "Unable to create payment account" });
+        return res.status(response.status).json({
+          message: data.message || "Unable to create payment account",
+        });
       }
 
       return res.status(201).json(data);
@@ -55,9 +54,9 @@ export default async function handler(req, res) {
       const data = await response.json();
 
       if (!response.ok) {
-        return res
-          .status(response.status)
-          .json({ message: data.message || "Unable to fetch payment status" });
+        return res.status(response.status).json({
+          message: data.message || "Unable to fetch payment status",
+        });
       }
 
       return res.status(200).json(data);
@@ -66,7 +65,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", ["GET", "POST"]);
     return res.status(405).json({ message: "Method not allowed" });
   } catch (error) {
-    console.log("COURSE INVOICE API ERROR:", error);
+    console.log("SCRIPT INVOICE API ERROR:", error);
     return res.status(500).json({ message: "Unable to process payment." });
   }
 }

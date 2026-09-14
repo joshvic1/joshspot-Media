@@ -756,6 +756,19 @@
   animation: spin 850ms linear infinite;
 }
 
+.courseAccess { display: grid; gap: 24px; margin-top: 24px; }
+.emailAccess { padding: 18px; border: 1px solid rgba(255,255,255,.16); border-radius: 18px; background: rgba(255,255,255,.06); }
+.courseAccess h3 { margin: 0 0 10px; font-size: 19px; }
+.courseAccess p { font-size: 14px; line-height: 1.6; color: #ded7e9; }
+.courseAccess .errorText { color: #be123c; }
+.courseAccess .statusText { color: #c8ffd9; }
+.emailAccess input { min-width: 0; width: 100%; box-sizing: border-box; }
+.emailAccess button { padding: 12px; }
+.telegramAccess { display: grid; gap: 12px; }
+.telegramButton { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px; border-radius: 14px; background: #229ed9; color: #fff; font-weight: 800; text-align: center; text-decoration: none; }
+.telegramButton:hover { background: #167bb0; }
+.telegramButton:focus-visible { outline: 3px solid #fff000; outline-offset: 4px; }
+
 @keyframes floatCard {
   0%,
   100% {
