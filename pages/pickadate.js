@@ -7,6 +7,7 @@ export default function PickADate() {
   const router = useRouter();
   const { token, reference } = router.query;
   const [paymentError, setPaymentError] = useState("");
+  const [emailWarning, setEmailWarning] = useState(false);
 
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -119,12 +120,13 @@ export default function PickADate() {
 
   const finishBooking = async () => {
     try {
-      await API.post("/booking/complete", {
+      const result = await API.post("/booking/complete", {
         token,
         date: selectedDate,
         time: selectedTime,
         notes,
       });
+      setEmailWarning(result.data.emailSent === false);
 
       // update booking state instantly
       setBooking((prev) => ({
@@ -442,6 +444,7 @@ ${isBooked || blockedBy24hr ? styles.booked : ""}
             <div className={styles.successIcon}>✓</div>
 
             <h1 className={styles.title}>Booking Confirmed</h1>
+            {emailWarning && <p role="status">Your booking is saved, but the confirmation email could not be sent. Please keep the details below.</p>}
 
             <p className={styles.subtitle}>
               You will be contacted by the Joshspot Media team on the booked
