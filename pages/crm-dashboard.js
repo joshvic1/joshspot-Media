@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
+import CrmLayout from "../components/crm/CrmLayout";
 
 const emptyForm = {
   businessName: "",
@@ -54,7 +55,6 @@ export default function CrmDashboard() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -212,76 +212,12 @@ export default function CrmDashboard() {
     router.push("/crm-login");
   };
 
-  const navigateDashboard = (path) => {
-    setIsMenuOpen(false);
-    router.push(path);
-  };
 
   const canShowForm = isFormOpen || editingId;
 
   return (
+    <CrmLayout active="setup" staff={staff} onLogout={logout}>
     <div className={styles.page}>
-      <nav className={styles.dashboardNav}>
-        <div className={styles.navBrand}>
-          <strong>Setup</strong>
-          <span>Dashboard</span>
-        </div>
-
-        <div className={styles.menuWrap}>
-          <button
-            aria-expanded={isMenuOpen}
-            aria-label="Open dashboard menu"
-            className={styles.menuButton}
-            onClick={() => setIsMenuOpen((current) => !current)}
-            type="button"
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-
-          {isMenuOpen && (
-            <div className={styles.dropdownMenu}>
-              <button
-                aria-current="page"
-                onClick={() => navigateDashboard("/crm-dashboard")}
-                type="button"
-              >
-                <strong>Setup Dashboard</strong>
-                <span>Client onboarding</span>
-              </button>
-              <button
-                onClick={() => navigateDashboard("/crm-verification-dashboard")}
-                type="button"
-              >
-                <strong>Verification Dashboard</strong>
-                <span>ID records</span>
-              </button>
-              <button
-                onClick={() => navigateDashboard("/crm-ads-dashboard")}
-                type="button"
-              >
-                <strong>Ads Dashboard</strong>
-                <span>Ad client delivery</span>
-              </button>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      <header className={styles.header}>
-        <div>
-          <span className={styles.badge}>Setup Dashboard</span>
-          <h1>Setup Clients</h1>
-          <p>Manage ad setup client details with role-based access.</p>
-        </div>
-
-        <div className={styles.staffCard}>
-          <strong>{staff?.name || "Staff"}</strong>
-          <span>{staff?.role || "CRM"}</span>
-          <button onClick={logout}>Logout</button>
-        </div>
-      </header>
 
       <section className={styles.contentGrid}>
         <div className={styles.panel} ref={formRef}>
@@ -430,5 +366,6 @@ export default function CrmDashboard() {
         </div>
       </section>
     </div>
+    </CrmLayout>
   );
 }

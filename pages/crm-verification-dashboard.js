@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
+import CrmLayout from "../components/crm/CrmLayout";
 
 const emptyVerificationForm = {
   name: "",
@@ -40,7 +41,6 @@ export default function CrmVerificationDashboard() {
   const [form, setForm] = useState(emptyVerificationForm);
   const [editingId, setEditingId] = useState("");
   const [saving, setSaving] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const formRef = useRef(null);
@@ -171,10 +171,6 @@ export default function CrmVerificationDashboard() {
     router.push("/crm-login");
   };
 
-  const navigateDashboard = (path) => {
-    setIsMenuOpen(false);
-    router.push(path);
-  };
 
   const downloadIdCard = async (client) => {
     try {
@@ -195,68 +191,8 @@ export default function CrmVerificationDashboard() {
   };
 
   return (
+    <CrmLayout active="verification" staff={staff} onLogout={logout}>
     <div className={styles.page}>
-      <nav className={styles.dashboardNav}>
-        <div className={styles.navBrand}>
-          <strong>Verification</strong>
-          <span>Dashboard</span>
-        </div>
-
-        <div className={styles.menuWrap}>
-          <button
-            aria-expanded={isMenuOpen}
-            aria-label="Open dashboard menu"
-            className={styles.menuButton}
-            onClick={() => setIsMenuOpen((current) => !current)}
-            type="button"
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-
-          {isMenuOpen && (
-            <div className={styles.dropdownMenu}>
-              <button
-                onClick={() => navigateDashboard("/crm-dashboard")}
-                type="button"
-              >
-                <strong>Setup Dashboard</strong>
-                <span>Client onboarding</span>
-              </button>
-              <button
-                aria-current="page"
-                onClick={() => navigateDashboard("/crm-verification-dashboard")}
-                type="button"
-              >
-                <strong>Verification Dashboard</strong>
-                <span>ID records</span>
-              </button>
-              <button
-                onClick={() => navigateDashboard("/crm-ads-dashboard")}
-                type="button"
-              >
-                <strong>Ads Dashboard</strong>
-                <span>Ad client delivery</span>
-              </button>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      <header className={styles.header}>
-        <div>
-          <span className={styles.badge}>Verification Dashboard</span>
-          <h1>Verification Clients</h1>
-          <p>Add and manage clients who paid for verification service.</p>
-        </div>
-
-        <div className={styles.staffCard}>
-          <strong>{staff?.name || "Staff"}</strong>
-          <span>{staff?.role || "CRM"}</span>
-          <button onClick={logout}>Logout</button>
-        </div>
-      </header>
 
       <section className={styles.contentGrid}>
         <div className={styles.panel} ref={formRef}>
@@ -449,5 +385,6 @@ export default function CrmVerificationDashboard() {
         </div>
       </section>
     </div>
+    </CrmLayout>
   );
 }

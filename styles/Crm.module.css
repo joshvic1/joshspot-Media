@@ -1,10 +1,8 @@
 .page {
-  min-height: 100vh;
-  padding: 36px;
-  background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 34%),
-    linear-gradient(135deg, #061a3a 0%, #0b3b82 58%, #08285b 100%);
-  color: #eff6ff;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  color: #334b63;
 }
 
 .loginPage {
@@ -560,3 +558,46 @@
     min-width: min(78vw, 280px);
   }
 }
+
+/* CRM workspace palette shared with the admin dashboard. */
+.page { padding:0; }
+.page .contentGrid { grid-template-columns:minmax(260px,340px) minmax(0,1fr); gap:22px; }
+.page .contentGrid > * { min-width:0; }
+.page .panel,.page .summaryGrid > div { background:#fff; border:1px solid #e1e6ee; border-radius:14px; box-shadow:0 3px 4px #17243d02; padding:24px; }
+.page .panelHeader { align-items:flex-start; gap:12px; flex-wrap:wrap; }
+.page .panelHeader h2 { color:#2b4058; font-size:17px; line-height:1.4; }
+.page .panelHeader span,.page .clientTop span { color:#8e9aab; font-size:11px; }
+.page .form label { color:#718197; font-size:11px; font-weight:500; margin-top:19px; }
+.page .form input,.page .form select,.page .form textarea,.page .searchBar input { background:#fafbfd; border:1px solid #dfe6ef; border-radius:8px; color:#435a73; padding:12px; font-size:12px; }
+.page .form textarea { min-height:100px; line-height:1.7; }
+.page .form input::placeholder,.page .searchBar input::placeholder { color:#9ba8b7; }
+.page .form input[type=file] { font-size:11px; padding:9px; }
+.page .form input::file-selector-button { border:0; border-radius:5px; background:#edf3e5; color:#617e45; padding:8px; margin-right:10px; cursor:pointer; }
+.page .form button { background:#203b31; color:#d8f1b4; font-weight:600; font-size:12px; padding:13px; }
+.page .form button:disabled { opacity:.5; cursor:wait; }
+.page .secondaryBtn,.page .clientTop button,.page .cancelButton { background:#eff4e8; border:1px solid #e1e9d7; color:#648148; font-size:11px; font-weight:500; }
+.page .form .cancelButton { background:#f4f6fa; color:#7e8ca0; border:1px solid #e3e8ef; margin-top:10px; }
+.page .searchBar { grid-template-columns:minmax(0,1fr) auto auto; gap:8px; padding-bottom:18px; border-bottom:1px solid #edf1f6; }
+.page .searchBar button { background:#eff4e8; color:#627d46; font-size:11px; font-weight:500; border:1px solid #e1e9d7; }
+.page .searchBar button[type=button] { background:#f7f9fc; color:#8b97a8; border-color:#e2e7ef; }
+.page .clientCard { padding:20px; background:#fff; border:1px solid #e4e9f1; border-radius:12px; }
+.page .clientTop h3 { font-size:15px; color:#2d465d; font-weight:600; }
+.page .clientDate { color:#9aa5b4; font-size:10px; font-weight:400; }
+.page .clientFields { gap:10px; }
+.page .clientFields p { background:#f8fafc; padding:12px; border-radius:8px; color:#4f667e; font-size:12px; line-height:1.7; }
+.page .clientFields strong { display:block; color:#98a4b3; font-size:10px; font-weight:500; margin-bottom:4px; }
+.page .fileLink { color:#8271a6; font-size:12px; font-weight:500; }
+.page .fileHint { color:#92a27a; font-size:10px; }
+.page .publishToggle { border:1px solid #e4ecd9; background:#f4f8ee; color:#6d8851; padding:9px 12px; font-size:11px; font-weight:500; }
+.page .toggleText { color:#6d8851; }
+.page .toggleControl { background:#fff; border-color:#c6d6b5; width:19px; height:19px; }
+.page .publishToggle input:checked + .toggleControl { background:#c2e68e; border-color:#b0d27c; box-shadow:0 0 0 3px #c2e68e25; }
+.page .publishToggle input:focus-visible + .toggleControl { outline:3px solid #9b85cf; outline-offset:3px; }
+.page .emptyState { background:#f7f9fc; color:#96a2b2; font-size:12px; line-height:1.8; border:1px dashed #e2e8f0; padding:20px; }
+.page .errorState { background:#fff1ee; border-color:#f3dcd7; color:#ae6c61; font-size:12px; font-weight:500; }
+.page .pagination { border-top:1px solid #edf1f6; margin-top:20px; padding-top:18px; justify-content:space-between; }
+.page .pagination button { background:#fff; color:#7d8c9e; border:1px solid #e1e7ef; font-size:11px; font-weight:500; }
+.page .pagination span { color:#97a3b3; font-size:11px; font-weight:400; }
+.page button:focus-visible,.page input:focus-visible,.page textarea:focus-visible,.page select:focus-visible,.page a:focus-visible { outline:3px solid #9c88d2; outline-offset:3px; }
+@media(max-width:1200px) { .page .contentGrid { grid-template-columns:1fr; }.page .form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 18px; }.page .form > button { grid-column:1/-1; } }
+@media(max-width:600px) { .page .panel { padding:18px; }.page .form,.page .clientFields { grid-template-columns:minmax(0,1fr); }.page .searchBar { grid-template-columns:minmax(0,1fr) auto; }.page .searchBar input { grid-column:1/-1; }.page .pagination { display:flex; flex-wrap:wrap; justify-content:center; }.page .clientCard { padding:15px; } }

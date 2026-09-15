@@ -1,4 +1,7 @@
 .shell { min-height:100vh; background:#f4f6fa; color:#17243d; font-family:Arial,sans-serif; font-size:14px; }
+.crmDrawer { padding:0; border:0; margin:0; max-width:none; max-height:none; width:min(310px,90vw); height:100dvh; background:#111b2e; color:#fff; }
+.crmDrawer::backdrop { background:#0d162b80; backdrop-filter:blur(3px); }
+.crmDrawer .mobileSidebar { width:100%; height:100%; }
 .shell * { box-sizing:border-box; }
 .shell button, .shell input, .shell select { font:inherit; }
 .shell button, .shell a { -webkit-tap-highlight-color:transparent; }
