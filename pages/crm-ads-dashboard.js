@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
+import DeleteClient from "../components/crm/DeleteClient";
 import CrmLayout from "../components/crm/CrmLayout";
 
 const serviceOptions = [
@@ -123,17 +124,15 @@ export default function CrmAdsDashboard() {
   }, [router]);
 
   useEffect(() => {
-    const token = localStorage.getItem("crmToken");
-    const storedStaff = localStorage.getItem("crmStaff");
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("crmToken");
+    
 
     if (!token) {
       router.push("/crm-login");
       return;
     }
 
-    if (storedStaff) {
-      setStaff(JSON.parse(storedStaff));
-    }
+    API.get("/crm/session").then(({ data }) => setStaff(data.staff)).catch(() => setStaff(null));
 
     fetchClients();
   }, [fetchClients, router]);
@@ -253,6 +252,7 @@ export default function CrmAdsDashboard() {
   };
 
   const logout = () => {
+    if (staff?.admin) { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); return; }
     localStorage.removeItem("crmToken");
     localStorage.removeItem("crmStaff");
     router.push("/crm-login");
@@ -369,6 +369,7 @@ export default function CrmAdsDashboard() {
                 <div className={styles.clientTop}>
                   <div>
                     <h3>{client.businessName}</h3>
+                    {staff?.admin === true && <DeleteClient kind="ads-clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); if (editingId === client._id) { setEditingId(""); setForm(emptyForm); } }} />}
                     <span>{client.servicePaidFor}</span>
                     <small className={styles.clientDate}>
                       Added {formatAddedDate(client.createdAt)}

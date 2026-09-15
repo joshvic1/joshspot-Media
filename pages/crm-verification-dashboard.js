@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
+import DeleteClient from "../components/crm/DeleteClient";
 import CrmLayout from "../components/crm/CrmLayout";
 
 const emptyVerificationForm = {
@@ -61,17 +62,15 @@ export default function CrmVerificationDashboard() {
   }, [router]);
 
   useEffect(() => {
-    const token = localStorage.getItem("crmToken");
-    const storedStaff = localStorage.getItem("crmStaff");
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("crmToken");
+    
 
     if (!token) {
       router.push("/crm-login");
       return;
     }
 
-    if (storedStaff) {
-      setStaff(JSON.parse(storedStaff));
-    }
+    API.get("/crm/session").then(({ data }) => setStaff(data.staff)).catch(() => setStaff(null));
 
     fetchClients();
   }, [fetchClients, router]);
@@ -145,7 +144,7 @@ export default function CrmVerificationDashboard() {
     const payload = Object.fromEntries(
       Object.entries({
         ...form,
-        amountPaid: staff?.role === "SS" ? Number(form.amountPaid || 0) : undefined,
+        amountPaid: ["SS", "ADMIN"].includes(staff?.role) ? Number(form.amountPaid || 0) : undefined,
         idCard: form.idCard?.data ? form.idCard : undefined,
       }).filter(([, value]) => value !== undefined),
     );
@@ -166,6 +165,7 @@ export default function CrmVerificationDashboard() {
   };
 
   const logout = () => {
+    if (staff?.admin) { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); return; }
     localStorage.removeItem("crmToken");
     localStorage.removeItem("crmStaff");
     router.push("/crm-login");
@@ -231,7 +231,7 @@ export default function CrmVerificationDashboard() {
               />
             </label>
 
-            {staff?.role === "SS" && (
+            {["SS", "ADMIN"].includes(staff?.role) && (
               <label>
                 <span>Amount paid</span>
                 <input
@@ -306,6 +306,7 @@ export default function CrmVerificationDashboard() {
                 <div className={styles.clientTop}>
                   <div>
                     <h3>{client.businessName}</h3>
+                    {staff?.admin === true && <DeleteClient kind="verification-clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); if (editingId === client._id) { setEditingId(""); setForm(emptyVerificationForm); } }} />}
                     <span>{client.service || "Verification"}</span>
                     <small className={styles.clientDate}>
                       Added {formatAddedDate(client.createdAt)}

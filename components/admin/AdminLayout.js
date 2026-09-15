@@ -61,7 +61,7 @@ export default function AdminLayout({ active, children }) {
     <nav aria-label="Admin navigation">{adminPages.map(([key, title, Icon]) => (
       <Link key={key} href={`${adminHref(key)}${demo ? "?preview=demo" : ""}`} aria-current={active === key ? "page" : undefined}
         className={active === key ? styles.active : ""} onClick={() => setOpen(false)}><Icon />{title}</Link>
-    ))}</nav>
+    ))}<Link href="/crm-dashboard" onClick={() => setOpen(false)}><FiUsers />CRM dashboard</Link></nav>
     <div className={styles.sidebarBottom}>
       <a href="/course" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> View course page</a>
       <button onClick={() => { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); }}><FiLogOut /> Sign out</button>
