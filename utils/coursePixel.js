@@ -1,4 +1,53 @@
 export const COURSE_PIXEL_ID = "1748244569523969";
+export const COURSE_SNAP_PIXEL_ID = "99f1a8b1-e67c-475a-a919-939396d44dd7";
+const snapSent = new Set();
+const snapEvents = {
+  PageView: "PAGE_VIEW", ViewContent: "VIEW_CONTENT", InitiateCheckout: "START_CHECKOUT",
+  CoursePaymentAccountCreated: "CUSTOM_EVENT_1", CourseLinksEmailed: "CUSTOM_EVENT_2",
+  CourseTelegramClick: "CUSTOM_EVENT_3", CourseQuestionAnswered: "CUSTOM_EVENT_4",
+  CoursePaymentDetailsCopied: "CUSTOM_EVENT_5",
+};
+
+function initializeSnap() {
+  if (!courseTrackingAllowed()) return false;
+  if (!window.snaptr) {
+    const snaptr = function (...args) { if (snaptr.handleRequest) snaptr.handleRequest(...args); else snaptr.queue.push(args); };
+    snaptr.queue = [];
+    window.snaptr = snaptr;
+    const script = document.createElement("script");
+    script.async = true; script.src = "https://sc-static.net/scevent.min.js";
+    document.head.appendChild(script);
+  }
+  if (!window.__courseSnapInitialized) {
+    window.snaptr("init", COURSE_SNAP_PIXEL_ID, {});
+    window.__courseSnapInitialized = true;
+  }
+  return true;
+}
+
+function trackSnapCourse(event, data, once) {
+  try {
+    if (!snapEvents[event] || !initializeSnap() || (once && snapSent.has(once))) return;
+    const params = { item_ids: ["ads-course"], currency: "NGN" };
+    if (Number(data.value) > 0) params.price = Number(data.value);
+    window.snaptr("track", snapEvents[event], params);
+    if (once) snapSent.add(once);
+  } catch { /* Keep Snap independent of checkout and Meta. */ }
+}
+
+async function trackSnapPurchase(invoice) {
+  try {
+    const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(invoice.token));
+    const transactionId = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    const key = `snap-${COURSE_SNAP_PIXEL_ID}-${transactionId}`;
+    if (snapSent.has(key)) return;
+    try { if (window.localStorage.getItem(key)) return; } catch { /* In-memory fallback. */ }
+    if (!initializeSnap()) return;
+    window.snaptr("track", "PURCHASE", { item_ids: ["ads-course"], currency: "NGN", price: Number(invoice.amount), transaction_id: transactionId });
+    snapSent.add(key);
+    try { window.localStorage.setItem(key, "1"); } catch { /* In-memory fallback. */ }
+  } catch { /* Tracking must not interrupt course access. */ }
+}
 const sent = new Set();
 const product = { content_ids: ["ads-course"], content_type: "product", content_name: "TikTok, Facebook & Instagram Ads Course", currency: "NGN" };
 
@@ -29,6 +78,7 @@ function initialize() {
 }
 
 export function trackCourse(event, data = {}, { custom = false, once } = {}) {
+  trackSnapCourse(event, data, once);
   try {
     if (!initialize() || (once && sent.has(once))) return;
     window.fbq(custom ? "trackSingleCustom" : "trackSingle", COURSE_PIXEL_ID, event, { ...product, ...data });
@@ -38,6 +88,7 @@ export function trackCourse(event, data = {}, { custom = false, once } = {}) {
 
 export async function trackCoursePurchase(invoice) {
   if (!courseTrackingAllowed() || invoice?.preview || invoice?.status !== "paid" || !invoice.token || !(Number(invoice.amount) > 0)) return;
+  await trackSnapPurchase(invoice);
   try {
     // Hash the access token so no course-access credential leaves the application.
     const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(invoice.token));
