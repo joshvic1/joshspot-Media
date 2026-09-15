@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { trackCourse, trackCoursePurchase } from "../utils/coursePixel";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
@@ -134,6 +135,14 @@ export default function CoursePage() {
   const accessInvoice = previewInvoice || invoice;
 
   useEffect(() => {
+    if (!router.isReady) return;
+    trackCourse("PageView", {}, { once: "course-pageview" });
+    trackCourse("ViewContent", { value: COURSE_PRICE }, { once: "course-view" });
+  }, [router.isReady]);
+
+  useEffect(() => { trackCoursePurchase(invoice); }, [invoice]);
+
+  useEffect(() => {
     const savedOffer = window.localStorage.getItem("courseOfferTimer");
 
     if (savedOffer && Number(savedOffer) > 0) {
@@ -199,6 +208,7 @@ export default function CoursePage() {
   }, [invoice?.token, invoice?.status]);
 
   const openCheckout = () => {
+    if (accessInvoice?.status !== "paid") trackCourse("InitiateCheckout", { value: COURSE_PRICE, num_items: 1 }, { once: "course-checkout" });
     setDrawerOpen(true);
     setPaymentError("");
   };
@@ -251,6 +261,8 @@ export default function CoursePage() {
       }
 
       setInvoice(data.invoice);
+      trackCourse("Lead", { value: COURSE_PRICE }, { once: "course-lead" });
+      trackCourse("CoursePaymentAccountCreated", {}, { custom: true, once: "course-account" });
     } catch (error) {
       setPaymentError(error.message || "Unable to create payment account.");
     } finally {
@@ -261,6 +273,7 @@ export default function CoursePage() {
   const confirmPayment = async () => {
     if (!invoice?.token) return;
 
+    trackCourse("CoursePaymentCheck", {}, { custom: true });
     setConfirmingPayment(true);
     setPaymentError("");
 
@@ -291,6 +304,7 @@ export default function CoursePage() {
   const copyText = async (label, value) => {
     await navigator.clipboard.writeText(value);
     setCopied(label);
+    trackCourse("CoursePaymentDetailsCopied", {}, { custom: true });
     window.setTimeout(() => setCopied(""), 1300);
   };
 
@@ -313,6 +327,7 @@ export default function CoursePage() {
       });
       const data = await response.json();
 
+      if (response.ok) trackCourse("CourseQuestionAnswered", {}, { custom: true });
       setAnswer(
         response.ok
           ? data.answer
@@ -623,6 +638,7 @@ function CourseAccess({ invoice }) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "The email did not send. Please try again.");
       setMessage(data.message);
+      trackCourse("CourseLinksEmailed", {}, { custom: true });
     } catch (error) {
       setError(error.message || "The email did not send. Please try again.");
     } finally {
@@ -647,7 +663,7 @@ function CourseAccess({ invoice }) {
       <section className={styles.telegramAccess} aria-labelledby="join-courses">
         <h3 id="join-courses">You can also, click the buttons below to access the courses directly</h3>
         {invoice.courses?.map((course) => (
-          <a key={course.url} className={styles.telegramButton} href={course.url} target="_blank" rel="noopener noreferrer">
+          <a onClick={() => { if (!invoice.preview) trackCourse("CourseTelegramClick", { course_name: course.title }, { custom: true }); }} key={course.url} className={styles.telegramButton} href={course.url} target="_blank" rel="noopener noreferrer">
             <FiSend aria-hidden="true" /> Join {course.title}
           </a>
         ))}
