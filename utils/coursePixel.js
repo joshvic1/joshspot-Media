@@ -29,11 +29,11 @@ function courseTikTok() {
 
 function trackTikTokCourse(event, data, once) {
   try {
-    // Account creation is already represented by Lead; do not count it twice.
+    // Account creation is already represented by SubmitForm; do not count it twice.
     if (event === "CoursePaymentAccountCreated" || (once && tiktokSent.has(once))) return;
     const pixel = courseTikTok(); if (!pixel) return;
     if (event === "PageView") pixel.page();
-    else pixel.track(event, { content_ids: ["ads-course"], content_type: "product", description: "TikTok, Facebook & Instagram Ads Course", currency: "NGN", ...data });
+    else pixel.track(event === "Lead" ? "SubmitForm" : event, { content_ids: ["ads-course"], content_type: "product", description: "TikTok, Facebook & Instagram Ads Course", currency: "NGN", ...data });
     if (once) tiktokSent.add(once);
   } catch { /* Tracking must not interrupt checkout. */ }
 }
