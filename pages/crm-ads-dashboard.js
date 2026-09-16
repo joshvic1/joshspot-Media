@@ -251,6 +251,20 @@ export default function CrmAdsDashboard() {
     }
   };
 
+  const [fundsSaving, setFundsSaving] = useState({});
+  const toggleFundsSent = async (client) => {
+    if (!staff?.admin || fundsSaving[client._id]) return;
+    setFundsSaving((current) => ({ ...current, [client._id]: true }));
+    try {
+      const { data } = await API.put(`/crm/ads-clients/${client._id}`, { fundsSent: !client.fundsSent });
+      setClients((current) => current.map((item) => item._id === client._id ? { ...item, fundsSent: data.fundsSent } : item));
+    } catch (error) {
+      alert(error.response?.data?.message || "Unable to save funds sent status");
+    } finally {
+      setFundsSaving((current) => ({ ...current, [client._id]: false }));
+    }
+  };
+
   const logout = () => {
     if (staff?.admin) { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); return; }
     localStorage.removeItem("crmToken");
@@ -378,6 +392,7 @@ export default function CrmAdsDashboard() {
                   <button onClick={() => startEdit(client)}>Update</button>
                 </div>
 
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", alignItems: "center" }}>
                 <label className={styles.publishToggle}>
                   <input
                     checked={Boolean(client.adsPublished)}
@@ -389,6 +404,12 @@ export default function CrmAdsDashboard() {
                     {client.adsPublished ? "Ads Published" : "Mark Ads Published"}
                   </span>
                 </label>
+                <label className={styles.publishToggle} title={staff?.admin ? "Mark when you have sent the ad funds" : "Updated by the administrator"}>
+                  <input type="checkbox" checked={Boolean(client.fundsSent)} disabled={!staff?.admin || Boolean(fundsSaving[client._id])} onChange={() => toggleFundsSent(client)} />
+                  <span className={styles.toggleControl} />
+                  <span className={styles.toggleText}>{fundsSaving[client._id] ? "Saving…" : "Funds sent"}</span>
+                </label>
+                </div>
 
                 <div className={styles.clientFields}>
                   {fieldOrder.map((field) => (
