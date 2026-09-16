@@ -1,4 +1,56 @@
 export const COURSE_PIXEL_ID = "1748244569523969";
+export const COURSE_TIKTOK_PIXEL_ID = "D8PHSLRC77UCDHMP5VU0";
+const tiktokSent = new Set();
+function courseTikTok() {
+  if (!courseTrackingAllowed()) return null;
+  window.TiktokAnalyticsObject = "ttq";
+  const ttq = window.ttq = window.ttq || [];
+  if (!ttq.load) {
+    ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie", "holdConsent", "revokeConsent", "grantConsent"];
+    ttq.setAndDefer = (target, method) => { target[method] = (...args) => target.push([method, ...args]); };
+    ttq.methods.forEach((method) => ttq.setAndDefer(ttq, method));
+    ttq.load = (id, options) => {
+      const url = "https://analytics.tiktok.com/i18n/pixel/events.js";
+      ttq._i = ttq._i || {}; ttq._i[id] = []; ttq._i[id]._u = url;
+      ttq._t = ttq._t || {}; ttq._t[id] = Date.now();
+      ttq._o = ttq._o || {}; ttq._o[id] = options || {};
+      const script = document.createElement("script"); script.async = true;
+      script.src = `${url}?sdkid=${id}&lib=ttq`; document.head.appendChild(script);
+    };
+  }
+  if (!ttq.instance) ttq.instance = (id) => {
+    const instance = ttq._i[id];
+    ttq.methods.forEach((method) => { if (!instance[method]) ttq.setAndDefer(instance, method); });
+    return instance;
+  };
+  if (!ttq._i?.[COURSE_TIKTOK_PIXEL_ID]) ttq.load(COURSE_TIKTOK_PIXEL_ID);
+  return ttq.instance(COURSE_TIKTOK_PIXEL_ID);
+}
+
+function trackTikTokCourse(event, data, once) {
+  try {
+    // Account creation is already represented by Lead; do not count it twice.
+    if (event === "CoursePaymentAccountCreated" || (once && tiktokSent.has(once))) return;
+    const pixel = courseTikTok(); if (!pixel) return;
+    if (event === "PageView") pixel.page();
+    else pixel.track(event, { content_ids: ["ads-course"], content_type: "product", description: "TikTok, Facebook & Instagram Ads Course", currency: "NGN", ...data });
+    if (once) tiktokSent.add(once);
+  } catch { /* Tracking must not interrupt checkout. */ }
+}
+
+async function trackTikTokPurchase(invoice) {
+  try {
+    const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(invoice.token));
+    const eventId = `course-${Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+    const key = `tiktok-${COURSE_TIKTOK_PIXEL_ID}-${eventId}`;
+    if (tiktokSent.has(key)) return;
+    try { if (window.localStorage.getItem(key)) return; } catch { /* In-memory fallback. */ }
+    const pixel = courseTikTok(); if (!pixel) return;
+    pixel.track("Purchase", { content_ids: ["ads-course"], content_type: "product", currency: "NGN", value: Number(invoice.amount), quantity: 1 }, { event_id: eventId });
+    tiktokSent.add(key);
+    try { window.localStorage.setItem(key, "1"); } catch { /* In-memory fallback. */ }
+  } catch { /* Tracking must not interrupt paid access. */ }
+}
 export const COURSE_SNAP_PIXEL_ID = "99f1a8b1-e67c-475a-a919-939396d44dd7";
 const snapSent = new Set();
 const snapEvents = {
@@ -78,6 +130,7 @@ function initialize() {
 }
 
 export function trackCourse(event, data = {}, { custom = false, once } = {}) {
+  trackTikTokCourse(event, data, once);
   trackSnapCourse(event, data, once);
   try {
     if (!initialize() || (once && sent.has(once))) return;
@@ -89,6 +142,7 @@ export function trackCourse(event, data = {}, { custom = false, once } = {}) {
 export async function trackCoursePurchase(invoice) {
   if (!courseTrackingAllowed() || invoice?.preview || invoice?.status !== "paid" || !invoice.token || !(Number(invoice.amount) > 0)) return;
   await trackSnapPurchase(invoice);
+  await trackTikTokPurchase(invoice);
   try {
     // Hash the access token so no course-access credential leaves the application.
     const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(invoice.token));

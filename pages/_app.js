@@ -7,6 +7,13 @@ const poppins = Poppins({
 });
 export default function App({ Component, pageProps }) {
   useEffect(() => {
+    // The course has its own targeted tracking and preview exclusions.
+    if (window.location.pathname.replace(/\/$/, "") === "/course") return;
+    if (window.ttq?.load) {
+      if (!window.ttq._i?.D7V46AJC77UCL5G1KVLG) window.ttq.load("D7V46AJC77UCL5G1KVLG");
+      window.ttq.instance("D7V46AJC77UCL5G1KVLG").page();
+      return;
+    }
     if (window.ttq && window.__ttLoaded) {
       console.log("⚠️ TikTok already initialized");
       return;
@@ -41,6 +48,13 @@ export default function App({ Component, pageProps }) {
       for (var i = 0; i < ttq.methods.length; i++) {
         ttq.setAndDefer(ttq, ttq.methods[i]);
       }
+      ttq.instance = function (id) {
+        var instance = ttq._i[id];
+        for (var i = 0; i < ttq.methods.length; i++) {
+          if (!instance[ttq.methods[i]]) ttq.setAndDefer(instance, ttq.methods[i]);
+        }
+        return instance;
+      };
       ttq.load = function (e, n) {
         var i = "https://analytics.tiktok.com/i18n/pixel/events.js";
         ttq._i = ttq._i || {};
@@ -58,7 +72,7 @@ export default function App({ Component, pageProps }) {
         a.parentNode.insertBefore(o, a);
       };
       ttq.load("D7V46AJC77UCL5G1KVLG");
-      ttq.page();
+      ttq.instance("D7V46AJC77UCL5G1KVLG").page();
     })(window, document, "ttq");
   }, []);
   return (
