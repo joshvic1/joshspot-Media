@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { captureCourseAttribution } from "../utils/courseAttribution";
 import { trackCourse, trackCoursePurchase } from "../utils/coursePixel";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -106,6 +107,7 @@ const formatTime = (seconds) => {
 
 export default function CoursePage() {
   const router = useRouter();
+  useEffect(() => { captureCourseAttribution(); }, []);
   const previewPaid = process.env.NODE_ENV === "development" && router.query.preview === "paid";
   const [timeLeft, setTimeLeft] = useState(PRICE_REVIEW_SECONDS);
   const [animatedNextPrice, setAnimatedNextPrice] = useState(0);
@@ -252,6 +254,7 @@ export default function CoursePage() {
           name,
           whatsapp: fullWhatsapp,
           email: checkoutEmail,
+          attribution: captureCourseAttribution(),
         }),
       });
       const data = await response.json();

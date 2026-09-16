@@ -1,3 +1,4 @@
+import { detectBrowser } from "../../utils/courseAttribution";
 const BACKEND_URL =
   process.env.BACKEND_API_URL ||
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -29,6 +30,11 @@ export default async function handler(req, res) {
           customerPhone: whatsapp,
           customerEmail: String(req.body?.email || "").trim(),
           product: "ads-course",
+          attribution: {
+            source: req.body?.attribution?.source,
+            method: req.body?.attribution?.method,
+            browser: detectBrowser(String(req.headers["user-agent"] || "")),
+          },
           note: `Course purchase - WhatsApp: ${whatsapp}`,
         }),
       });

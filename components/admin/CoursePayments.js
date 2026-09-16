@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { FiArrowDownLeft, FiCheckCircle, FiClock, FiMail, FiRefreshCw, FiSearch, FiShoppingBag, FiX, FiArrowRight } from "react-icons/fi";
 import styles from "../../styles/CourseAdmin.module.css";
 import { DeleteButton } from "./RecordDeletion";
+import AttributionBadges from "./AttributionBadges";
 
 const labels = { paid: "Successful", pending: "Pending", abandoned: "Abandoned", failed: "Unsuccessful" };
 const money = (amount) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(amount || 0);
@@ -109,7 +110,7 @@ export default function CoursePayments() {
         <table><thead><tr><th scope="col">Customer</th><th scope="col">WhatsApp</th><th scope="col">Email address</th><th scope="col">Payment</th><th scope="col">Amount</th><th scope="col">Checkout date</th><th scope="col">Follow-up</th></tr></thead>
           <tbody>{loading ? <tr><td colSpan={7} className={styles.empty} role="status">Loading course payments…</td></tr> : error && !data ? <tr><td colSpan={7} className={styles.empty}>Your records could not be loaded. Use Refresh records to try again.</td></tr> : data?.records.length ? data.records.map((record) => (
             <tr key={record.id}>
-              <td><div className={styles.customer}><span className={styles.avatar}>{(record.name || "?").split(" ").slice(0,2).map((word) => word[0]).join("")}</span><strong>{record.name || "Unnamed customer"}</strong></div></td>
+              <td><div className={styles.customer}><span className={styles.avatar}>{(record.name || "?").split(" ").slice(0,2).map((word) => word[0]).join("")}</span><div><strong>{record.name || "Unnamed customer"}</strong><AttributionBadges attribution={record.attribution} /></div></div></td>
               <td className={styles.phone}>{record.phone}</td>
               <td>{record.email}</td>
               <td><span className={`${styles.badge} ${styles[record.status]}`}><i />{labels[record.status]}</span>
