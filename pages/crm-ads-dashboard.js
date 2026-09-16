@@ -4,6 +4,7 @@ import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
 import DeleteClient from "../components/crm/DeleteClient";
 import CrmLayout from "../components/crm/CrmLayout";
+import FundsBadge from "../components/crm/FundsBadge";
 
 const serviceOptions = [
   "TikTok Ads Landing Page",
@@ -252,14 +253,16 @@ export default function CrmAdsDashboard() {
   };
 
   const [fundsSaving, setFundsSaving] = useState({});
-  const toggleFundsSent = async (client) => {
+  const changeFundsStatus = async (client, fundsStatus) => {
     if (!staff?.admin || fundsSaving[client._id]) return;
     setFundsSaving((current) => ({ ...current, [client._id]: true }));
     try {
-      const { data } = await API.put(`/crm/ads-clients/${client._id}`, { fundsSent: !client.fundsSent });
-      setClients((current) => current.map((item) => item._id === client._id ? { ...item, fundsSent: data.fundsSent } : item));
+      const { data } = await API.put(`/crm/ads-clients/${client._id}`, { fundsStatus });
+      if (data.fundsStatus !== fundsStatus) throw new Error("The backend needs updating before funds status can be saved.");
+      setClients((current) => current.map((item) => item._id === client._id ? { ...item, fundsStatus: data.fundsStatus, fundsSent: data.fundsSent } : item));
     } catch (error) {
-      alert(error.response?.data?.message || "Unable to save funds sent status");
+      const message = error.response?.data?.message;
+      alert(message === "No allowed fields to update" ? "The hosted backend needs the latest funds-status update deployed. Your change has not been saved." : message || error.message || "Unable to save funds status");
     } finally {
       setFundsSaving((current) => ({ ...current, [client._id]: false }));
     }
@@ -388,6 +391,9 @@ export default function CrmAdsDashboard() {
                     <small className={styles.clientDate}>
                       Added {formatAddedDate(client.createdAt)}
                     </small>
+                    <div className={styles.fundsPlacement}>
+                      <FundsBadge client={client} editable={Boolean(staff?.admin)} saving={Boolean(fundsSaving[client._id])} onChange={(value) => changeFundsStatus(client, value)} />
+                    </div>
                   </div>
                   <button onClick={() => startEdit(client)}>Update</button>
                 </div>
@@ -403,11 +409,6 @@ export default function CrmAdsDashboard() {
                   <span className={styles.toggleText}>
                     {client.adsPublished ? "Ads Published" : "Mark Ads Published"}
                   </span>
-                </label>
-                <label className={styles.publishToggle} title={staff?.admin ? "Mark when you have sent the ad funds" : "Updated by the administrator"}>
-                  <input type="checkbox" checked={Boolean(client.fundsSent)} disabled={!staff?.admin || Boolean(fundsSaving[client._id])} onChange={() => toggleFundsSent(client)} />
-                  <span className={styles.toggleControl} />
-                  <span className={styles.toggleText}>{fundsSaving[client._id] ? "Saving…" : "Funds sent"}</span>
                 </label>
                 </div>
 

@@ -599,5 +599,18 @@
 .page .pagination button { background:#fff; color:#7d8c9e; border:1px solid #e1e7ef; font-size:11px; font-weight:500; }
 .page .pagination span { color:#97a3b3; font-size:11px; font-weight:400; }
 .page button:focus-visible,.page input:focus-visible,.page textarea:focus-visible,.page select:focus-visible,.page a:focus-visible { outline:3px solid #9c88d2; outline-offset:3px; }
+.page .fundsPlacement { margin-top:7px; }
+.page .clientTop .fundsBadge { position:relative; display:inline-flex; align-items:center; gap:5px; min-height:0; padding:3px 8px; border:1px solid; border-radius:999px; font-size:10px; font-weight:500; line-height:14px; white-space:nowrap; }
+.page .fundsBadge > span { color:inherit; font-size:inherit; margin:0; }
+.page .fundsBadge.funds_pending { background:#fff8e6; border-color:#f3dfa8; color:#946312; }
+.page .fundsBadge.funds_sent { background:#eaf8ef; border-color:#bfe6ce; color:#247146; }
+.page .fundsBadge.funds_not_needed { background:#f1f4f8; border-color:#dce3ec; color:#64748b; }
+.page .fundsDot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+.page .fundsChevron { width:10px; height:10px; margin-left:1px; opacity:.7; }
+.page .fundsSelect { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.page .fundsBadge:has(select):hover { filter:brightness(.98); box-shadow:0 2px 5px #182c4610; }
+.page .fundsBadge:focus-within { outline:3px solid #9c88d2; outline-offset:3px; }
+.page .fundsBadge[aria-busy=true] { opacity:.65; }
+.page .fundsSelect:disabled { cursor:wait; }
 @media(max-width:1200px) { .page .contentGrid { grid-template-columns:1fr; }.page .form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 18px; }.page .form > button { grid-column:1/-1; } }
 @media(max-width:600px) { .page .panel { padding:18px; }.page .form,.page .clientFields { grid-template-columns:minmax(0,1fr); }.page .searchBar { grid-template-columns:minmax(0,1fr) auto; }.page .searchBar input { grid-column:1/-1; }.page .pagination { display:flex; flex-wrap:wrap; justify-content:center; }.page .clientCard { padding:15px; } }
