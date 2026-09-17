@@ -32,6 +32,7 @@ export default async function handler(req, res) {
           product: "ads-course",
           attribution: {
             source: req.body?.attribution?.source,
+            sourceLabel: req.body?.attribution?.sourceLabel,
             method: req.body?.attribution?.method,
             browser: detectBrowser(String(req.headers["user-agent"] || "")),
           },

@@ -27,9 +27,14 @@ function detectBrowser(ua = '') {
 }
 function deriveSource(href, referrer = '') {
   const url = new URL(href);
-  const tag = (url.searchParams.get('utm_source') || '').toLowerCase().trim();
+  const sourceLabel = (url.searchParams.get('utm_source') || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 80);
+  const tag = sourceLabel.toLowerCase();
   const aliases = {ig:'instagram',fb:'facebook',tt:'tiktok',wa:'whatsapp',snap:'snapchat'};
-  if (tag) return {source:sources.includes(aliases[tag] || tag) ? aliases[tag] || tag : 'other', method:'tag'};
+  if (tag) {
+    const platform = tag.match(/^(tiktok|instagram|facebook|whatsapp|google|snapchat|youtube|snap|ig|fb|tt|wa)(?=$|[\s_\-\d])/i)?.[1];
+    const source = aliases[platform] || platform || (sources.includes(tag) ? tag : 'other');
+    return {source, sourceLabel, method:'tag'};
+  }
   if (url.searchParams.has('ttclid')) return {source:'tiktok',method:'click-id'};
   if (url.searchParams.has('ScCid')) return {source:'snapchat',method:'click-id'};
   if (url.searchParams.has('gclid')) return {source:'google',method:'click-id'};

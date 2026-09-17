@@ -6,9 +6,9 @@ export default function AttributionBadges({ attribution }) {
   return <div style={{ display: "grid", gap: 5, marginTop: 8, fontSize: 11, color: "#526579" }}>
     {[["Source", attribution?.source], ["Checkout", attribution?.browser]].map(([kind, value]) => {
       const Icon = icons[value] || FiGlobe;
-      const label = labels[value] || "Unknown";
+      const label = kind === "Source" && attribution?.sourceLabel ? attribution.sourceLabel : labels[value] || "Unknown";
       const method = {tag:"Tagged link", referrer:"Referring website", "click-id":"Ad click identifier", none:"No referral evidence"}[attribution?.method] || "Not recorded";
-      return <span key={kind} title={kind === "Source" ? method : "Estimated from checkout browser information; not the banking app"} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Icon aria-hidden="true" /><span>{kind}: {label}</span></span>;
+      return <span key={kind} title={kind === "Source" ? method : "Estimated from checkout browser information; not the banking app"} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Icon aria-hidden="true" style={{ flexShrink: 0 }} /><span style={{ overflowWrap: "anywhere", whiteSpace: "normal" }}>{kind}: {label}</span></span>;
     })}
   </div>;
 }
