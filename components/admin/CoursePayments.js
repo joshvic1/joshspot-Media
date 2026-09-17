@@ -62,10 +62,11 @@ export default function CoursePayments() {
   const closeReminder = () => { dialog.current?.close(); setSelected(null); };
   const act = async (record, action) => {
     if (busy) return;
+    if (action === "resend" && !window.confirm(`Resend the course links email to ${record.email}?`)) return;
     setBusy(record.id); setError(""); setNotice("");
     try {
       if (demo) {
-        setNotice(action === "remind" ? "Preview only: no reminder email was sent." : "Preview only: this is a sample payment record.");
+        setNotice(action === "resend" ? "Preview only: no course email was sent." : action === "remind" ? "Preview only: no reminder email was sent." : "Preview only: this is a sample payment record.");
         if (action === "remind") closeReminder();
         return;
       }
@@ -75,7 +76,7 @@ export default function CoursePayments() {
       if (response.status === 401) { router.push("/admin-login-0tT6Yc1"); return; }
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "Unable to complete this action.");
-      setNotice(result.message);
+      setNotice(action === "resend" ? `Course links email sent to ${record.email}.` : result.message);
       setRefresh((value) => value + 1);
       if (action === "remind") closeReminder();
     } catch (error) { setError(error.message); }
@@ -118,7 +119,10 @@ export default function CoursePayments() {
                 {record.status !== "paid" && <button className={styles.textButton} disabled={!!busy} onClick={() => act(record, "check")}>Check payment</button>}</td>
               <td className={styles.amount}>{money(record.amount)}</td>
               <td className={styles.date}>{date(record.createdAt)}</td>
-              <td>{record.status === "paid" ? <span className={styles.complete}><FiCheckCircle /> Complete</span> : <>
+              <td>{record.status === "paid" ? <><span className={styles.complete}><FiCheckCircle /> Complete</span>
+                <button className={styles.emailButton} disabled={!record.email || !!busy} title={!record.email ? "This customer has no saved email address." : "Resend the original course links email"} onClick={() => act(record, "resend")}><FiMail />{busy === record.id ? "Sending…" : "Resend course email"}</button>
+                {!record.email && <small className={styles.meta}>No email provided</small>}
+              </> : <>
                 <button className={styles.emailButton} disabled={!record.email || !!busy} title={!record.email ? "This customer did not provide an email address." : "Review and send a payment reminder"}
                   onClick={() => { setError(""); setSelected(record); }}><FiMail /> Send email</button>
                 {!record.email && <small className={styles.meta}>No email provided</small>}

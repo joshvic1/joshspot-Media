@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   const path = (req.query.path || []).join("/");
   const read = /^(course-payments|paid-invoices|overview)$/.test(path);
-  const action = /^course-payments\/[a-f\d]{24}\/(check|remind)$/.test(path) || path === "sync-payments";
+  const action = /^course-payments\/[a-f\d]{24}\/(check|remind|resend)$/.test(path) || path === "sync-payments";
   const record = /^records\/(bookings|leads|invoices)\/[a-f\d]{24}(\/restore)?$/.test(path);
   if (!read && !action && !record) return res.status(404).end();
   const method = read ? "GET" : record && !path.endsWith("/restore") ? "DELETE" : "POST";
