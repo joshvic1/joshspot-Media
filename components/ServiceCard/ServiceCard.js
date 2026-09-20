@@ -1,98 +1,33 @@
 import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import BookingModal from "../BookingModal/BookingModal";
 import ViewDetailsModal from "../ViewDetailsModal/ViewDetailsModal";
-import styles from "./ServiceCard.module.css";
-
-export default function ServiceCard({ service, number }) {
-  const [showDetails, setShowDetails] = useState(false);
-  const [showBooking, setShowBooking] = useState(false);
-  const Icon = service.icon;
-
-  const handleMouseMove = (e) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-
-    card.style.setProperty("--x", `${e.clientX - rect.left}px`);
-    card.style.setProperty("--y", `${e.clientY - rect.top}px`);
-  };
-
-  const truncateDescription = (text) => {
-    const words = text.split(" ");
-    if (words.length <= 18) return text;
-    return `${words.slice(0, 18).join(" ")}...`;
-  };
-
-  const price =
-    service.priceLabel || service.priceRange || `₦${service.price.toLocaleString()}`;
-  const actionLabel = service.ctaLabel || "Book Now";
-
-  const openService = () => {
-    if (service.externalLink) {
-      window.open(service.externalLink, "_blank", "noopener,noreferrer");
-      return;
-    }
-
-    setShowBooking(true);
-  };
-
-  return (
-    <>
-      <div
-        className={`${styles.card} ${service.featuredResource ? styles.resourceCard : ""}`}
-        onMouseMove={handleMouseMove}
-      >
-        <div className={styles.imageWrap}>
-          <Image
-            src={service.image}
-            alt={service.title}
-            fill
-            className={styles.image}
-          />
-        </div>
-
-        <div className={styles.topRow}>
-          <span className={styles.number}>{String(number).padStart(2, "0")}</span>
-          <span className={styles.eyebrow}>{service.eyebrow}</span>
-        </div>
-
-        <div className={styles.icon}>{Icon && <Icon />}</div>
-
-        <div className={styles.content}>
-          <h3>{service.title}</h3>
-          <p>{truncateDescription(service.description)}</p>
-
-          <ul className={styles.highlights}>
-            {service.highlights?.slice(0, 3).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-
-          <div className={styles.bottom}>
-            <span className={styles.price}>{price}</span>
-            <div className={styles.buttons}>
-              <button className={styles.details} onClick={() => setShowDetails(true)}>
-                Details
-              </button>
-              <button className={styles.book} onClick={openService}>
-                {actionLabel}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {showDetails && (
-        <ViewDetailsModal
-          service={service}
-          closeModal={() => setShowDetails(false)}
-          openBooking={openService}
-        />
-      )}
-
-      {showBooking && (
-        <BookingModal service={service} closeModal={() => setShowBooking(false)} />
-      )}
-    </>
-  );
+import ShareService from "../ShareService";
+import styles from "../../styles/Public.module.css";
+export default function ServiceCard({ service }) {
+const [showDetails,setShowDetails]=useState(false);
+const [showBooking,setShowBooking]=useState(false);
+const summaries = {
+  1: "Discuss your ads or business growth with Josh and get clear direction.",
+  2: "We’ll log in and find out why your ads or account settings aren’t working.",
+  3: "Get your TikTok or Meta ads account ready to launch.",
+  4: "Three days with Josh, one hour per day. Learn to run your own ads.",
+  8: "Your video or voiceover script, written word for word to grab attention.",
+  9: "A one-minute video of Josh talking about your product or service.",
+  5: "Marketing ideas and practical advice for your business.",
+  6: "Learn the basics of running TikTok ads, for free.",
+  7: "Start learning Meta campaigns, targeting and setup.",
+};
+const price=service.priceLabel || service.priceRange || "₦"+service.price.toLocaleString("en-NG");
+function openService() { if(service.externalLink?.startsWith("/")) window.location.assign(service.externalLink); else if(service.externalLink) window.open(service.externalLink,"_blank","noopener,noreferrer"); else setShowBooking(true); }
+return <><article className={styles.imageServiceCard} data-tone={service.id}>
+<div className={styles.servicePhoto}><Image src={service.image} alt={service.title} fill sizes="(max-width:650px) 100vw, (max-width:1000px) 50vw, 33vw" /></div>
+<div className={styles.imageCardBody}>
+<div className={styles.imageCardTitle}><h3><Link href={"/services/"+service.slug}>{service.title}</Link></h3><span>{price}</span></div>
+<p>{summaries[service.id] || service.description}</p>
+<div className={styles.imageCardMeta}><button type="button" onClick={()=>setShowDetails(true)}>View details</button><ShareService service={service} /></div>
+<button type="button" className={styles.imageCardBook} onClick={openService}>{service.ctaLabel || "Book service"}</button>
+</div>
+</article>{showDetails && <ViewDetailsModal service={service} closeModal={()=>setShowDetails(false)} openBooking={openService} />}{showBooking && <BookingModal service={service} closeModal={()=>setShowBooking(false)} />}</>;
 }

@@ -82,3 +82,34 @@
     padding: 14px;
   }
 }
+
+.overlay { border:0; width:100vw; max-width:none; height:100dvh; max-height:none; margin:0; background:transparent; color-scheme:light; }
+.overlay:not([open]) { display:none; }
+.overlay::backdrop { background:#111b2e99; backdrop-filter:blur(5px); }
+.modal { background:#fff; color:#17243d; border:1px solid #e1e6ee; border-radius:20px; padding:24px; max-height:90dvh; }
+.close { background:#edf1f6; color:#33445f; border-radius:50%; }
+.close:focus-visible { outline:3px solid #8270ef; outline-offset:3px; }
+@media(max-width:600px) { .overlay { padding:12px; } .modal { padding:20px 12px; } }
+@media(prefers-reduced-motion:reduce) { .overlay,.modal { animation:none; } }
+
+.compactModal { width:min(440px,100%); padding:0; border-radius:18px; background:#fffefa; border:1px solid #e2e8db; box-shadow:0 24px 80px #0c251b44; }
+.compactModal .close { top:10px; right:10px; width:26px; height:26px; font-size:10px; color:#526952; background:#edf1e8; }
+
+.overlay::backdrop { background:#0008; }
+.compactModal { background:#fff; border-color:#e3e3e3; box-shadow:0 24px 80px #0003; }
+.compactModal .close,.close { color:#444; background:#f0f0f0; }
+.close:focus-visible { outline-color:#888; }
+
+.serviceModal { --card-tone:#234850; padding:0; background:var(--card-tone); color:white; border:1px solid #ffffff30; border-radius:24px; }
+.serviceModal[data-tone='2'] { --card-tone:#494c32; }
+.serviceModal[data-tone='3'] { --card-tone:#44303e; }
+.serviceModal[data-tone='4'] { --card-tone:#293e5d; }
+.serviceModal[data-tone='5'] { --card-tone:#4c3d32; }
+.serviceModal[data-tone='6'] { --card-tone:#343955; }
+.serviceModal[data-tone='7'] { --card-tone:#3d4848; }
+.serviceImage { position:relative; height:78px; overflow:hidden; border-radius:23px 23px 0 0; }
+.serviceImage img { object-fit:cover; object-position:center; }
+.serviceImage::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,#0001,var(--card-tone)); }
+.serviceModal .close { background:#17242ed9; border:1px solid #ffffff55; color:#fff; width:30px; height:30px; }
+.serviceModal[data-tone='8'] { --card-tone:#4c3d56; }
+.serviceModal[data-tone='9'] { --card-tone:#4b3831; }

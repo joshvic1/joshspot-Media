@@ -1,16 +1,17 @@
 import { useMemo, useState } from "react";
-import CountUp from "react-countup";
+import { FiArrowUpRight, FiLock } from "react-icons/fi";
 import API from "../../utils/api";
 import Modal from "../Modal/Modal";
 import styles from "./BookingModal.module.css";
 
 export default function BookingModal({ service, closeModal }) {
   const firstOption = service.options?.[0] || null;
-  const [selectedOption, setSelectedOption] = useState(firstOption?.label || "");
+  const [selectedOption, setSelectedOption] = useState(service.requireOptionSelection ? "" : firstOption?.label || "");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
 
   const selectedPackage = useMemo(() => {
     if (!service.options?.length) {
@@ -22,16 +23,18 @@ export default function BookingModal({ service, closeModal }) {
 
   const totalPrice = selectedPackage?.price || service.price || 0;
 
-  const handlePayment = async () => {
+  const handlePayment = async (event) => {
+    event.preventDefault();
+    setPaymentError("");
     if (loading) return;
 
     if (!name || !email || !phone) {
-      alert("Please fill all fields");
+      setPaymentError("Please fill in all your details.");
       return;
     }
 
     if (service.options?.length && !selectedPackage) {
-      alert("Please select a package");
+      setPaymentError("Please select a package.");
       return;
     }
 
@@ -57,7 +60,7 @@ export default function BookingModal({ service, closeModal }) {
       window.location.href = response.data.paymentUrl;
     } catch (error) {
       console.log(error);
-      alert("Payment failed");
+      setPaymentError("We could not open payment. Please try again.");
       setLoading(false);
     }
   };
@@ -65,80 +68,34 @@ export default function BookingModal({ service, closeModal }) {
   const isFormValid =
     name && email && phone && (!service.options?.length || selectedPackage);
 
+  const Icon = service.icon;
   return (
-    <Modal closeModal={closeModal}>
-      <div className={styles.wrapper}>
-        <div className={styles.card}>
-          <div className={styles.header}>
-            <span>{service.eyebrow || "Booking"}</span>
-            <h2>Book {service.title}</h2>
-            <p>{service.description}</p>
-          </div>
-
-          {service.options?.length > 0 && (
-            <div className={styles.packages}>
-              <label>{service.bookingQuestion}</label>
-              <div className={styles.optionGrid}>
-                {service.options.map((option) => (
-                  <button
-                    key={option.label}
-                    type="button"
-                    className={`${styles.option} ${
-                      selectedOption === option.label ? styles.selected : ""
-                    }`}
-                    disabled={loading}
-                    onClick={() => setSelectedOption(option.label)}
-                  >
-                    <span>{option.label}</span>
-                    <strong>₦{option.price.toLocaleString()}</strong>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className={styles.pricePanel}>
-            <span>Total</span>
-            <strong>
-              ₦<CountUp end={totalPrice} duration={0.45} separator="," />
-            </strong>
-          </div>
-
-          <div className={styles.form}>
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={name}
-              disabled={loading}
-              onChange={(e) => setName(e.target.value)}
-            />
-
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              disabled={loading}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-            <input
-              type="tel"
-              placeholder="WhatsApp Number"
-              value={phone}
-              disabled={loading}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-
-          <button
-            className={`${styles.pay} ${loading ? styles.loading : ""}`}
-            onClick={handlePayment}
-            disabled={loading || !isFormValid}
-          >
-            {loading ? "Redirecting to Paystack..." : "Proceed to Payment →"}
-          </button>
+    <Modal closeModal={closeModal} compact service={service}>
+      <form className={styles.bookingForm} onSubmit={handlePayment}>
+        <header className={styles.bookingHeading}>
+          <span className={styles.bookingIcon}>{Icon && <Icon />}</span>
+          <div><span className={styles.bookingEyebrow}>BOOK YOUR SERVICE</span><h2>{service.title}</h2></div>
+        </header>
+        <p className={styles.bookingLead}>A few details, then you’re ready to pay.</p>
+        {service.options?.length > 0 && (
+          <label className={styles.bookingField}>
+            {service.bookingQuestion}
+            <select value={selectedOption} onChange={event => setSelectedOption(event.target.value)} disabled={loading} required>
+              {service.requireOptionSelection && <option value="" disabled>Select a platform</option>}
+              {service.options.map(option => <option key={option.label} value={option.label}>{option.label} — ₦{option.price.toLocaleString("en-NG")}</option>)}
+            </select>
+          </label>
+        )}
+        <div className={styles.bookingFields}>
+          <label className={styles.bookingField}>Full name<input type="text" name="name" autoComplete="name" placeholder="Your full name" required value={name} disabled={loading} onChange={event => setName(event.target.value)} /></label>
+          <label className={styles.bookingField}>Email address<input type="email" name="email" autoComplete="email" placeholder="you@example.com" required value={email} disabled={loading} onChange={event => setEmail(event.target.value)} /></label>
+          <label className={styles.bookingField}>WhatsApp number<input type="tel" name="phone" autoComplete="tel" placeholder="e.g. 0801 234 5678" required value={phone} disabled={loading} onChange={event => setPhone(event.target.value)} /></label>
         </div>
-      </div>
+        <div className={styles.bookingTotal}><span>Total to pay<small>{selectedOption || service.eyebrow}</small></span><strong>₦{totalPrice.toLocaleString("en-NG")}</strong></div>
+        {paymentError && <p className={styles.bookingError} role="alert">{paymentError}</p>}
+        <button className={styles.bookingPay} type="submit" disabled={loading || !isFormValid}>{loading ? "Opening Paystack…" : "Continue to payment"}<FiArrowUpRight /></button>
+        <p className={styles.bookingSecure}><FiLock /> Secure checkout with Paystack</p>
+      </form>
     </Modal>
   );
 }

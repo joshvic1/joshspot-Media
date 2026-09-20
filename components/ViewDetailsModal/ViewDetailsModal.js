@@ -6,7 +6,7 @@ export default function ViewDetailsModal({ service, closeModal, openBooking }) {
     service.priceLabel || service.priceRange || `₦${service.price.toLocaleString()}`;
 
   return (
-    <Modal closeModal={closeModal}>
+    <Modal closeModal={closeModal} compact service={service}>
       <div className={styles.wrapper}>
         <div className={styles.card}>
           <span className={styles.eyebrow}>{service.eyebrow}</span>

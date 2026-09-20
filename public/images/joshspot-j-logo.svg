@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <title>Joshspot Media J monogram</title>
+  <rect width="64" height="64" rx="18" fill="#C7F17C"/>
+  <path d="M22 16H46V36C46 47 39 53 29 53C20 53 14 48 13 40L23 37C24 42 26 44 30 44C34 44 36 41 36 36V26H22V16Z" fill="#132B2E"/>
+  <path d="M45 10H54V19" stroke="#132B2E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M54 10L45 19" stroke="#132B2E" stroke-width="3" stroke-linecap="round"/>
+</svg>
