@@ -1,4 +1,5 @@
 import Head from "next/head";
+import StatusAdPreview from "../components/StatusAdPreview";
 import { captureCourseAttribution } from "../utils/courseAttribution";
 import { trackCourse, trackCoursePurchase } from "../utils/coursePixel";
 import { useRouter } from "next/router";
@@ -15,6 +16,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import styles from "../styles/Course.module.css";
+import modern from "../styles/WhatsAppCourse.module.css";
 
 const COURSE_PRICE = 8000;
 const SLASHED_PRICE = 20000;
@@ -105,10 +107,56 @@ const formatTime = (seconds) => {
     .join(":");
 };
 
-export default function CoursePage() {
+const whatsappModules = [
+  {
+    "title": "Complete WhatsApp Status Ads Training",
+    "text": "Learn how WhatsApp Status advertising works and how to start running ads for your business."
+  },
+  {
+    "title": "Creating Your First WhatsApp Status Ad",
+    "text": "Follow the entire process from creating your campaign to getting your advert ready to run."
+  },
+  {
+    "title": "Choosing Who Sees Your Ads",
+    "text": "Learn how to select the location, audience and other targeting options for the people you want to reach."
+  },
+  {
+    "title": "Budget & Payment Setup",
+    "text": "Learn how to set your advertising budget, add your payment method and understand how you're charged for your ads."
+  },
+  {
+    "title": "How to create a good ads content",
+    "text": "Learn what kind of videos, pictures and messages to use when advertising your business on WhatsApp Status."
+  },
+  {
+    "title": "Sending People From Your Ad to Your Business",
+    "text": "Learn how to set up where people go after seeing or clicking your advert .. Whether to your dm, group, website or anywhere at all"
+  },
+  {
+    "title": "Monitoring Your WhatsApp Ads",
+    "text": "Learn where to check your campaign and see how your advert is performing after it starts running."
+  },
+  {
+    "title": "Understanding Your Ad Results",
+    "text": "Learn what the important numbers mean so you're not just spending money without knowing what is happening."
+  },
+  {
+    "title": "Common Mistakes to Avoid",
+    "text": "Learn the mistakes that can cause beginners to waste money or set up their WhatsApp Status ads incorrectly."
+  }
+];
+
+export default function CoursePage({ variant = "ads" }) {
+  const isWhatsApp = variant === "whatsapp";
+  const pageStyles = isWhatsApp ? modern : null;
+  const COURSE_PRICE = isWhatsApp ? 10000 : 8000;
+  const SLASHED_PRICE = isWhatsApp ? 30000 : 20000;
   const router = useRouter();
-  useEffect(() => { captureCourseAttribution(); }, []);
-  const previewPaid = process.env.NODE_ENV === "development" && router.query.preview === "paid";
+  useEffect(() => {
+    captureCourseAttribution();
+  }, []);
+  const previewPaid =
+    process.env.NODE_ENV === "development" && router.query.preview === "paid";
   const [timeLeft, setTimeLeft] = useState(PRICE_REVIEW_SECONDS);
   const [animatedNextPrice, setAnimatedNextPrice] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -126,23 +174,37 @@ export default function CoursePage() {
   const [askedQuestion, setAskedQuestion] = useState("");
   const [asking, setAsking] = useState(false);
 
-  const previewInvoice = previewPaid ? {
-    status: "paid",
-    preview: true,
-    courses: [
-      { title: "How to run TikTok ads", url: "https://t.me/+zpLNcLN6nAhhNDY8" },
-      { title: "Facebook & Instagram Ads", url: "https://t.me/+RwLlZhhBUXk2ZDk0" },
-    ],
-  } : null;
+  const previewInvoice = previewPaid
+    ? {
+        status: "paid",
+        preview: true,
+        courses: [
+          {
+            title: "How to run TikTok ads",
+            url: "https://t.me/+zpLNcLN6nAhhNDY8",
+          },
+          {
+            title: "Facebook & Instagram Ads",
+            url: "https://t.me/+RwLlZhhBUXk2ZDk0",
+          },
+        ],
+      }
+    : null;
   const accessInvoice = previewInvoice || invoice;
 
   useEffect(() => {
     if (!router.isReady) return;
     trackCourse("PageView", {}, { once: "course-pageview" });
-    trackCourse("ViewContent", { value: COURSE_PRICE }, { once: "course-view" });
+    trackCourse(
+      "ViewContent",
+      { value: COURSE_PRICE },
+      { once: "course-view" },
+    );
   }, [router.isReady]);
 
-  useEffect(() => { trackCoursePurchase(invoice); }, [invoice]);
+  useEffect(() => {
+    trackCoursePurchase(invoice);
+  }, [invoice]);
 
   useEffect(() => {
     const savedOffer = window.localStorage.getItem("courseOfferTimer");
@@ -190,7 +252,9 @@ export default function CoursePage() {
 
     const poll = window.setInterval(async () => {
       try {
-        const response = await fetch(`/api/course-invoice?token=${invoice.token}`);
+        const response = await fetch(
+          `/api/course-invoice?token=${invoice.token}`,
+        );
         const data = await response.json();
 
         if (response.ok) {
@@ -210,7 +274,12 @@ export default function CoursePage() {
   }, [invoice?.token, invoice?.status]);
 
   const openCheckout = () => {
-    if (accessInvoice?.status !== "paid") trackCourse("InitiateCheckout", { value: COURSE_PRICE, num_items: 1 }, { once: "course-checkout" });
+    if (accessInvoice?.status !== "paid")
+      trackCourse(
+        "InitiateCheckout",
+        { value: COURSE_PRICE, num_items: 1 },
+        { once: "course-checkout" },
+      );
     setDrawerOpen(true);
     setPaymentError("");
   };
@@ -254,6 +323,7 @@ export default function CoursePage() {
           name,
           whatsapp: fullWhatsapp,
           email: checkoutEmail,
+          product: isWhatsApp ? "whatsapp-course" : "ads-course",
           attribution: captureCourseAttribution(),
         }),
       });
@@ -265,7 +335,11 @@ export default function CoursePage() {
 
       setInvoice(data.invoice);
       trackCourse("Lead", { value: COURSE_PRICE }, { once: "course-lead" });
-      trackCourse("CoursePaymentAccountCreated", {}, { custom: true, once: "course-account" });
+      trackCourse(
+        "CoursePaymentAccountCreated",
+        {},
+        { custom: true, once: "course-account" },
+      );
     } catch (error) {
       setPaymentError(error.message || "Unable to create payment account.");
     } finally {
@@ -281,7 +355,9 @@ export default function CoursePage() {
     setPaymentError("");
 
     try {
-      const response = await fetch(`/api/course-invoice?token=${invoice.token}`);
+      const response = await fetch(
+        `/api/course-invoice?token=${invoice.token}`,
+      );
       const data = await response.json();
 
       if (!response.ok) {
@@ -315,6 +391,15 @@ export default function CoursePage() {
     event.preventDefault();
 
     if (!question.trim()) return;
+    if (isWhatsApp) {
+      window.open(
+        "https://wa.me/2348143017102?text=" +
+          encodeURIComponent(question.trim()),
+        "_blank",
+        "noopener,noreferrer",
+      );
+      return;
+    }
 
     setAsking(true);
     setAnswer("");
@@ -330,7 +415,8 @@ export default function CoursePage() {
       });
       const data = await response.json();
 
-      if (response.ok) trackCourse("CourseQuestionAnswered", {}, { custom: true });
+      if (response.ok)
+        trackCourse("CourseQuestionAnswered", {}, { custom: true });
       setAnswer(
         response.ok
           ? data.answer
@@ -346,152 +432,219 @@ export default function CoursePage() {
   return (
     <>
       <Head>
-        <title>COURSE | Joshspot Media</title>
+        <title>
+          {isWhatsApp
+            ? "WhatsApp Status Ads Course | Joshspot Media"
+            : "COURSE | Joshspot Media"}
+        </title>
+        {isWhatsApp && (
+          <meta
+            name="description"
+            content="Learn how to run ads in WhatsApp Status with Joshspot Media. Understand account access, campaign setup, Status creatives, budgets and results. Course price: ₦10,000."
+          />
+        )}
       </Head>
 
-      <main className={styles.page}>
+      <main className={`${styles.page} ${pageStyles?.page || styles.withStickyPay}`}>
         <section className={styles.hero}>
           <div className={styles.heroCopy}>
             <h1>
-              Learn how to run TikTok, Facebook and Instagram ads that can help
-              you sell online.
+              {isWhatsApp
+                ? "Learn how to run ads on WhatsApp Status."
+                : "Learn how to run TikTok, Facebook and Instagram ads that can help you sell online."}
             </h1>
             <p>
-              If you have been seeing people run ads and you keep wondering how
-              they are doing it, this course will show you the process in a very
-              simple way.
+              {isWhatsApp
+                ? "I'm sure you have been posting your businesss on your status, but it is still the same people viewing it. Good news, WhatsApp now allows you to run status ads. I will be teaching you how to set up a WhatsApp status ads yourself, step by step, even if you have never run tried it before."
+                : "If you have been seeing people run ads and you keep wondering how they are doing it, this course will show you the process in a very simple way."}
             </p>
 
-            <div className={styles.heroIncludes}>
-              <span>What you will get</span>
-              <div className={styles.heroModuleGrid}>
-                {modules.map((module) => (
-                  <article key={module.title}>
-                    <FiCheck aria-hidden="true" />
-                    <div>
-                      <strong>{module.title}</strong>
-                      <p>{module.text}</p>
-                    </div>
-                  </article>
-                ))}
+            {!isWhatsApp && (
+              <div className={styles.heroIncludes}>
+                <span>What you will get</span>
+                <div className={styles.heroModuleGrid}>
+                  {(isWhatsApp ? whatsappModules : modules).map((module) => (
+                    <article key={module.title}>
+                      <FiCheck aria-hidden="true" />
+                      <div>
+                        <strong>{module.title}</strong>
+                        {!isWhatsApp && <p>{module.text}</p>}
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className={styles.heroProof}>
-            <img
-              alt="Course folder showing TikTok Ads Manager training modules"
-              src="/images/ads-course.jpg"
-            />
+            {isWhatsApp ? (
+              <StatusAdPreview />
+            ) : (
+              <img
+                alt="Course folder showing TikTok Ads Manager training modules"
+                src="/images/ads-course.jpg"
+              />
+            )}
           </div>
         </section>
-
-        <section className={styles.reviewSection}>
-          <div className={styles.sectionTitle}>
-            <span>Course reviews</span>
-            <h2>See reviews from people that have purchased our course already</h2>
-          </div>
-
-          <div className={styles.reviewGrid}>
-            {reviewProofs.map((proof, index) => (
-              <ReviewProof key={proof.src} proof={proof} index={index} />
-            ))}
-          </div>
-        </section>
-
-        <section className={styles.priceSection}>
-          <div className={styles.priceStack}>
-            <span>
-              Get a lifetime access to this course for just a one time payment
-              of
-            </span>
-            <strong>{formatMoney(COURSE_PRICE)}</strong>
-            <del>{formatMoney(SLASHED_PRICE)}</del>
-          </div>
-
-          <div className={styles.heroActions}>
-            <button onClick={openCheckout} type="button">
-              Pay now ({formatMoney(COURSE_PRICE)}){" "}
-              <FiArrowRight aria-hidden="true" />
-            </button>
-            <a href="#ask">Ask me a question first</a>
-          </div>
-        </section>
-
-        <section className={styles.priceTimer}>
-          <div>
-            <span>
-              <FiClock aria-hidden="true" />
-              Price will increase soon
-            </span>
-            <h2>
-              Due to high demand for this course, we will increase the price in{" "}
-              <strong>{formatTime(timeLeft)}</strong>
-            </h2>
-            <p>
-              The price is currently {formatMoney(COURSE_PRICE)}. In the next
-              2hrs 30 mins, we will increase the price to{" "}
-              <strong className={styles.countingPrice}>
-                {formatMoney(animatedNextPrice || NEXT_PRICE)}
-              </strong>
-              .
-            </p>
-          </div>
-          <div className={styles.timerAction}>
-            <button onClick={openCheckout} type="button">
-              Pay now ({formatMoney(COURSE_PRICE)})
-            </button>
-          </div>
-        </section>
-
-        <section className={styles.questionCard} id="ask">
-          <div>
-            <span>Ask me a question first</span>
-            <h2>Not sure if this course is for you?</h2>
-          </div>
-          <form onSubmit={askQuestion}>
-            <input
-              placeholder="Type your question"
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-            />
-            <button disabled={asking} type="submit" aria-label="Send question">
-              <FiSend aria-hidden="true" />
-            </button>
-          </form>
-          {(answer || asking) && (
-            <div className={styles.chatBox}>
-              {askedQuestion && (
-                <p className={styles.userBubble}>{askedQuestion}</p>
-              )}
-              <p className={styles.answerBubble}>
-                {asking ? "Typing..." : answer}
-              </p>
+        {isWhatsApp && (
+          <section id="curriculum" className={modern.curriculum}>
+            <div className={modern.sectionHeading}>
+              <h2>What you will get for ₦10,000</h2>
             </div>
-          )}
-        </section>
+            <div className={modern.modules}>
+              {whatsappModules.map((module) => (
+                <article key={module.title}>
+                  <FiCheck aria-hidden="true" />
+                  <div>
+                    <h3>{module.title}</h3>
+                    <p>{module.text}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
-        <section className={styles.finalCta}>
-          <FiLock aria-hidden="true" />
-          <h2>Get the full course for {formatMoney(COURSE_PRICE)}</h2>
-          <p>
-            Learn the basics once, then use it anytime you want to launch ads
-            for your business.
-          </p>
-          <button onClick={openCheckout} type="button">
-            Pay now ({formatMoney(COURSE_PRICE)}) and get access
-          </button>
-        </section>
+        {!isWhatsApp && (
+          <section className={styles.reviewSection}>
+            <div className={styles.sectionTitle}>
+              <span>Course reviews</span>
+              <h2>
+                See reviews from people that have purchased our course already
+              </h2>
+            </div>
+
+            <div className={styles.reviewGrid}>
+              {reviewProofs.map((proof, index) => (
+                <ReviewProof key={proof.src} proof={proof} index={index} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <>
+          <section className={`${styles.priceSection} ${isWhatsApp ? modern.pricingCard : ""}`}>
+            <div className={styles.priceStack}>
+              <span>
+                Get a lifetime access to this course for just a one time payment
+                of
+              </span>
+              <strong>{formatMoney(COURSE_PRICE)}</strong>
+              <del>{formatMoney(SLASHED_PRICE)}</del>
+            </div>
+
+            <div className={styles.heroActions}>
+              <button onClick={openCheckout} type="button">
+                Pay now ({formatMoney(COURSE_PRICE)}){" "}
+                <FiArrowRight aria-hidden="true" />
+              </button>
+              <a href="#ask">Ask me a question first</a>
+            </div>
+          </section>
+
+          {!isWhatsApp && (
+            <section className={styles.priceTimer}>
+              <div>
+                <span>
+                  <FiClock aria-hidden="true" />
+                  Price will increase soon
+                </span>
+                <h2>
+                  Due to high demand for this course, we will increase the price
+                  in <strong>{formatTime(timeLeft)}</strong>
+                </h2>
+                <p>
+                  The price is currently {formatMoney(COURSE_PRICE)}. In the
+                  next 2hrs 30 mins, we will increase the price to{" "}
+                  <strong className={styles.countingPrice}>
+                    {formatMoney(animatedNextPrice || NEXT_PRICE)}
+                  </strong>
+                  .
+                </p>
+              </div>
+              <div className={styles.timerAction}>
+                <button onClick={openCheckout} type="button">
+                  Pay now ({formatMoney(COURSE_PRICE)})
+                </button>
+              </div>
+            </section>
+          )}
+
+          <section className={styles.questionCard} id="ask">
+            <div>
+              <span>{isWhatsApp ? "Not sure if this course is for you?" : "Ask me a question first"}</span>
+              <h2>{isWhatsApp ? "Ask me a question first" : "Not sure if this course is for you?"}</h2>
+            </div>
+            <form onSubmit={askQuestion}>
+              <input
+                placeholder="Type your question"
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+              />
+              <button
+                disabled={asking}
+                type="submit"
+                aria-label="Send question"
+              >
+                <FiSend aria-hidden="true" />
+              </button>
+            </form>
+            {(answer || asking) && (
+              <div className={styles.chatBox}>
+                {askedQuestion && (
+                  <p className={styles.userBubble}>{askedQuestion}</p>
+                )}
+                <p className={styles.answerBubble}>
+                  {asking ? "Typing..." : answer}
+                </p>
+              </div>
+            )}
+          </section>
+
+          <section className={styles.finalCta}>
+            <FiLock aria-hidden="true" />
+            <h2>Get the full course for {formatMoney(COURSE_PRICE)}</h2>
+            <p>
+              Learn the basics once, then use it anytime you want to launch ads
+              for your business.
+            </p>
+            <button onClick={openCheckout} type="button">
+              Pay now ({formatMoney(COURSE_PRICE)}) and get access
+            </button>
+          </section>
+        </>
       </main>
+      {!drawerOpen && !previewPaid && (
+        <div className={isWhatsApp ? modern.stickyPay : styles.stickyPay}>
+          <span>
+            {isWhatsApp ? "WhatsApp Status ads course" : "TikTok, Facebook & Instagram ads course"}
+            <small>One payment · Lifetime access</small>
+          </span>
+          <button type="button" onClick={openCheckout}>
+            Pay now · {formatMoney(COURSE_PRICE)} <FiArrowRight aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
       {(drawerOpen || previewPaid) && (
-        <aside className={styles.drawerOverlay}>
-          <section className={styles.drawer}>
+        <aside
+          className={`${styles.drawerOverlay} ${isWhatsApp ? modern.checkout : ""}`}
+        >
+          <section
+            className={`${styles.drawer} ${isWhatsApp ? modern.drawerPanel : ""}`}
+          >
             <button
               className={styles.closeDrawer}
               onClick={() => {
                 setDrawerOpen(false);
-                if (previewPaid) router.replace("/course", undefined, { shallow: true });
+                if (previewPaid)
+                  router.replace(
+                    isWhatsApp ? "/whatsapp" : "/course",
+                    undefined,
+                    { shallow: true },
+                  );
               }}
               type="button"
               aria-label="Close checkout"
@@ -499,21 +652,40 @@ export default function CoursePage() {
               <FiX aria-hidden="true" />
             </button>
 
-            <div className={styles.drawerHeader}>
+            <div
+              className={`${styles.drawerHeader} ${isWhatsApp ? modern.drawerHeading : ""}`}
+            >
               {accessInvoice?.status !== "paid" && <span>Course checkout</span>}
-              <h2>{accessInvoice?.status === "paid" ? "Payment confirmed!" : `Pay ${formatMoney(COURSE_PRICE)} by transfer`}</h2>
+              <h2>
+                {accessInvoice?.status === "paid"
+                  ? "Payment confirmed!"
+                  : `Pay ${formatMoney(COURSE_PRICE)} by transfer`}
+              </h2>
               {accessInvoice?.status !== "paid" && (
-                <p>Enter your details first. We will generate a Paystack transfer account for this course payment.</p>
+                <p>
+                  Enter your details first. We will generate a Paystack transfer
+                  account for this course payment.
+                </p>
               )}
             </div>
+            
 
             {previewPaid ? (
               <>
-                <p className={styles.statusText} role="status">Local preview only. No payment was made. Email sending is simulated.</p>
-                <CourseAccess invoice={previewInvoice} />
+                <p className={styles.statusText} role="status">
+                  Local preview only. No payment was made. Email sending is
+                  simulated.
+                </p>
+                <CourseAccess
+                  invoice={previewInvoice}
+                  isWhatsApp={isWhatsApp}
+                />
               </>
             ) : !invoice ? (
-              <form className={styles.checkoutForm} onSubmit={startTransferPayment}>
+              <form
+                className={`${styles.checkoutForm} ${isWhatsApp ? modern.detailsForm : ""}`}
+                onSubmit={startTransferPayment}
+              >
                 <label>
                   Name
                   <input
@@ -547,21 +719,36 @@ export default function CoursePage() {
                 </label>
                 <label>
                   Email address (optional)
-                  <input type="email" autoComplete="email" maxLength={254} placeholder="you@example.com"
-                    value={checkoutEmail} onChange={(event) => setCheckoutEmail(event.target.value)} />
-                  <span>Get your course links and a reminder if you have trouble completing payment.</span>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    maxLength={254}
+                    placeholder="you@example.com"
+                    value={checkoutEmail}
+                    onChange={(event) => setCheckoutEmail(event.target.value)}
+                  />
+                  <span>
+                    Get your course links and a reminder if you have trouble
+                    completing payment.
+                  </span>
                 </label>
-                {paymentError && <p className={styles.errorText}>{paymentError}</p>}
+                {paymentError && (
+                  <p className={styles.errorText}>{paymentError}</p>
+                )}
                 <button disabled={loadingPayment} type="submit">
-                  {loadingPayment ? "Generating account..." : "Pay with transfer"}
+                  {loadingPayment
+                    ? "Generating account..."
+                    : "Pay with transfer"}
                 </button>
               </form>
             ) : invoice.status === "paid" ? (
-              <CourseAccess invoice={invoice} />
+              <CourseAccess invoice={invoice} isWhatsApp={isWhatsApp} />
             ) : (
-              <div className={styles.transferBox}>
+              <div className={`${styles.transferBox} ${isWhatsApp ? modern.transferDetails : ""}`}>
                 <p className={styles.statusText}>
-                  Transfer the exact amount below. After payment, click I have paid. Once confirmed, your Telegram course buttons will appear here.
+                  {isWhatsApp
+                    ? "Transfer the exact amount below, then click I have paid. Once confirmed, you can message me on WhatsApp to get your course."
+                    : "Transfer the exact amount below. After payment, click I have paid. Once confirmed, your Telegram course buttons will appear here."}
                 </p>
                 <CopyRow
                   copied={copied}
@@ -587,7 +774,9 @@ export default function CoursePage() {
                   value={invoice.accountName || "Joshspot Media"}
                   onCopy={copyText}
                 />
-                {paymentError && <p className={styles.errorText}>{paymentError}</p>}
+                {paymentError && (
+                  <p className={styles.errorText}>{paymentError}</p>
+                )}
                 <button
                   className={styles.confirmPaymentButton}
                   disabled={confirmingPayment}
@@ -596,13 +785,15 @@ export default function CoursePage() {
                 >
                   {confirmingPayment ? (
                     <>
-                      <FiLoader aria-hidden="true" className={styles.spinIcon} />
+                      <FiLoader
+                        aria-hidden="true"
+                        className={styles.spinIcon}
+                      />
                       Confirming payment...
                     </>
                   ) : (
                     <>
-                      <FiMessageCircle aria-hidden="true" />
-                      I have paid
+                      <FiMessageCircle aria-hidden="true" />I have paid
                     </>
                   )}
                 </button>
@@ -615,11 +806,35 @@ export default function CoursePage() {
   );
 }
 
-function CourseAccess({ invoice }) {
+function CourseAccess({ invoice, isWhatsApp }) {
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  if (isWhatsApp)
+    return (
+      <div className={styles.courseAccess}>
+        <h3>You are in! Let’s get you started.</h3>
+        <p>
+          Your payment is confirmed. Click the button below and send me a
+          message on WhatsApp to get access to your WhatsApp Status ads course.
+        </p>
+        <a
+          className={styles.telegramButton}
+          href={
+            invoice.preview
+              ? "https://wa.me/2348143017102?text=I%20just%20paid"
+              : invoice.contactUrl
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FiMessageCircle />
+          Get my course on WhatsApp
+        </a>
+      </div>
+    );
 
   const sendLinks = async (event) => {
     event.preventDefault();
@@ -628,7 +843,9 @@ function CourseAccess({ invoice }) {
     setMessage("");
     setError("");
     if (invoice.preview) {
-      setMessage("The video links has been sent to your email. Also check your spam folder too incase you can't find it in your inbox.");
+      setMessage(
+        "The video links has been sent to your email. Also check your spam folder too incase you can't find it in your inbox.",
+      );
       setSending(false);
       return;
     }
@@ -639,7 +856,10 @@ function CourseAccess({ invoice }) {
         body: JSON.stringify({ token: invoice.token, email }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "The email did not send. Please try again.");
+      if (!response.ok)
+        throw new Error(
+          data.message || "The email did not send. Please try again.",
+        );
       setMessage(data.message);
       trackCourse("CourseLinksEmailed", {}, { custom: true });
     } catch (error) {
@@ -651,22 +871,66 @@ function CourseAccess({ invoice }) {
 
   return (
     <div className={styles.courseAccess}>
-      <section className={styles.emailAccess} aria-labelledby="save-course-links">
-        <h3 id="save-course-links">Enter your email below so i can send the courses link</h3>
-        <p>After you enter your email below, i will send the courses link to you so you dont ever lose access to it and you can watch it anytime.</p>
+      <section
+        className={styles.emailAccess}
+        aria-labelledby="save-course-links"
+      >
+        <h3 id="save-course-links">
+          Enter your email below so i can send the courses link
+        </h3>
+        <p>
+          After you enter your email below, i will send the courses link to you
+          so you dont ever lose access to it and you can watch it anytime.
+        </p>
         <form className={styles.checkoutForm} onSubmit={sendLinks}>
           <label htmlFor="course-email">Your email address</label>
-          <input id="course-email" type="email" autoComplete="email" maxLength={254} required
-            placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
-          <button type="submit" disabled={sending}>{sending ? "Sending your links..." : "Send the links to me via email"}</button>
-          {message && <p className={styles.statusText} role="status">{message}</p>}
-          {error && <p className={styles.errorText} role="alert">{error}</p>}
+          <input
+            id="course-email"
+            type="email"
+            autoComplete="email"
+            maxLength={254}
+            required
+            placeholder="you@example.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          <button type="submit" disabled={sending}>
+            {sending
+              ? "Sending your links..."
+              : "Send the links to me via email"}
+          </button>
+          {message && (
+            <p className={styles.statusText} role="status">
+              {message}
+            </p>
+          )}
+          {error && (
+            <p className={styles.errorText} role="alert">
+              {error}
+            </p>
+          )}
         </form>
       </section>
       <section className={styles.telegramAccess} aria-labelledby="join-courses">
-        <h3 id="join-courses">You can also, click the buttons below to access the courses directly</h3>
+        <h3 id="join-courses">
+          You can also, click the buttons below to access the courses directly
+        </h3>
         {invoice.courses?.map((course) => (
-          <a onClick={() => { if (!invoice.preview) trackCourse("CourseTelegramClick", { course_name: course.title }, { custom: true }); }} key={course.url} className={styles.telegramButton} href={course.url} target="_blank" rel="noopener noreferrer">
+          <a
+            onClick={() => {
+              if (!invoice.preview)
+                trackCourse(
+                  "CourseTelegramClick",
+                  { course_name: course.title },
+                  { custom: true },
+                );
+            }}
+            key={course.url}
+            className={styles.telegramButton}
+            href={course.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <FiSend aria-hidden="true" /> Join {course.title}
           </a>
         ))}
@@ -681,7 +945,11 @@ function CopyRow({ copied, label, onCopy, value }) {
       <span>{label}</span>
       <strong>{value}</strong>
       <button onClick={() => onCopy(label, value)} type="button">
-        {copied === label ? <FiCheck aria-hidden="true" /> : <FiCopy aria-hidden="true" />}
+        {copied === label ? (
+          <FiCheck aria-hidden="true" />
+        ) : (
+          <FiCopy aria-hidden="true" />
+        )}
       </button>
     </div>
   );

@@ -25,11 +25,11 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: COURSE_PRICE,
+          amount: req.body?.product === "whatsapp-course" ? 10000 : COURSE_PRICE,
           customerName: name,
           customerPhone: whatsapp,
           customerEmail: String(req.body?.email || "").trim(),
-          product: "ads-course",
+          product: req.body?.product === "whatsapp-course" ? "whatsapp-course" : "ads-course",
           attribution: {
             source: req.body?.attribution?.source,
             sourceLabel: req.body?.attribution?.sourceLabel,
