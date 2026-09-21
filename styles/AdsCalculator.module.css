@@ -222,3 +222,17 @@
   .header .brand { font-size:13px; }
 }
 @media(max-width:360px) { .mobileDock strong { font-size:16px; } .dockActions { gap:5px; } .mobileDock .primary { font-size:10px!important; padding:12px 9px; } }
+/* CRM green accents, kept on actions and selected states. */
+.page { --accent:#52783a; }
+.primary { background:#c7f17c; color:#172b2b; }
+.primary:hover { background:#b7e36d; color:#172b2b; }
+.progressTrack > div { background:#85ad52; }
+.selectedChoice,.plans .selectedPlan { background:#f1f7e9; border-color:#9bbb77; }
+.selectedChoice .radio,.selectedPlan .radio { background:#557b39; border-color:#557b39; }
+.steps .currentStep > span { background:#c7f17c; color:#172b2b; }
+.math { background:#f1f7e9; }
+.presets button:hover,.presets button[aria-pressed=true] { background:#f1f7e9; border-color:#9bbb77; color:#39572b; }
+.live i { background:#6e9848; box-shadow:0 0 0 4px #6e984810; }
+.page button:focus-visible,.page a:focus-visible,.page summary:focus-visible { outline-color:#8ead62; }
+.header .quickTrigger { background:#c7f17c; color:#172b2b; border-color:#b7dc76; }
+.header .quickTrigger:hover { background:#b7e36d; }

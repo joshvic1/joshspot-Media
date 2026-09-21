@@ -64,6 +64,7 @@ export default function AdminLayout({ active, children }) {
     ))}<Link href="/crm-dashboard" onClick={() => setOpen(false)}><FiUsers />CRM dashboard</Link></nav>
     <div className={styles.sidebarBottom}>
       <a href="/course" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> View course page</a>
+      <a href="/whatsapp" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> WhatsApp course page</a>
       <button onClick={() => { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); }}><FiLogOut /> Sign out</button>
       <div className={styles.profile}><span>J</span><div>Josh<small>Administrator</small></div></div>
     </div>

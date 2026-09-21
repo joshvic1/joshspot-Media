@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { FiRefreshCw } from "react-icons/fi";
+import { FaWhatsapp, FaTiktok } from "react-icons/fa";
 import Pagination, { pageRows } from "./Pagination";
 import { DeleteButton } from "./RecordDeletion";
 import styles from "../../styles/AdminReports.module.css";
@@ -20,8 +21,8 @@ function demoReport(mode, query) {
     const source = index % 3 === 0 ? "bookings" : "invoices";
     return { id: `sample-report-${index}`, kind: source, source, name: ["Ada Okafor", "Tunde Bakare", "Zainab Musa"][index % 3],
       email: index % 4 ? "sample@example.com" : "", phone: "+2348000000000", reference: `sample-payment-${index + 1}`,
-      service: source === "bookings" ? "Ads management" : index % 2 ? "Ads course" : "Video script",
-      amount: source === "bookings" ? 50000 : index % 2 ? 8000 : 15000,
+      service: source === "bookings" ? "Ads management" : index % 4 === 2 ? "WhatsApp Status ads course" : index % 2 ? "Ads course" : "Video script",
+      amount: source === "bookings" ? 50000 : index % 4 === 2 ? 10000 : index % 2 ? 8000 : 15000,
       paidAt: new Date(Date.now() - index * 86400000).toISOString(), note: "Sample confirmed payment" };
   }).filter((row) => mode !== "invoices" || row.source === "invoices");
   const rows = all.filter((row) => (!query.from || new Date(row.paidAt) >= new Date(`${query.from}T00:00:00+01:00`)) &&
@@ -35,7 +36,7 @@ function demoReport(mode, query) {
   const invoiceRevenue = rows.filter((row) => row.source === "invoices").reduce((sum,row) => sum + row.amount, 0);
   return { records: result.rows, total: rows.length, page: result.page, pages: result.pages, revenue: rows.reduce((sum,row) => sum + row.amount, 0),
     payments: rows.length, invoiceRevenue, bookingRevenue: rows.reduce((sum,row) => sum + row.amount, 0) - invoiceRevenue,
-    courseRevenue: rows.filter((row) => row.service === "Ads course").reduce((sum,row) => sum + row.amount, 0),
+    courseRevenue: rows.filter((row) => ["Ads course", "WhatsApp Status ads course"].includes(row.service)).reduce((sum,row) => sum + row.amount, 0),
     bookings: 24, completed: 8, leads: 24, highPriority: 12, unverifiedBookings: 0, unknownDates: 0,
     services: [...new Set(all.map((row) => row.service))], breakdown: Object.values(breakdown),
     recent: { records: result.rows, total: rows.length, page: result.page, pages: result.pages } };
@@ -102,7 +103,7 @@ export default function Reports({ mode = "overview" }) {
     <div className={styles.metrics}>{metrics.map(([label,value,currency]) => <article key={label}><span>{label}</span><strong>{loading || value == null ? "—" : currency ? money(Math.round(value)) : value}</strong></article>)}</div>
     {!invoicesOnly && <section className={styles.panel}><h2>Revenue by service</h2><p className={styles.hint}>Each payment contributes once. Course revenue is part of invoice revenue.</p>
       <div className={styles.tableWrap}><table><thead><tr><th>Service</th><th>Successful payments</th><th>Revenue</th><th>Share</th></tr></thead><tbody>
-        {breakdown.rows.map((row) => <tr key={row.service}><td>{row.service}</td><td>{row.count}</td><td>{money(row.revenue)}</td><td><div className={styles.share}><span style={{ width:`${data.revenue ? row.revenue/data.revenue*100 : 0}%` }} /></div>{data.revenue ? Math.round(row.revenue/data.revenue*100) : 0}%</td></tr>)}
+        {breakdown.rows.map((row) => <tr key={row.service}><td><ServiceLabel service={row.service} /></td><td>{row.count}</td><td>{money(row.revenue)}</td><td><div className={styles.share}><span style={{ width:`${data.revenue ? row.revenue/data.revenue*100 : 0}%` }} /></div>{data.revenue ? Math.round(row.revenue/data.revenue*100) : 0}%</td></tr>)}
         {!breakdown.rows.length && <tr><td colSpan={4} className={styles.empty}>{loading ? "Loading totals…" : "No confirmed payments match these filters."}</td></tr>}
       </tbody></table></div><Pagination page={breakdown.page} pages={breakdown.pages} total={data?.breakdown?.length || 0} onPage={setBreakdownPage} />
     </section>}
@@ -110,11 +111,15 @@ export default function Reports({ mode = "overview" }) {
       <div className={styles.tableWrap}><table><thead><tr><th>Customer</th><th>Contact details</th><th>Service</th><th>Amount paid</th><th>Date paid</th><th>Reference / details</th><th>Action</th></tr></thead><tbody>
         {loading ? <tr><td colSpan={7} className={styles.empty}>Loading payments…</td></tr> : payments?.records?.length ? payments.records.map((row) => <tr key={`${row.kind}-${row.id}`}>
           <td><strong>{row.name || "Unnamed customer"}</strong><small>{row.source === "bookings" ? "Service booking" : "Invoice"}</small></td>
-          <td>{row.email}<small>{row.phone}</small></td><td>{row.service}</td><td className={styles.amount}>{money(row.amount)}</td><td>{date(row.paidAt)}</td>
+          <td>{row.email}<small>{row.phone}</small></td><td><ServiceLabel service={row.service} /></td><td className={styles.amount}>{money(row.amount)}</td><td>{date(row.paidAt)}</td>
           <td className={styles.reference}>{row.reference || "—"}{row.note && <small>{row.note}</small>}</td><td><DeleteButton kind={row.kind} id={row.id} label={row.name || "payment"} onChange={reload} /></td>
         </tr>) : <tr><td colSpan={7} className={styles.empty}>No successful payments match your filters.</td></tr>}
       </tbody></table></div>
       <Pagination page={payments?.page || 1} pages={payments?.pages || 1} total={payments?.total || 0} size={query.pageSize} onSize={(value) => update("pageSize",value)} onPage={(value) => update("page",value)} disabled={loading} />
     </section>}
   </>;
+}
+
+function ServiceLabel({service}) {
+  return <span style={{display:'inline-flex',alignItems:'center',gap:8}}>{service === 'WhatsApp Status ads course' ? <FaWhatsapp aria-label="WhatsApp course" color="#39804a" /> : service === 'Ads course' ? <FaTiktok aria-label="TikTok course" /> : null}{service}</span>;
 }

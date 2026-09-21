@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (req.method !== method) { res.setHeader("Allow", method); return res.status(405).end(); }
   if (!req.headers.authorization) return res.status(401).json({ message: "Please sign in to continue." });
   const query = new URLSearchParams();
-  for (const key of ["page", "pageSize", "search", "status", "from", "to", "service", "source", "min", "max"]) if (typeof req.query[key] === "string") query.set(key, req.query[key]);
+  for (const key of ["page", "pageSize", "course", "search", "status", "from", "to", "service", "source", "min", "max"]) if (typeof req.query[key] === "string") query.set(key, req.query[key]);
   try {
     const response = await fetch(`${BACKEND_URL}/admin/${path}?${query}`, {
       method, headers: { authorization: req.headers.authorization, "Content-Type": "application/json" },
@@ -22,3 +22,4 @@ export default async function handler(req, res) {
     return res.status(response.status).json(data);
   } catch { return res.status(502).json({ message: "Unable to reach the admin service. Please try again." }); }
 }
+

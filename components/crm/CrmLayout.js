@@ -1,13 +1,14 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { FiUsers, FiShield, FiTrendingUp, FiMenu, FiX, FiLogOut, FiGrid } from "react-icons/fi";
+import { FiUsers, FiShield, FiTrendingUp, FiMenu, FiX, FiLogOut, FiGrid, FiFileText } from "react-icons/fi";
 import { canAccessCalculator } from "../../utils/calculatorAccess.mjs";
 import styles from "../../styles/AdminShell.module.css";
 const pages = [
   ["setup", "/crm-dashboard", "Setup clients", "Keep client onboarding organised, from first details to delivery.", FiUsers],
   ["verification", "/crm-verification-dashboard", "Verification clients", "Manage verification details and documents in one place.", FiShield],
   ["ads", "/crm-ads-dashboard", "Ads clients", "Keep campaigns, creative assets and client delivery moving.", FiTrendingUp],
+  ["invoices", "/invoice-generator", "Invoice generator", "Create payment requests and share a clear payment message with your customers.", FiFileText],
 ];
 export default function CrmLayout({ active, staff, onLogout, children }) {
   const [open, setOpen] = useState(false);

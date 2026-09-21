@@ -14,6 +14,7 @@ const serviceOptions = [
 ];
 
 const emptyForm = {
+  clientNumber: "",
   businessName: "",
   amountPaid: "",
   clientLoginDetails: "",
@@ -23,6 +24,7 @@ const emptyForm = {
 };
 
 const fieldLabels = {
+  clientNumber: "Client WhatsApp number",
   businessName: "Business name",
   amountPaid: "Amount paid",
   clientLoginDetails: "Client login details",
@@ -33,6 +35,7 @@ const fieldLabels = {
 
 const fieldOrder = [
   "businessName",
+  "clientNumber",
   "amountPaid",
   "clientLoginDetails",
   "videoLinks",
@@ -316,7 +319,7 @@ export default function CrmAdsDashboard() {
                     />
                   ) : (
                     <input
-                      type={field === "amountPaid" ? "number" : "text"}
+                      type={field === "amountPaid" ? "number" : field === "clientNumber" ? "tel" : "text"}
                       value={form[field]}
                       onChange={(event) => handleChange(field, event.target.value)}
                       required={field !== "note"}

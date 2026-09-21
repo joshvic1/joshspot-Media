@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FiCheck, FiCopy, FiX, FiChevronDown } from "react-icons/fi";
 import { quickReplies } from "../config/quickReplies.mjs";
+import { copyMessage } from "../utils/copyMessage.mjs";
 import styles from "../styles/AdsCalculator.module.css";
 
 export default function QuickReplies({ onClose }) {
@@ -23,7 +24,7 @@ export default function QuickReplies({ onClose }) {
   }, []);
   async function copy(reply) {
     try {
-      await navigator.clipboard.writeText(reply.message);
+      await copyMessage(reply.message);
       setError("");
       setCopied(previous => ({...previous,[reply.id]:true}));
       clearTimeout(timers.current[reply.id]);
@@ -38,7 +39,8 @@ export default function QuickReplies({ onClose }) {
     if(event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose();
   }}>
     <header className={styles.quickHeader}><div><h2 id="quick-replies-title">Quick Replies</h2><p>Ready for your next conversation.</p></div><button autoFocus onClick={onClose} aria-label="Close Quick Replies"><FiX /></button></header>
-    <div className={styles.quickBody}>{quickReplies.map(reply => <details key={reply.id} className={styles.quickReply}><summary>{reply.title}<FiChevronDown /></summary><pre>{reply.message}</pre><button className={styles.primary} onClick={() => copy(reply)} aria-label={"Copy " + reply.title}>{copied[reply.id] ? <FiCheck /> : <FiCopy />}<span aria-live="polite">{copied[reply.id] ? "Copied ✓" : "Copy message"}</span></button></details>)}<p role="status" className={styles.quickError}>{error}</p></div>
+    <div className={styles.quickBody}>{quickReplies.map(reply => <details name="quick-replies" key={reply.id} className={styles.quickReply}><summary>{reply.title}<FiChevronDown /></summary><pre>{reply.message}</pre><button className={styles.primary} onClick={() => copy(reply)} aria-label={"Copy " + reply.title}>{copied[reply.id] ? <FiCheck /> : <FiCopy />}<span aria-live="polite">{copied[reply.id] ? "Copied ✓" : "Copy message"}</span></button></details>)}<p role="status" className={styles.quickError}>{error}</p></div>
   </dialog>;
 }
+
 
