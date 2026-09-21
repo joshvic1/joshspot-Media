@@ -7,6 +7,13 @@ import { DeleteButton } from "./RecordDeletion";
 import styles from "../../styles/AdminReports.module.css";
 const money = (value) => `₦${Number(value || 0).toLocaleString("en-NG")}`;
 const date = (value) => value ? new Date(value).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Lagos" }) : "Date not available";
+function openDatePicker(event) {
+  try {
+    event.currentTarget.showPicker?.();
+  } catch {
+    // Keep the native calendar icon and keyboard entry available if blocked.
+  }
+}
 function range(preset) {
   const now = new Date(), today = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Lagos" }).format(now);
   if (preset === "all" || preset === "custom") return { from: "", to: "" };
@@ -85,8 +92,8 @@ export default function Reports({ mode = "overview" }) {
     <section className={styles.filterPanel} aria-label="Report filters">
       <div className={styles.tools}><label>Period<select value={query.preset} onChange={(event) => setQuery((current) => ({ ...current, preset:event.target.value, ...range(event.target.value), page:1 }))}>
         <option value="all">All time</option><option value="today">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="month">This month</option><option value="custom">Custom dates</option></select></label>
-        <label>From<input type="date" value={query.from} onChange={(event) => setQuery((current) => ({ ...current, preset:"custom", from:event.target.value, page:1 }))} /></label>
-        <label>To<input type="date" value={query.to} onChange={(event) => setQuery((current) => ({ ...current, preset:"custom", to:event.target.value, page:1 }))} /></label>
+        <label>From<input className={styles.datePicker} type="date" title="Choose start date" onClick={openDatePicker} value={query.from} max={query.to || undefined} onChange={(event) => setQuery((current) => ({ ...current, preset:"custom", from:event.target.value, page:1 }))} /></label>
+        <label>To<input className={styles.datePicker} type="date" title="Choose end date" onClick={openDatePicker} value={query.to} min={query.from || undefined} onChange={(event) => setQuery((current) => ({ ...current, preset:"custom", to:event.target.value, page:1 }))} /></label>
         {!invoicesOnly && <label>Payment source<select value={query.source} onChange={(event) => update("source",event.target.value)}><option value="all">All sources</option><option value="bookings">Service bookings</option><option value="invoices">Invoices</option></select></label>}
         <label>Service<select value={query.service} onChange={(event) => update("service",event.target.value)}><option value="all">All services</option>{(data?.services || []).map((service) => <option key={service}>{service}</option>)}</select></label>
         <button disabled={loading} onClick={reload}><FiRefreshCw /> Refresh</button><button disabled={syncing} onClick={sync}>{syncing ? "Checking Paystack…" : "Sync Paystack"}</button>
