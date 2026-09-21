@@ -95,7 +95,7 @@ export default function CoursePayments() {
         <strong>{value ?? "—"}</strong><p>{caption}</p></article>
     ))}</div>
     <section className={styles.panel}>
-      <div className={styles.panelHeader}><div><h2>Course customers <span>{summary?.total ?? "—"}</span></h2><p>TikTok, Facebook & Instagram ads course</p></div>
+      <div className={styles.panelHeader}><div><h2>Course customers <span>{summary?.total ?? "—"}</span></h2><p>Ads training and WhatsApp Status course customers</p></div>
         <button className={styles.secondary} onClick={() => setRefresh((value) => value + 1)} disabled={loading}><FiRefreshCw /> Refresh records</button>
       </div>
       <div className={styles.toolbar}>
@@ -113,7 +113,7 @@ export default function CoursePayments() {
             <tr key={record.id}>
               <td><div className={styles.customer}><span className={styles.avatar}>{(record.name || "?").split(" ").slice(0,2).map((word) => word[0]).join("")}</span><div><strong>{record.name || "Unnamed customer"}</strong><AttributionBadges attribution={record.attribution} /></div></div></td>
               <td className={styles.phone}>{record.phone}</td>
-              <td>{record.email}</td>
+              <td>{record.email}<small className={styles.meta}>{record.courseName || "Ads course"}</small><small className={styles.meta}>Email: {record.courseEmailStatus || "Not sent"}</small></td>
               <td><span className={`${styles.badge} ${styles[record.status]}`}><i />{labels[record.status]}</span>
                 {record.paidAt && <small className={styles.meta}>Paid {date(record.paidAt)}</small>}
                 {record.status !== "paid" && <button className={styles.textButton} disabled={!!busy} onClick={() => act(record, "check")}>Check payment</button>}</td>
@@ -143,7 +143,7 @@ export default function CoursePayments() {
       {selected && <><div className={styles.dialogHeader}><span className={styles.dialogIcon}><FiMail /></span><button aria-label="Close email preview" disabled={!!busy} onClick={closeReminder}><FiX /></button></div>
         <h2>Send a gentle reminder</h2><p className={styles.recipient}>To: {selected.email}</p>
         <div className={styles.emailPreview}><strong>Still want to learn TikTok, Facebook and Instagram ads?</strong>
-          <p>Hi {selected.name || "there"},</p><p>You started signing up for my TikTok, Facebook and Instagram ads course, but your payment has not been completed.</p>
+          <p>Hi {selected.name || "there"},</p><p>You started signing up for my {selected.courseName || "TikTok, Facebook and Instagram ads"} course, but your payment has not been completed.</p>
           <p>Were you having a problem making the payment? You can go back to the course page and try again whenever you are ready:</p>
           <p className={styles.retryLink}>Your course page link</p>
           <p>Once your payment is confirmed, you will get access to the course channels immediately.</p>

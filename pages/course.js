@@ -812,30 +812,6 @@ function CourseAccess({ invoice, isWhatsApp }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  if (isWhatsApp)
-    return (
-      <div className={styles.courseAccess}>
-        <h3>You are in! Let’s get you started.</h3>
-        <p>
-          Your payment is confirmed. Click the button below and send me a
-          message on WhatsApp to get access to your WhatsApp Status ads course.
-        </p>
-        <a
-          className={styles.telegramButton}
-          href={
-            invoice.preview
-              ? "https://wa.me/2348143017102?text=I%20just%20paid"
-              : invoice.contactUrl
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <FiMessageCircle />
-          Get my course on WhatsApp
-        </a>
-      </div>
-    );
-
   const sendLinks = async (event) => {
     event.preventDefault();
     if (sending) return;
@@ -911,7 +887,11 @@ function CourseAccess({ invoice, isWhatsApp }) {
           )}
         </form>
       </section>
-      <section className={styles.telegramAccess} aria-labelledby="join-courses">
+      {isWhatsApp ? <section className={styles.telegramAccess}>
+        <h3>You are in! Let’s get you started.</h3>
+        <p>Click below and message me on WhatsApp to get access to your WhatsApp Status ads course.</p>
+        <a className={styles.telegramButton} href={invoice.preview ? "https://wa.me/2348143017102?text=I%20just%20paid" : invoice.contactUrl} target="_blank" rel="noopener noreferrer"><FiMessageCircle /> Get my course on WhatsApp</a>
+      </section> : (      <section className={styles.telegramAccess} aria-labelledby="join-courses">
         <h3 id="join-courses">
           You can also, click the buttons below to access the courses directly
         </h3>
@@ -935,6 +915,7 @@ function CourseAccess({ invoice, isWhatsApp }) {
           </a>
         ))}
       </section>
+      )}
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { FiUsers, FiShield, FiTrendingUp, FiMenu, FiX, FiLogOut } from "react-icons/fi";
+import { FiUsers, FiShield, FiTrendingUp, FiMenu, FiX, FiLogOut, FiGrid } from "react-icons/fi";
+import { canAccessCalculator } from "../../utils/calculatorAccess.mjs";
 import styles from "../../styles/AdminShell.module.css";
 const pages = [
   ["setup", "/crm-dashboard", "Setup clients", "Keep client onboarding organised, from first details to delivery.", FiUsers],
@@ -25,7 +26,7 @@ export default function CrmLayout({ active, staff, onLogout, children }) {
       {mobile && <button className={styles.close} type="button" aria-label="Close CRM menu" onClick={close}><FiX /></button>}
     </div>
     <div className={styles.navLabel}>CLIENT MANAGEMENT</div>
-    <nav aria-label="CRM navigation">{pages.map(([key, href, title, , Icon]) => <Link key={key} href={href} aria-current={active === key ? "page" : undefined} className={active === key ? styles.active : ""} onClick={close}><Icon />{title}</Link>)}{staff?.admin && <Link href="/admin-7812er" onClick={close}><FiUsers />Admin dashboard</Link>}</nav>
+    <nav aria-label="CRM navigation">{pages.map(([key, href, title, , Icon]) => <Link key={key} href={href} aria-current={active === key ? "page" : undefined} className={active === key ? styles.active : ""} onClick={close}><Icon />{title}</Link>)}{canAccessCalculator(staff) && <Link href="/ads-calculator" onClick={close}><FiGrid />Ads Calculator</Link>}{staff?.admin && <Link href="/admin-7812er" onClick={close}><FiUsers />Admin dashboard</Link>}</nav>
     <div className={styles.sidebarBottom}><button type="button" onClick={onLogout}><FiLogOut />Sign out</button>
       <div className={styles.profile}><span>{staff?.name?.[0] || "J"}</span><div>{staff?.name || "Team member"}<small>{staff?.role ? `${staff.role} · Staff workspace` : "Staff workspace"}</small></div></div>
     </div>
@@ -41,3 +42,4 @@ export default function CrmLayout({ active, staff, onLogout, children }) {
     </div>
   </div>;
 }
+

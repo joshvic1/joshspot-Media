@@ -23,7 +23,7 @@ useEffect(() => {
   return () => { observer.disconnect(); animations.forEach(animation => animation.cancel()); };
 }, []);
 return <div ref={page} className={styles.shell}>
-<header className={styles.siteHeader}>
+<header className={`${styles.siteHeader} ${hero ? styles.navyHeader : ""}`}>
   <div className={styles.navInner}>
     <Link href="/" className={styles.siteBrand} aria-label="Joshspot Media home">JoshspotMedia</Link>
     <button className={styles.menuToggle} aria-label="Open menu" aria-expanded={menuOpen} aria-controls={menuOpen ? "public-navigation" : undefined} onClick={() => setMenuOpen(true)}><FiMenu /></button>
