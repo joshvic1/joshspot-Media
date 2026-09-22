@@ -9,6 +9,7 @@ import RecordDeletion from "./RecordDeletion";
 export const adminPages = [
   ["overview", "Overview", FiGrid, "Your business at a glance."],
   ["courses", "Course payments", FiBookOpen, "Every checkout. Every customer. One clear view."],
+  ["sources", "Sources that convert", FiBarChart2, "See which tracking links bring in course purchases."],
   ["invoices", "Paid invoices", FiClipboard, "Confirmed invoice payments, customer details and revenue."],
   ["bookings", "Bookings", FiClipboard, "Manage client bookings and service details."],
   ["schedule", "Schedule", FiCalendar, "Plan your day and keep work moving."],
