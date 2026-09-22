@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { FiRefreshCw } from "react-icons/fi";
 import Pagination, { pageRows } from "./Pagination";
 import styles from "../../styles/AdminReports.module.css";
@@ -50,7 +51,7 @@ export default function SourceAnalytics() {
     <section className={styles.panel}><h2>Which sources bring in purchases?</h2><p className={styles.hint}>Ranked by confirmed gross revenue, before payment fees. Custom tracking labels stay separate from the checkout browser. Older records without a saved source appear as Unknown / not recorded. This measures checkout conversion, not conversion from page visits.</p>
       <div className={styles.tools}><label className={styles.grow}>Find a source<input placeholder="TikTok 1, Instagram, WhatsApp…" value={search} onChange={event => {setSearch(event.target.value);setPage(1);}} /></label></div>
       <div className={styles.tableWrap}><table><thead><tr><th>Source</th><th>Checkouts</th><th>Purchases</th><th>Not completed</th><th>Conversion</th><th>Revenue</th><th>Revenue share</th></tr></thead><tbody>
-        {!loading && !error && pagination.rows.map(row => <tr key={row.source}><td><strong>{sourceName(row.source)}</strong></td><td>{row.checkouts}</td><td>{row.purchases}</td><td>{row.checkouts-row.purchases}</td><td>{row.conversion.toFixed(1)}%</td><td className={styles.amount}>{money(row.revenue)}</td><td><div className={styles.share}><span style={{width:`${totals.revenue ? row.revenue/totals.revenue*100 : 0}%`}} /></div>{totals.revenue ? (row.revenue/totals.revenue*100).toFixed(1) : "0"}%</td></tr>)}
+        {!loading && !error && pagination.rows.map(row => <tr key={row.source}><td><Link href={{pathname:"/admin-7812er/courses",query:{source:row.source,...(demo ? {preview:"demo"} : {})}}} aria-label={`View course payments from ${sourceName(row.source)}`}><strong>{sourceName(row.source)}</strong></Link></td><td>{row.checkouts}</td><td>{row.purchases}</td><td>{row.checkouts-row.purchases}</td><td>{row.conversion.toFixed(1)}%</td><td className={styles.amount}>{money(row.revenue)}</td><td><div className={styles.share}><span style={{width:`${totals.revenue ? row.revenue/totals.revenue*100 : 0}%`}} /></div>{totals.revenue ? (row.revenue/totals.revenue*100).toFixed(1) : "0"}%</td></tr>)}
         {(loading || error || !pagination.rows.length) && <tr><td colSpan={7} className={styles.empty}>{loading ? "Loading source analytics…" : error ? "Analytics could not be loaded. Try Refresh." : "No checkouts match these filters."}</td></tr>}
       </tbody></table></div>
       <Pagination page={pagination.page} pages={pagination.pages} total={visible.length} size={20} onPage={setPage} disabled={loading} />

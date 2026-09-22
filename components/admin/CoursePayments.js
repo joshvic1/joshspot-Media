@@ -21,6 +21,7 @@ const samples = [
 
 export default function CoursePayments() {
   const router = useRouter();
+  const source = typeof router.query.source === "string" ? router.query.source : "";
   const demo = process.env.NODE_ENV === "development" && router.query.preview === "demo";
   const [data, setData] = useState(null);
   const [search, setSearch] = useState("");
@@ -40,7 +41,7 @@ export default function CoursePayments() {
     const timer = setTimeout(async () => {
       setLoading(true); setError("");
       if (demo) {
-        const courseRecords = samples.filter(record => course === "all" || record.product === course);
+        const courseRecords = samples.filter(record => (course === "all" || record.product === course) && (!source || (record.attribution?.sourceLabel?.trim() || record.attribution?.source || "unknown").toLowerCase() === source.toLowerCase()));
         const records = courseRecords.filter((record) => (filter === "all" || record.status === filter) &&
           [record.name, record.email, record.phone].some((value) => value.toLowerCase().includes(search.toLowerCase().trim())));
         const summary = {total:courseRecords.length,paid:0,pending:0,abandoned:0,failed:0,revenue:0};
@@ -49,7 +50,7 @@ export default function CoursePayments() {
         setLoading(false); return;
       }
       try {
-        const query = new URLSearchParams({ status: filter, course, search, page: String(page) });
+        const query = new URLSearchParams({ status: filter, course, source, search, page: String(page) });
         const response = await fetch(`/api/admin/course-payments?${query}`, {
           headers: { authorization: localStorage.getItem("adminToken") || "" }, signal: controller.signal,
         });
@@ -62,7 +63,7 @@ export default function CoursePayments() {
       } finally { if (!controller.signal.aborted) setLoading(false); }
     }, 250);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [demo, search, filter, course, page, refresh, router]);
+  }, [demo, search, filter, course, source, page, refresh, router]);
 
   useEffect(() => { if (selected) dialog.current?.showModal(); }, [selected]);
   const closeReminder = () => { dialog.current?.close(); setSelected(null); };
@@ -105,6 +106,7 @@ export default function CoursePayments() {
         <button className={styles.secondary} onClick={() => setRefresh((value) => value + 1)} disabled={loading}><FiRefreshCw /> Refresh records</button>
       </div>
       <div className={styles.toolbar}>
+        {source && <div className={styles.filters}><span>Source: <strong>{source === "unknown" ? "Unknown / not recorded" : source === "direct" ? "Direct" : source}</strong></span><button onClick={() => { const {source: removedSource, ...query} = router.query; setPage(1); router.replace({pathname:router.pathname,query},undefined,{shallow:true}); }}>Clear source filter</button></div>}
         <label className={styles.courseSelect}>Course<select aria-label="Filter by course" value={course} onChange={event => {setCourse(event.target.value);setPage(1);}}><option value="all">All courses</option><option value="ads-course">TikTok, Facebook & Instagram ads</option><option value="whatsapp-course">WhatsApp Status ads</option></select></label>
         <div className={styles.filters} aria-label="Payment status filters">{[["all", "All checkouts"], ...Object.entries(labels)].map(([value, label]) => (
           <button key={value} aria-pressed={filter === value} className={filter === value ? styles.selectedFilter : ""}
