@@ -390,16 +390,7 @@ export default function CoursePage({ variant = "ads" }) {
   const askQuestion = async (event) => {
     event.preventDefault();
 
-    if (!question.trim()) return;
-    if (isWhatsApp) {
-      window.open(
-        "https://wa.me/2348143017102?text=" +
-          encodeURIComponent(question.trim()),
-        "_blank",
-        "noopener,noreferrer",
-      );
-      return;
-    }
+    if (!question.trim() || asking) return;
 
     setAsking(true);
     setAnswer("");
@@ -411,7 +402,7 @@ export default function CoursePage({ variant = "ads" }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, product: isWhatsApp ? "whatsapp-course" : "ads-course" }),
       });
       const data = await response.json();
 
@@ -594,9 +585,9 @@ export default function CoursePage({ variant = "ads" }) {
             {(answer || asking) && (
               <div className={styles.chatBox}>
                 {askedQuestion && (
-                  <p className={styles.userBubble}>{askedQuestion}</p>
+                  <p className={`${styles.userBubble} ${isWhatsApp ? modern.questionUser : ""}`}>{askedQuestion}</p>
                 )}
-                <p className={styles.answerBubble}>
+                <p className={`${styles.answerBubble} ${isWhatsApp ? modern.questionAnswer : ""}`}>
                   {asking ? "Typing..." : answer}
                 </p>
               </div>
@@ -846,7 +837,7 @@ function CourseAccess({ invoice, isWhatsApp }) {
   };
 
   return (
-    <div className={styles.courseAccess}>
+    <div className={`${styles.courseAccess} ${isWhatsApp ? modern.paidAccess : ""}`}>
       <section
         className={styles.emailAccess}
         aria-labelledby="save-course-links"
@@ -889,8 +880,8 @@ function CourseAccess({ invoice, isWhatsApp }) {
       </section>
       {isWhatsApp ? <section className={styles.telegramAccess}>
         <h3>You are in! Let’s get you started.</h3>
-        <p>Click below and message me on WhatsApp to get access to your WhatsApp Status ads course.</p>
-        <a className={styles.telegramButton} href={invoice.preview ? "https://wa.me/2348143017102?text=I%20just%20paid" : invoice.contactUrl} target="_blank" rel="noopener noreferrer"><FiMessageCircle /> Get my course on WhatsApp</a>
+        <p>Your payment is confirmed. Join the Telegram training channel to start your WhatsApp Status ads course.</p>
+        <a className={styles.telegramButton} href={invoice.preview ? "https://t.me/+LimBMFUxVvphZTU0" : invoice.contactUrl} target="_blank" rel="noopener noreferrer"><FiSend /> Join WhatsApp course on Telegram</a>
       </section> : (      <section className={styles.telegramAccess} aria-labelledby="join-courses">
         <h3 id="join-courses">
           You can also, click the buttons below to access the courses directly

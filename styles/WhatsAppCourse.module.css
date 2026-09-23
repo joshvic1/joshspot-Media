@@ -105,6 +105,19 @@ main.page section:has(form) h2 { font-weight:700; }
 .checkout .transferDetails button:focus-visible { outline:3px solid #729a65; outline-offset:3px; }
 
 /* Course benefits with supporting descriptions. */
+.checkout .paidAccess { color:#173e2b; }
+.checkout .paidAccess > section { padding:18px; background:#f4f7ef; border:1px solid #d5e1cc; border-radius:14px; }
+.checkout .paidAccess h3 { color:#173e2b; }
+.checkout .paidAccess p,.checkout .paidAccess label { color:#405745; }
+.checkout .paidAccess p[role=status] { color:#215b35; background:#e6f2e2; border:1px solid #bdd6b5; padding:12px; border-radius:9px; }
+.checkout .paidAccess p[role=alert] { color:#9f2438; background:#fff1f2; }
+.checkout .paidAccess input { background:#fff; color:#173e2b; border-color:#94aa98; }
+.checkout .paidAccess input::placeholder { color:#586a5b; }
+.checkout .paidAccess button,.checkout .paidAccess a { background:#1c4a31; color:#fff; border:1px solid #1c4a31; box-shadow:none; }
+.checkout .paidAccess button:hover,.checkout .paidAccess a:hover { background:#143b26; }
+.checkout .paidAccess button:disabled { background:#536b59; color:#fff; opacity:1; }
+main.page .questionUser { background:#e7efdf; color:#173e2b; border-color:#cbdac4; }
+main.page .questionAnswer { background:#f4f7ef; color:#243d2d; border-color:#d5e1cc; }
 main.page .modules article { align-items: flex-start; }
 main.page .modules article > div { flex: 1; min-width: 0; }
 main.page .modules h3 { margin: 0; font-size: 14px; font-weight: 700; }
