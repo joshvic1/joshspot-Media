@@ -1,3 +1,10 @@
+.offerStrip { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:3px 20px; padding:7px 12px; background:#fff000; color:#17121d; font-size:12px; line-height:1.4; text-align:center; }
+.offerStrip > span { display:inline-flex; align-items:center; gap:7px; flex-wrap:wrap; justify-content:center; }
+.offerStrip del { color:#514719; }
+.offerStrip strong { font-weight:800; }
+.offerStrip b { font-size:10px; padding:2px 5px; background:#17121d; color:#fff000; border-radius:4px; }
+.offerStrip [role=timer] { font-variant-numeric:tabular-nums; min-width:61px; }
+@media(max-width:480px) { .offerStrip { font-size:11px; padding:5px 8px; gap:2px 12px; } }
 .page,
 .page * {
   box-sizing: border-box;

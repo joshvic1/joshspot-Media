@@ -92,7 +92,7 @@ const reviewProofs = [
 ];
 
 const NEXT_PRICE = 20000;
-const PRICE_REVIEW_SECONDS = 2 * 60 * 60 + 30 * 60;
+const PRICE_REVIEW_SECONDS = 2 * 60 * 60;
 
 const formatMoney = (amount) =>
   `₦${Number(amount || 0).toLocaleString("en-NG")}`;
@@ -207,18 +207,24 @@ export default function CoursePage({ variant = "ads" }) {
   }, [invoice]);
 
   useEffect(() => {
-    const savedOffer = window.localStorage.getItem("courseOfferTimer");
-
-    if (savedOffer && Number(savedOffer) > 0) {
-      setTimeLeft(Number(savedOffer));
-    } else {
-      setTimeLeft(PRICE_REVIEW_SECONDS);
-      window.localStorage.setItem(
-        "courseOfferTimer",
-        String(PRICE_REVIEW_SECONDS),
-      );
-    }
-  }, []);
+    if (isWhatsApp) return;
+    let deadline = Date.now() + PRICE_REVIEW_SECONDS * 1000;
+    try {
+      const saved = Number(window.localStorage.getItem("courseOfferDeadline"));
+      if (Number.isFinite(saved) && saved > 0) deadline = Math.min(saved, deadline);
+      else {
+        const remaining = window.localStorage.getItem("courseOfferTimer");
+        if (remaining !== null && Number.isFinite(Number(remaining))) {
+          deadline = Date.now() + Math.max(0, Math.min(PRICE_REVIEW_SECONDS, Number(remaining))) * 1000;
+        }
+      }
+      window.localStorage.setItem("courseOfferDeadline", String(deadline));
+    } catch { /* The countdown still works when browser storage is unavailable. */ }
+    const update = () => setTimeLeft(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
+    update();
+    const timer = window.setInterval(update, 1000);
+    return () => window.clearInterval(timer);
+  }, [isWhatsApp]);
 
   useEffect(() => {
     let current = 0;
@@ -233,18 +239,6 @@ export default function CoursePage({ variant = "ads" }) {
     }, 30);
 
     return () => window.clearInterval(counter);
-  }, []);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setTimeLeft((current) => {
-        const nextTime = current <= 0 ? 0 : current - 1;
-        window.localStorage.setItem("courseOfferTimer", String(nextTime));
-        return nextTime;
-      });
-    }, 1000);
-
-    return () => window.clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -436,6 +430,10 @@ export default function CoursePage({ variant = "ads" }) {
         )}
       </Head>
 
+      {!isWhatsApp && <div className={styles.offerStrip}>
+        <span>Originally <del>₦20,000</del> <strong>Now ₦8,000</strong> <b>Save 60%</b></span>
+        <span><FiClock aria-hidden="true" /> Discount ends in <strong role="timer" aria-label="Discount countdown">{formatTime(timeLeft)}</strong></span>
+      </div>}
       <main className={`${styles.page} ${pageStyles?.page || styles.withStickyPay}`}>
         <section className={styles.hero}>
           <div className={styles.heroCopy}>
@@ -548,7 +546,7 @@ export default function CoursePage({ variant = "ads" }) {
                 </h2>
                 <p>
                   The price is currently {formatMoney(COURSE_PRICE)}. In the
-                  next 2hrs 30 mins, we will increase the price to{" "}
+                  next 2 hours, we will increase the price to{" "}
                   <strong className={styles.countingPrice}>
                     {formatMoney(animatedNextPrice || NEXT_PRICE)}
                   </strong>
