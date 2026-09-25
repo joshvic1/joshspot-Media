@@ -39,7 +39,10 @@ export default function InvoiceGenerator() {
     catch {setError("Copy is unavailable. Select the text and copy it manually.");}
   }
   const transfer=invoice?.accountNumber&&invoice?.bankName;
-  const paymentMessage=invoiceUrl ? `Payment request: ${money(invoice?.amount)}${transfer?`\n\nBank transfer details:\n${invoice.accountNumber}\n${invoice.bankName}\n${invoice.accountName||"Joshspot Media"}`:""}\n\nSend receipt after payment.\n\nView your invoice and payment status:\n${invoiceUrl}`:"";
+  const paymentMessage=invoiceUrl ? transfer
+    ? `Pay ${money(invoice.amount)} to the account below and send receipt after\n\n${invoice.accountNumber}\n${invoice.bankName}\n${invoice.accountName||"Joshspot Media"}\n\nOr pay via the link below\n\n${invoiceUrl}`
+    : `Pay ${money(invoice?.amount)} via the link below and send receipt after\n\n${invoiceUrl}`
+    : "";
   if(!staff)return <div className={styles.loading} role="status">{sessionError||"Opening your workspace…"}</div>;
   return <CrmLayout active="invoices" staff={staff} onLogout={logout}>
     {error&&<p className={styles.error} role="alert">{error}</p>}
