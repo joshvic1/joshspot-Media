@@ -4,6 +4,7 @@ import { FiRefreshCw } from "react-icons/fi";
 import { FaWhatsapp, FaTiktok } from "react-icons/fa";
 import Pagination, { pageRows } from "./Pagination";
 import { DeleteButton } from "./RecordDeletion";
+import SendReceipt from "./SendReceipt";
 import styles from "../../styles/AdminReports.module.css";
 const money = (value) => `₦${Number(value || 0).toLocaleString("en-NG")}`;
 const date = (value) => value ? new Date(value).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Lagos" }) : "Date not available";
@@ -119,7 +120,7 @@ export default function Reports({ mode = "overview" }) {
         {loading ? <tr><td colSpan={7} className={styles.empty}>Loading payments…</td></tr> : payments?.records?.length ? payments.records.map((row) => <tr key={`${row.kind}-${row.id}`}>
           <td><strong>{row.name || "Unnamed customer"}</strong><small>{row.source === "bookings" ? "Service booking" : "Invoice"}</small></td>
           <td>{row.email}<small>{row.phone}</small></td><td><ServiceLabel service={row.service} /></td><td className={styles.amount}>{money(row.amount)}</td><td>{date(row.paidAt)}</td>
-          <td className={styles.reference}>{row.reference || "—"}{row.note && <small>{row.note}</small>}</td><td><DeleteButton kind={row.kind} id={row.id} label={row.name || "payment"} onChange={reload} /></td>
+          <td className={styles.reference}>{row.reference || "—"}{row.note && <small>{row.note}</small>}</td><td>{row.kind === "invoices" && <SendReceipt record={row} demo={demo} onSent={message=>{setNotice(message);reload();}} />}<DeleteButton kind={row.kind} id={row.id} label={row.name || "payment"} onChange={reload} /></td>
         </tr>) : <tr><td colSpan={7} className={styles.empty}>No successful payments match your filters.</td></tr>}
       </tbody></table></div>
       <Pagination page={payments?.page || 1} pages={payments?.pages || 1} total={payments?.total || 0} size={query.pageSize} onSize={(value) => update("pageSize",value)} onPage={(value) => update("page",value)} disabled={loading} />

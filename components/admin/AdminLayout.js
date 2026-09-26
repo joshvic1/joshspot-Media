@@ -64,6 +64,7 @@ export default function AdminLayout({ active, children }) {
         className={active === key ? styles.active : ""} onClick={() => setOpen(false)}><Icon />{title}</Link>
     ))}<Link href="/crm-dashboard" onClick={() => setOpen(false)}><FiUsers />CRM dashboard</Link></nav>
     <div className={styles.sidebarBottom}>
+      <a href="https://mytiklink.com/admin/users" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> Visit Mytiklink</a>
       <a href="/course" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> View course page</a>
       <a href="/whatsapp" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> WhatsApp course page</a>
       <button onClick={() => { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); }}><FiLogOut /> Sign out</button>
