@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(`${BACKEND_URL}/admin/${path}?${query}`, {
       method, headers: { authorization: req.headers.authorization, "Content-Type": "application/json" },
-      ...(method === "POST" ? { body: receipt ? JSON.stringify({email:req.body?.email}) : "{}" } : {}),
+      ...(method === "POST" ? { body: receipt ? JSON.stringify({email:req.body?.email,name:req.body?.name}) : "{}" } : {}),
     });
     const data = await response.json();
     return res.status(response.status).json(data);
