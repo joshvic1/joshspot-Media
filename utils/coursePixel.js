@@ -33,7 +33,7 @@ function trackTikTokCourse(event, data, once) {
     if (event === "CoursePaymentAccountCreated" || (once && tiktokSent.has(once))) return;
     const pixel = courseTikTok(); if (!pixel) return;
     if (event === "PageView") pixel.page();
-    else pixel.track(event === "Lead" ? "SubmitForm" : event, { content_ids: ["ads-course"], content_type: "product", description: "TikTok, Facebook & Instagram Ads Course", currency: "NGN", ...data });
+    else pixel.track(event === "Lead" ? "SubmitForm" : event, { ...courseProduct(), description: courseProduct().content_name, ...data });
     if (once) tiktokSent.add(once);
   } catch { /* Tracking must not interrupt checkout. */ }
 }
@@ -46,7 +46,7 @@ async function trackTikTokPurchase(invoice) {
     if (tiktokSent.has(key)) return;
     try { if (window.localStorage.getItem(key)) return; } catch { /* In-memory fallback. */ }
     const pixel = courseTikTok(); if (!pixel) return;
-    pixel.track("Purchase", { content_ids: ["ads-course"], content_type: "product", currency: "NGN", value: Number(invoice.amount), quantity: 1 }, { event_id: eventId });
+    pixel.track("Purchase", { ...courseProduct(), value: Number(invoice.amount), quantity: 1 }, { event_id: eventId });
     tiktokSent.add(key);
     try { window.localStorage.setItem(key, "1"); } catch { /* In-memory fallback. */ }
   } catch { /* Tracking must not interrupt paid access. */ }
@@ -80,7 +80,7 @@ function initializeSnap() {
 function trackSnapCourse(event, data, once) {
   try {
     if (!snapEvents[event] || !initializeSnap() || (once && snapSent.has(once))) return;
-    const params = { item_ids: ["ads-course"], currency: "NGN" };
+    const params = { item_ids: courseProduct().content_ids, currency: "NGN" };
     if (Number(data.value) > 0) params.price = Number(data.value);
     window.snaptr("track", snapEvents[event], params);
     if (once) snapSent.add(once);
@@ -95,16 +95,16 @@ async function trackSnapPurchase(invoice) {
     if (snapSent.has(key)) return;
     try { if (window.localStorage.getItem(key)) return; } catch { /* In-memory fallback. */ }
     if (!initializeSnap()) return;
-    window.snaptr("track", "PURCHASE", { item_ids: ["ads-course"], currency: "NGN", price: Number(invoice.amount), transaction_id: transactionId });
+    window.snaptr("track", "PURCHASE", { item_ids: courseProduct().content_ids, currency: "NGN", price: Number(invoice.amount), transaction_id: transactionId });
     snapSent.add(key);
     try { window.localStorage.setItem(key, "1"); } catch { /* In-memory fallback. */ }
   } catch { /* Tracking must not interrupt course access. */ }
 }
 const sent = new Set();
-const product = { content_ids: ["ads-course"], content_type: "product", content_name: "TikTok, Facebook & Instagram Ads Course", currency: "NGN" };
+function courseProduct() { const whatsapp = typeof window !== "undefined" && window.location.pathname.replace(/\/$/, "") === "/whatsapp"; return { content_ids: [whatsapp ? "whatsapp-course" : "ads-course"], content_type: "product", content_name: whatsapp ? "WhatsApp Status Ads Course" : "TikTok, Facebook & Instagram Ads Course", currency: "NGN" }; }
 
 export function courseTrackingAllowed() {
-  return typeof window !== "undefined" && window.location.pathname.replace(/\/$/, "") === "/course" &&
+  return typeof window !== "undefined" && ["/course", "/whatsapp"].includes(window.location.pathname.replace(/\/$/, "")) &&
     !new URLSearchParams(window.location.search).has("preview") &&
     !["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
 }
@@ -130,11 +130,12 @@ function initialize() {
 }
 
 export function trackCourse(event, data = {}, { custom = false, once } = {}) {
+  if (once) once = `${courseProduct().content_ids[0]}-${once}`;
   trackTikTokCourse(event, data, once);
   trackSnapCourse(event, data, once);
   try {
     if (!initialize() || (once && sent.has(once))) return;
-    window.fbq(custom ? "trackSingleCustom" : "trackSingle", COURSE_PIXEL_ID, event, { ...product, ...data });
+    window.fbq(custom ? "trackSingleCustom" : "trackSingle", COURSE_PIXEL_ID, event, { ...courseProduct(), ...data });
     if (once) sent.add(once);
   } catch { /* Analytics must never interrupt checkout. */ }
 }
@@ -150,7 +151,7 @@ export async function trackCoursePurchase(invoice) {
     if (sent.has(eventID)) return;
     try { if (window.localStorage.getItem(eventID)) return; } catch { /* Session deduplication still applies. */ }
     if (!initialize()) return;
-    window.fbq("trackSingle", COURSE_PIXEL_ID, "Purchase", { ...product, value: Number(invoice.amount), num_items: 1 }, { eventID });
+    window.fbq("trackSingle", COURSE_PIXEL_ID, "Purchase", { ...courseProduct(), value: Number(invoice.amount), num_items: 1 }, { eventID });
     sent.add(eventID);
     try { window.localStorage.setItem(eventID, "1"); } catch { /* Storage may be unavailable. */ }
   } catch { /* Analytics must never interrupt paid access. */ }

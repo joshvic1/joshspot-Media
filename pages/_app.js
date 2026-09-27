@@ -8,7 +8,7 @@ const poppins = Poppins({
 export default function App({ Component, pageProps }) {
   useEffect(() => {
     // The course has its own targeted tracking and preview exclusions.
-    if (window.location.pathname.replace(/\/$/, "") === "/course") return;
+    if (["/course", "/whatsapp"].includes(window.location.pathname.replace(/\/$/, ""))) return;
     if (window.ttq?.load) {
       if (!window.ttq._i?.D7V46AJC77UCL5G1KVLG) window.ttq.load("D7V46AJC77UCL5G1KVLG");
       window.ttq.instance("D7V46AJC77UCL5G1KVLG").page();

@@ -200,7 +200,7 @@ export default function CoursePage({ variant = "ads" }) {
       { value: COURSE_PRICE },
       { once: "course-view" },
     );
-  }, [router.isReady]);
+  }, [router.isReady, COURSE_PRICE]);
 
   useEffect(() => {
     trackCoursePurchase(invoice);
@@ -879,7 +879,7 @@ function CourseAccess({ invoice, isWhatsApp }) {
       {isWhatsApp ? <section className={styles.telegramAccess}>
         <h3>You are in! Let’s get you started.</h3>
         <p>Your payment is confirmed. Join the Telegram training channel to start your WhatsApp Status ads course.</p>
-        <a className={styles.telegramButton} href={invoice.preview ? "https://t.me/+LimBMFUxVvphZTU0" : invoice.contactUrl} target="_blank" rel="noopener noreferrer"><FiSend /> Join WhatsApp course on Telegram</a>
+        <a className={styles.telegramButton} onClick={() => { if (!invoice.preview) trackCourse("CourseTelegramClick", {course_name:"WhatsApp Status ads"}, {custom:true}); }} href={invoice.preview ? "https://t.me/+LimBMFUxVvphZTU0" : invoice.contactUrl} target="_blank" rel="noopener noreferrer"><FiSend /> Join WhatsApp course on Telegram</a>
       </section> : (      <section className={styles.telegramAccess} aria-labelledby="join-courses">
         <h3 id="join-courses">
           You can also, click the buttons below to access the courses directly
