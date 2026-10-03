@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { FiArrowRight, FiEye, FiEyeOff, FiLock, FiCheck, FiUsers, FiBarChart2 } from "react-icons/fi";
-import API from "../../utils/api";
+import axios from "axios";
 import styles from "../../styles/WorkspaceLogin.module.css";
 export default function WorkspaceLogin({ admin = false }) {
   const router = useRouter();
@@ -11,10 +11,11 @@ export default function WorkspaceLogin({ admin = false }) {
   const login = async (event) => {
     event.preventDefault(); if (loading) return; setLoading(true); setError("");
     try {
-      const { data } = await API.post(admin ? "/admin/login" : "/crm/login", { email:email.trim(),password });
-      if (admin) localStorage.setItem("adminToken",data.token);
-      else { localStorage.setItem("crmToken",data.token);localStorage.setItem("crmStaff",JSON.stringify(data.staff)); }
-      await router.push(admin ? "/admin-7812er" : "/crm-dashboard");
+      const { data } = await axios.post('/api/workspace-login', { email:email.trim(),password,admin });
+      const signedInAsAdmin = data.accountType === 'admin';
+      if (signedInAsAdmin) { localStorage.setItem("adminToken",data.token); localStorage.removeItem('crmToken'); localStorage.removeItem('crmStaff'); }
+      else { localStorage.removeItem('adminToken'); localStorage.setItem("crmToken",data.token);localStorage.setItem("crmStaff",JSON.stringify(data.staff)); }
+      await router.push(router.query.next === '/crm-inbox' ? '/crm-inbox' : signedInAsAdmin ? "/admin-7812er" : "/crm-dashboard");
     } catch (error) { setError(error.response?.status === 401 ? "The email or password is incorrect. Please try again." : "We couldn't sign you in right now. Please try again."); }
     finally { setLoading(false); }
   };
@@ -34,7 +35,7 @@ export default function WorkspaceLogin({ admin = false }) {
           <label htmlFor="login-password">Password</label><div className={styles.password}><input id="login-password" type={visible ? "text" : "password"} autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" disabled={loading} /><button type="button" aria-label={visible ? "Hide password" : "Show password"} aria-pressed={visible} onClick={() => setVisible((value) => !value)}>{visible ? <FiEyeOff /> : <FiEye />}</button></div>
           {error && <p className={styles.error} role="alert">{error}</p>}
           <button className={styles.submit} type="submit" disabled={loading}>{loading ? "Signing you in…" : "Sign in"}<FiArrowRight /></button>
-        </form><p className={styles.help}>{admin ? "Use your administrator account to access this workspace." : "Use the staff account provided by your administrator."}</p>
+        </form><p className={styles.help}>{admin ? "Use your administrator account to access this workspace." : "Sign in with your staff or administrator account."}</p>
       </div><footer className={styles.footer}>Joshspot Media <span>One workspace. More clarity.</span></footer>
     </main>
   </div>;

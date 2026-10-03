@@ -5,6 +5,7 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((req) => {
+  if (req.url?.startsWith('/crm/')) req.baseURL = '/api';
   const token = req.url?.startsWith("/crm")
     ? localStorage.getItem("adminToken") || localStorage.getItem("crmToken")
     : localStorage.getItem("adminToken") || localStorage.getItem("crmToken");

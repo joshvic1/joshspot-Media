@@ -62,7 +62,7 @@ export default function AdminLayout({ active, children }) {
     <nav aria-label="Admin navigation">{adminPages.map(([key, title, Icon]) => (
       <Link key={key} href={`${adminHref(key)}${demo ? "?preview=demo" : ""}`} aria-current={active === key ? "page" : undefined}
         className={active === key ? styles.active : ""} onClick={() => setOpen(false)}><Icon />{title}</Link>
-    ))}<Link href="/crm-dashboard" onClick={() => setOpen(false)}><FiUsers />CRM dashboard</Link></nav>
+    ))}<Link href="/crm-inbox" onClick={() => setOpen(false)}><FiUsers />Joshspot Inbox</Link><Link href="/crm-dashboard" onClick={() => setOpen(false)}><FiUsers />CRM dashboard</Link></nav>
     <div className={styles.sidebarBottom}>
       <a href="https://mytiklink.com/admin/users" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> Visit Mytiklink</a>
       <a href="/course" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> View course page</a>
