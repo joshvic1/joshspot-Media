@@ -33,5 +33,5 @@ return <div ref={page} className={styles.shell}>
 {hero && <div className={styles.fullBleedHero}>{hero}</div>}
 <div className={styles.publicWorkspace}>
 <div className={styles.content}>{children}
-<footer className={styles.footer} id="contact"><div><strong>Let’s make your next move count.</strong><p>Practical marketing support, from Joshspot Media.</p></div><div><a href="https://wa.me/2348143017102" target="_blank" rel="noopener noreferrer">WhatsApp <FiArrowUpRight /></a><a href="https://instagram.com/joshspotmedia" target="_blank" rel="noopener noreferrer">Instagram <FiArrowUpRight /></a><a href="https://youtube.com/@joshspot_tv" target="_blank" rel="noopener noreferrer">YouTube <FiArrowUpRight /></a></div></footer></div></div></div>;
+<footer className={styles.footer} id="contact"><div><strong>Let’s make your next move count.</strong><p>Practical marketing support, from Joshspot Media.</p></div><div><a href="https://wa.me/2348143017102" target="_blank" rel="noopener noreferrer">WhatsApp <FiArrowUpRight /></a><a href="https://instagram.com/joshspotmedia" target="_blank" rel="noopener noreferrer">Instagram <FiArrowUpRight /></a><a href="https://youtube.com/@joshspot_tv" target="_blank" rel="noopener noreferrer">YouTube <FiArrowUpRight /></a><Link href="/privacy-policy">Privacy policy</Link></div></footer></div></div></div>;
 }
