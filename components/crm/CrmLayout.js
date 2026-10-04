@@ -15,7 +15,7 @@ import {
 import { canAccessCalculator } from "../../utils/calculatorAccess.mjs";
 import styles from "../../styles/AdminShell.module.css";
 const pages = [
-  // ["inbox", "/crm-inbox", "Joshspot Inbox", "Customer conversations, together.", FiMessageSquare],
+  ["inbox", "/crm-inbox", "Joshspot Inbox", "Customer conversations, together.", FiMessageSquare],
   [
     "setup",
     "/crm-dashboard",
@@ -115,7 +115,7 @@ export default function CrmLayout({
       <div className={styles.navLabel}>CLIENT MANAGEMENT</div>
       <nav aria-label="CRM navigation">
         {pages
-          .filter(([key]) => key !== "inbox" || staff?.role !== "SES")
+          .filter(([key]) => key !== "inbox" || staff?.admin === true || ["ADMIN", "CSS", "SS"].includes(staff?.role))
           .map(([key, href, title, , Icon]) => (
             <Link
               key={key}

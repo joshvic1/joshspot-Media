@@ -1,0 +1,84 @@
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\pc\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\pc\Desktop\joshspot-media\frontend\package-lock.json
+
+▲ Next.js 16.1.6 (webpack)
+- Environments: .env.local, .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Running TypeScript ...
+  Creating an optimized production build ...
+✓ Compiled successfully in 21.7s
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/42) ...
+  Generating static pages using 7 workers (10/42) 
+  Generating static pages using 7 workers (20/42) 
+  Generating static pages using 7 workers (31/42) 
+✓ Generating static pages using 7 workers (42/42) in 2.7s
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (pages)
+┌ ○ / (915 ms)
+├   /_app
+├ ○ /404
+├ ○ /admin-7812er (843 ms)
+├ ● /admin-7812er/[section] (5557 ms)
+│ ├ /admin-7812er/courses (911 ms)
+│ ├ /admin-7812er/bookings (910 ms)
+│ ├ /admin-7812er/schedule (909 ms)
+│ ├ /admin-7812er/sources (908 ms)
+│ ├ /admin-7812er/invoices (907 ms)
+│ ├ /admin-7812er/leads (509 ms)
+│ └ /admin-7812er/performance (503 ms)
+├ ○ /admin-7812er/ai-agent (832 ms)
+├ ○ /admin-7812er/ai-knowledge (834 ms)
+├ ○ /admin-7812er/inbox-contacts (832 ms)
+├ ○ /admin-7812er/quick-replies (832 ms)
+├ ○ /admin-login-0tT6Yc1 (654 ms)
+├ ○ /ads-calculator (839 ms)
+├ ƒ /api/admin/[...path]
+├ ƒ /api/calculator-access
+├ ƒ /api/course-email
+├ ƒ /api/course-invoice
+├ ƒ /api/course-question
+├ ƒ /api/crm/[...path]
+├ ƒ /api/inbox/[...path]
+├ ƒ /api/pay-invoice/[token]
+├ ƒ /api/script-invoice
+├ ƒ /api/workspace-login
+├ ○ /course (843 ms)
+├ ○ /crm-ads-dashboard
+├ ○ /crm-dashboard
+├ ○ /crm-inbox (841 ms)
+├ ○ /crm-login
+├ ○ /crm-verification-dashboard (918 ms)
+├ ○ /growth-assessment (916 ms)
+├ ○ /invoice-generator (658 ms)
+├ ○ /pay-invoice/[token] (650 ms)
+├ ○ /payment-success (658 ms)
+├ ○ /pickadate (657 ms)
+├ ○ /privacy-policy (656 ms)
+├ ● /services/[slug] (3457 ms)
+│ ├ /services/ads-account-audit (502 ms)
+│ ├ /services/private-ads-training (501 ms)
+│ ├ /services/ads-account-setup (500 ms)
+│ ├ /services/video-ad-scripts (500 ms)
+│ ├ /services/promo-video-with-josh (498 ms)
+│ ├ /services/consultation (450 ms)
+│ ├ /services/marketing-community
+│ └ [+2 more paths]
+├ ○ /start (656 ms)
+├ ○ /tiktok-setup
+├ ○ /video-script
+└ ○ /whatsapp (654 ms)
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+ƒ  (Dynamic)  server-rendered on demand
+

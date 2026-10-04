@@ -8,6 +8,9 @@ import RecordDeletion from "./RecordDeletion";
 
 export const adminPages = [
   ["overview", "Overview", FiGrid, "Your business at a glance."],
+  ["ai-agent", "AI Agent", FiBookOpen, "Configure your assistant, knowledge, sales flows and human handoff."],
+  ["inbox-contacts", "Inbox contacts", FiUsers, "All your WhatsApp contacts, 20 at a time."],
+  ["quick-replies", "Quick replies", FiClipboard, "Manage the replies your team inserts with a slash."],
   ["courses", "Course payments", FiBookOpen, "Every checkout. Every customer. One clear view."],
   ["sources", "Sources that convert", FiBarChart2, "See which tracking links bring in course purchases."],
   ["invoices", "Paid invoices", FiClipboard, "Confirmed invoice payments, customer details and revenue."],

@@ -1,0 +1,23 @@
+import { useEffect, useState } from 'react';
+import { inboxApi } from '../inbox/api';
+import Modal from '../inbox/Modal';
+import s from '../../styles/InboxActions.module.css';
+export default function InboxLibrary({ contacts = false }) {
+  const [items, setItems] = useState([]); const [query, setQuery] = useState(''); const [search, setSearch] = useState('');
+  const [pages, setPages] = useState([null]); const [page, setPage] = useState(0); const [next, setNext] = useState(null);
+  const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [edit, setEdit] = useState(null); const [busy, setBusy] = useState(false); const [version, setVersion] = useState(0);
+  useEffect(() => { const timer = setTimeout(() => { setSearch(query.trim()); setPages([null]); setPage(0); }, 250); return () => clearTimeout(timer); }, [query]);
+  const cursor = pages[page];
+  useEffect(() => { let active = true; setLoading(true); setError(''); inboxApi(contacts ? `/admin-contacts?${new URLSearchParams({ q: search, ...(cursor ? { before: cursor } : {}) })}` : '/quick-replies').then(data => { if (active) { setItems(data.items); setNext(data.next); } }).catch(e => { if (active) setError(e.message); }).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [contacts, search, cursor, version]);
+  const save = async event => { event.preventDefault(); setBusy(true); setError(''); try { await inboxApi('/quick-replies', { method: 'POST', body: { id: edit._id, keyword: edit.keyword, response: edit.response } }); setEdit(null); setVersion(v => v + 1); } catch (e) { setError(e.message); } finally { setBusy(false); } };
+  const remove = async item => { if (!window.confirm(`Delete /${item.keyword}?`)) return; setBusy(true); try { await inboxApi(`/quick-replies/${item._id}`, { method: 'DELETE' }); setVersion(v => v + 1); } catch (e) { setError(e.message); } finally { setBusy(false); } };
+  const visible = contacts ? items : items.filter(item => `${item.keyword} ${item.response}`.toLowerCase().includes(search.toLowerCase()));
+  return <div className={s.admin}>
+    <div className={s.toolbar}><input aria-label={contacts ? 'Search contacts' : 'Search quick replies'} placeholder={contacts ? 'Search name or phone…' : 'Search keyword or response…'} value={query} onChange={e => setQuery(e.target.value)} />{!contacts && <button onClick={() => { setError(''); setEdit({ keyword: '', response: '' }); }}>Add quick reply</button>}</div>
+    {!contacts && <p>Type / in an Inbox message or internal note to insert a saved reply. Selecting a reply does not send it.</p>}
+    {error && !edit && <div className={s.error} role="alert">{error}<button onClick={() => setVersion(v => v + 1)}>Retry</button></div>}
+    <div className={s.list} aria-busy={loading}>{loading ? Array.from({ length: 5 }, (_, index) => <div key={index} className={s.skeleton} style={{ height: 66 }} />) : visible.length ? visible.map(item => <article key={item._id} className={s.row}><div><b>{contacts ? item.name || 'WhatsApp customer' : `/${item.keyword}`}</b>{contacts ? <><span>+{item.phone}</span><small>{item.email || item.status}</small></> : <p>{item.response}</p>}</div>{!contacts && <><button onClick={() => { setError(''); setEdit(item); }}>Edit</button><button disabled={busy} onClick={() => remove(item)}>Delete</button></>}</article>) : <p>{contacts ? 'No matching contacts.' : 'No quick replies yet.'}</p>}</div>
+    {contacts && <div className={s.pager}><button disabled={loading || page === 0} onClick={() => setPage(p => p - 1)}>Previous</button><span>Page {page + 1}</span><button disabled={loading || !next} onClick={() => { setPages(old => [...old.slice(0, page + 1), next]); setPage(p => p + 1); }}>Next</button></div>}
+    {edit && <Modal title={edit._id ? 'Edit quick reply' : 'Add quick reply'} onClose={() => { if (!busy) setEdit(null); }}><form className={`${s.form} ${s.modalForm}`} onSubmit={save}>{error && <div role="alert" className={s.error}>{error}</div>}<label className={s.field}>Keyword<input aria-label="Keyword" autoFocus value={edit.keyword} onChange={e => setEdit(old => ({ ...old, keyword: e.target.value }))} pattern="/?[a-zA-Z0-9_-]{1,40}" maxLength={41} placeholder="welcome" required /><small>Letters, numbers, hyphens or underscores.</small></label><label className={s.field}>Response<textarea rows={8} value={edit.response} onChange={e => setEdit(old => ({ ...old, response: e.target.value }))} maxLength={4096} required /></label><button className={s.primary} disabled={busy}>{busy ? 'Saving…' : 'Save quick reply'}</button></form></Modal>}
+  </div>;
+}

@@ -1,7 +1,7 @@
 // Same-origin proxy keeps deployment configuration and customer requests together.
 export const config = { api: { bodyParser: { sizeLimit: '8mb' }, responseLimit: '25mb' } };
 export default async function handler(req, res) {
-  if (!['GET', 'POST', 'PUT'].includes(req.method)) return res.status(405).end();
+  if (!['GET', 'POST', 'PUT', 'DELETE'].includes(req.method)) return res.status(405).end();
   const path = req.query.path;
   if (!Array.isArray(path) || path.some((part) => !/^[a-zA-Z0-9-]+$/.test(part)) || ['webhook', 'events'].includes(path[0])) return res.status(404).end();
   const base = (process.env.BACKEND_API_URL || 'https://joshspot-media-backend-production.up.railway.app/api').replace(/\/$/, '');
@@ -15,6 +15,11 @@ export default async function handler(req, res) {
     if (path[0] === 'events-ticket' && response.ok) {
       const result = await response.json();
       return res.json({ url: `${base}/inbox/events?ticket=${encodeURIComponent(result.ticket)}` });
+    }
+    if (path.at(-1) === 'media-link' && response.ok) {
+      const result = await response.json();
+      if (result.source === 'meta') result.backendUrl = `${base}/inbox/${path.slice(0, -1).join('/')}/media`;
+      return res.json(result);
     }
     return res.send(Buffer.from(await response.arrayBuffer()));
   } catch { return res.status(502).json({ message: 'Cannot reach the inbox service. Please try again.' }); }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import CrmLayout from '../components/crm/CrmLayout';
+import InboxSkeleton from '../components/inbox/Skeleton';
 import InboxWorkspace from '../components/inbox/InboxWorkspace';
 import { inboxApi } from '../components/inbox/api';
 
@@ -19,6 +20,6 @@ export default function InboxPage() {
   }, [router]);
   const logout = () => { localStorage.removeItem('crmToken'); localStorage.removeItem('adminToken'); router.push('/crm-login'); };
   return <CrmLayout active="inbox" compact staff={session?.actor} onLogout={logout}>
-    {session ? <InboxWorkspace session={session} /> : <div role="status" style={{ padding: 32 }}>{error || 'Opening Joshspot Inbox…'}{error && <p><button onClick={() => window.location.reload()}>Try again</button></p>}</div>}
+    {session ? <InboxWorkspace session={session} /> : error ? <div role="alert" style={{ padding: 32 }}>{error}<p><button onClick={() => window.location.reload()}>Try again</button></p></div> : <InboxSkeleton />}
   </CrmLayout>;
 }

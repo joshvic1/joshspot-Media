@@ -10,5 +10,5 @@ export default function Modal({ title, children, onClose, drawer = false, footer
     resize(); window.visualViewport?.addEventListener('resize', resize);
     return () => { window.visualViewport?.removeEventListener('resize', resize); element.close(); focus?.focus(); };
   }, []);
-  return <dialog className={`${s.modal} ${drawer ? s.drawer : ''}`} ref={dialog} onCancel={onClose} onClick={(event) => { if (event.target === dialog.current) onClose(); }} aria-label={title}><div className={s.sheetHandle} aria-hidden="true" /><header><h2>{title}</h2><button type="button" className={s.iconButton} onClick={onClose} aria-label="Close"><FiX /></button></header><div className={s.sheetBody}>{children}</div>{footer && <footer className={s.sheetFooter}>{footer}</footer>}</dialog>;
+  return <dialog className={`${s.modal} ${drawer ? s.drawer : ''}`} ref={dialog} onCancel={event=>{event.preventDefault();onClose();}} onClick={(event) => { if (event.target === dialog.current) onClose(); }} aria-label={title}><div className={s.sheetHandle} aria-hidden="true" /><header><h2>{title}</h2><button type="button" className={s.iconButton} onClick={onClose} aria-label="Close"><FiX /></button></header><div className={s.sheetBody}>{children}</div>{footer && <footer className={s.sheetFooter}>{footer}</footer>}</dialog>;
 }

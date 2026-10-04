@@ -46,13 +46,13 @@
       },
       "chat": {
         "x": 377,
-        "y": 31,
+        "y": 31.62439727783203,
         "width": 758,
         "height": 838
       },
       "details": {
         "x": 1145,
-        "y": 31,
+        "y": 32.24879455566406,
         "width": 264,
         "height": 838
       },
@@ -75,13 +75,13 @@
       },
       "chat": {
         "x": 377,
-        "y": 31.04845428466797,
+        "y": 31,
         "width": 684,
         "height": 706
       },
       "details": {
         "x": 1071,
-        "y": 31.096906661987305,
+        "y": 31,
         "width": 264,
         "height": 706
       },
@@ -100,18 +100,18 @@
       },
       "composer": {
         "width": 374,
-        "height": 73,
+        "height": 86,
         "bottom": 836
       },
       "send": {
         "width": 71.25,
         "height": 33,
-        "bottom": 829.5
+        "bottom": 826.5
       },
       "timeline": {
         "width": 390,
-        "height": 707,
-        "bottom": 763
+        "height": 694,
+        "bottom": 750
       }
     },
     {
@@ -125,18 +125,18 @@
       },
       "composer": {
         "width": 377,
-        "height": 73,
+        "height": 86,
         "bottom": 865
       },
       "send": {
         "width": 71.25,
         "height": 33,
-        "bottom": 858.5
+        "bottom": 855.5
       },
       "timeline": {
         "width": 393,
-        "height": 736,
-        "bottom": 792
+        "height": 723,
+        "bottom": 779
       }
     },
     {
@@ -150,18 +150,18 @@
       },
       "composer": {
         "width": 396,
-        "height": 73,
+        "height": 86,
         "bottom": 907
       },
       "send": {
         "width": 71.25,
         "height": 33,
-        "bottom": 900.5
+        "bottom": 897.5
       },
       "timeline": {
         "width": 412,
-        "height": 778,
-        "bottom": 834
+        "height": 765,
+        "bottom": 821
       }
     },
     {
@@ -175,18 +175,18 @@
       },
       "composer": {
         "width": 344,
-        "height": 73,
+        "height": 86,
         "bottom": 792
       },
       "send": {
         "width": 71.25,
         "height": 33,
-        "bottom": 785.5
+        "bottom": 782.5
       },
       "timeline": {
         "width": 360,
-        "height": 663,
-        "bottom": 719
+        "height": 650,
+        "bottom": 706
       }
     },
     {
@@ -200,18 +200,18 @@
       },
       "composer": {
         "width": 752,
-        "height": 73,
+        "height": 86,
         "bottom": 1016
       },
       "send": {
         "width": 71.25,
         "height": 33,
-        "bottom": 1009.5
+        "bottom": 1006.5
       },
       "timeline": {
         "width": 768,
-        "height": 887,
-        "bottom": 943
+        "height": 874,
+        "bottom": 930
       }
     }
   ],

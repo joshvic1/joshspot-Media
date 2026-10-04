@@ -1,6 +1,6 @@
 export async function inboxApi(path, options = {}) {
   const token = localStorage.getItem('adminToken') || localStorage.getItem('crmToken');
-  const response = await fetch(`/api/inbox${path}`, { signal: AbortSignal.timeout(30000), ...options, headers: { Authorization: `Bearer ${token || ''}`, ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers }, ...(options.body && typeof options.body !== 'string' ? { body: JSON.stringify(options.body) } : {}) });
+  const response = await fetch(options.backendUrl || `/api/inbox${path}`, { signal: AbortSignal.timeout(30000), ...options, headers: { Authorization: `Bearer ${token || ''}`, ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers }, ...(options.body && typeof options.body !== 'string' ? { body: JSON.stringify(options.body) } : {}) });
   if (!response.ok) {
     const result = await response.json().catch(() => ({}));
     throw Object.assign(new Error(result.message || 'Something went wrong. Please try again.'), { status: response.status });
