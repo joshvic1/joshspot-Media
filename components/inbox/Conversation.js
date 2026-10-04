@@ -1,3 +1,4 @@
+import MessageText from './MessageText';
 import { ChatSkeleton, RowsSkeleton } from './Skeleton';
 import MessageBubble from './MessageBubble';
 import MessageMenu from './MessageMenu';
@@ -147,7 +148,7 @@ export default function Conversation({ id, targetNote, session, onBack, onUpdate
 
           {message.type === 'note' && <b className={s.messageLabel}><FiLock /> Internal note</b>}{message.type === 'template' && <b className={s.messageLabel}>WhatsApp template</b>}
           {message.media?.id && <MediaAttachment conversationId={id} message={message} onError={setError} />}
-          <div className={s.messageText}>{message.media?.id && /^\[(audio|video|image|sticker|document) message\]$/.test(message.text) ? '' : noteText(message, session.staff)}</div><footer className={s.messageFooter}><span>{shortTime(message.occurredAt || message.createdAt)}</span>{message.direction === 'outbound' && <MessageStatus status={message.status} />}</footer>
+          <div className={s.messageText}>{message.media?.id && /^\[(audio|video|image|sticker|document) message\]$/.test(message.text) ? '' : <MessageText>{noteText(message, session.staff)}</MessageText>}</div><footer className={s.messageFooter}><span>{shortTime(message.occurredAt || message.createdAt)}</span>{message.direction === 'outbound' && <MessageStatus status={message.status} />}</footer>
           {message.error && <div className={s.sendError}>{message.error}{message.status === 'failed' && canReply && <button onClick={async () => { try { await inboxApi(`/conversations/${id}/messages/${message._id}/retry`, { method: 'POST', body: {} }); await refresh(); } catch (err) { setError(err.message); } }}>Retry message</button>}</div>}
 
         </MessageBubble>}</div>;

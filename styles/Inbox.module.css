@@ -130,3 +130,5 @@
 .bubble .messageFooter{gap:4px;flex-wrap:nowrap}.composerLine>.send{min-width:66px;justify-content:center}.sendSpinner{display:block;flex-shrink:0;box-sizing:border-box;width:14px;height:14px;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sendSpin .7s linear infinite}@keyframes sendSpin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.sendSpinner{animation-duration:1.5s}}
 
 .rowMeta .unassignedSparkle{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:#6883b4;width:16px;height:16px}.rowMeta .unassignedSparkle svg{width:14px;height:14px}
+
+.messageText a{color:#245bb2;text-decoration:underline;overflow-wrap:anywhere;text-underline-offset:2px}
