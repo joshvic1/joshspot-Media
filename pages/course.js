@@ -652,7 +652,7 @@ export default function CoursePage({ variant = "ads" }) {
               </h2>
               {accessInvoice?.status !== "paid" && (
                 <p>
-                  Enter your details first. We will generate a Paystack transfer
+                  Enter your details first. We will generate a bank transfer
                   account for this course payment.
                 </p>
               )}
@@ -742,7 +742,7 @@ export default function CoursePage({ variant = "ads" }) {
                 <CopyRow
                   copied={copied}
                   label="Amount"
-                  value={formatMoney(invoice.amount)}
+                  value={formatMoney(invoice.transferAmount || invoice.amount)}
                   onCopy={copyText}
                 />
                 <CopyRow

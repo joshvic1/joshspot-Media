@@ -88,7 +88,7 @@ export default function PayInvoice() {
           <>
             <div className={styles.invoiceHero}>
               <span className={styles.badge}>Joshspot Media Invoice</span>
-              <h1>{formatMoney(invoice.amount)}</h1>
+              <h1>{formatMoney(invoice.transferAmount || invoice.amount)}</h1>
               <p>
                 {invoice.customerName
                   ? `${invoice.customerName}, pay the exact amount using the account details below.`
@@ -121,7 +121,7 @@ export default function PayInvoice() {
 
             <CopyRow
               label="Amount"
-              value={formatMoney(invoice.amount)}
+              value={formatMoney(invoice.transferAmount || invoice.amount)}
               onCopy={copyText}
             />
             <CopyRow label="Bank Name" value={invoice.bankName} onCopy={copyText} />
@@ -139,7 +139,7 @@ export default function PayInvoice() {
             {!isPaid && (
               <p className={styles.waitingText}>
                 After transfer, keep this page open. We will update it once
-                Paystack confirms the payment.
+                your payment is confirmed.
               </p>
             )}
           </div>
