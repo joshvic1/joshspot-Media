@@ -21,20 +21,20 @@ export default function NotificationSettings(){
  }catch(e){if(active)setError(e.message)}finally{if(active)setBusy(false)}})();
  window.addEventListener('focus',refreshPermission);return()=>{active=false;window.removeEventListener('focus',refreshPermission)};
  },[]);
- const enable=async()=>{
+ const enable=async(key)=>{
   setBusy(true);setError('');try{
    const result=await Notification.requestPermission();setPermission(result);if(result!=='granted')return;
    const registration=await navigator.serviceWorker.register('/inbox-push-sw.js',{scope:'/crm-inbox'});
    await navigator.serviceWorker.ready;
    const bytes=Uint8Array.from(atob(config.publicKey.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
    const sub=await registration.pushManager.getSubscription()||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:bytes});
-   await inboxApi('/push/subscription',{method:'PUT',body:{subscription:sub.toJSON(),preferences:defaults}});setSubscription(sub);setPreferences(defaults);
+   await inboxApi('/push/subscription',{method:'PUT',body:{subscription:sub.toJSON(),preferences:{...defaults,...(typeof key==='string'?{[key]:true}:{})}}});setSubscription(sub);setPreferences({...defaults,...(typeof key==='string'?{[key]:true}:{})});
   }catch(e){setError(e.message)}finally{setBusy(false)}
  };
- const toggle=async(key)=>{setBusy(true);setError('');const next={...preferences,[key]:!preferences[key]};try{await inboxApi('/push/subscription',{method:'PUT',body:{subscription:subscription.toJSON(),preferences:next}});setPreferences(next)}catch(e){setError(e.message)}finally{setBusy(false)}};
- return <div className={s.notificationSettings}><h2>Notifications</h2><p>Off by default. Choose which alerts this browser sends to your device. Message content and phone numbers stay out of notification previews.</p>
+ const toggle=async(key)=>{if(!subscription||permission!=='granted')return enable(key);setBusy(true);setError('');const next={...preferences,[key]:!preferences[key]};try{await inboxApi('/push/subscription',{method:'PUT',body:{subscription:subscription.toJSON(),preferences:next}});setPreferences(next)}catch(e){setError(e.message)}finally{setBusy(false)}};
+ return <div className={s.notificationSettings}><h2>Notifications</h2><p>Off by default. Tap a switch to allow notifications and enable that alert. Message content and phone numbers stay out of notification previews.</p>
  {error&&<p role="alert" className={s.error}>{error}</p>}
- {!available?<p>Push notifications are unavailable in this browser. On iPhone or iPad, add the site to your Home Screen and open it there.</p>:permission==='denied'?<p>Notifications are blocked. Allow them in your browser or device settings, then return here.</p>:!config?.configured&&!busy?<p>Device notifications are awaiting administrator setup.</p>:<button type="button" className={s.pushPermission} disabled={busy||!config?.configured} onClick={subscription&&permission==='granted'?async()=>{setBusy(true);try{await disableInboxPush();setSubscription(null);setPreferences(defaults)}catch(e){setError(e.message)}finally{setBusy(false)}}:enable}>{busy?'Please wait…':subscription&&permission==='granted'?'Turn off device notifications':'Enable device notifications'}</button>}
- <div>{options.map(([key,label,description])=><label key={key} className={s.notificationOption}><span><strong>{label}</strong><small>{description}</small></span><input type="checkbox" role="switch" aria-label={label} checked={preferences[key]} disabled={busy||permission!=='granted'||!subscription||!config?.configured} onChange={()=>toggle(key)}/></label>)}</div>
+ {!available?<p>Push notifications are unavailable in this browser. On iPhone or iPad, add the site to your Home Screen and open it there.</p>:permission==='denied'?<p>Notifications are blocked. Allow them in your browser or device settings, then return here.</p>:!config?.configured&&!busy?<p>Notifications are not available yet: the backend needs the notification update and signing keys. Ask your administrator to complete deployment.</p>:<button type="button" className={s.pushPermission} disabled={busy||!config?.configured} onClick={subscription&&permission==='granted'?async()=>{setBusy(true);try{await disableInboxPush();setSubscription(null);setPreferences(defaults)}catch(e){setError(e.message)}finally{setBusy(false)}}:enable}>{busy?'Please wait…':subscription&&permission==='granted'?'Turn off device notifications':'Enable device notifications'}</button>}
+ <div>{options.map(([key,label,description])=><label key={key} className={s.notificationOption}><span><strong>{label}</strong><small>{description}</small></span><input type="checkbox" role="switch" aria-label={label} checked={preferences[key]} disabled={busy||!available||permission==='denied'||!config?.configured} onChange={()=>toggle(key)}/></label>)}</div>
  <p>Settings apply to this browser and account. Your Alerts tab remains available even with device notifications off.</p></div>;
 }

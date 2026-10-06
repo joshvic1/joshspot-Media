@@ -2,7 +2,7 @@ const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({channel:'msedge',headless:true});
- const page=await browser.newPage({viewport:{width:390,height:844}});let prefs={assignments:false,messages:false,mentions:false,followups:false};let removed=false;
+ const page=await browser.newPage({viewport:{width:390,height:844}});let prefs={assignments:false,messages:false,mentions:false,followups:false};let removed=false;let admin=true;
  await page.addInitScript(()=>{
   window.permissionPrompts=0;const mock={permission:'default',requestPermission:async()=>{window.permissionPrompts++;mock.permission='granted';return 'granted'}};
   Object.defineProperty(window,'Notification',{value:mock,configurable:true});Object.defineProperty(window,'PushManager',{value:function(){},configurable:true});
@@ -12,7 +12,7 @@ const assert=require('node:assert/strict');
  await page.route('**/*',async route=>{
   const u=new URL(route.request().url());if(u.hostname!=='localhost')return route.fulfill({body:''});if(!u.pathname.startsWith('/api/'))return route.continue();
   const p=u.pathname.replace('/api/inbox','');let body={items:[],next:null};
-  if(p==='/session')body={actor:{id:'admin',admin:true,role:'ADMIN',name:'Administrator'},staff:[],provider:{configured:true,missing:[],failedJobs:0}};
+  if(p==='/session')body={actor:{id:admin?'admin':'staff',admin,role:admin?'ADMIN':'CSS',name:'User'},staff:[],provider:{configured:true,missing:[],failedJobs:0}};
   else if(p==='/events-ticket')return route.fulfill({status:503,json:{message:'Mock'}});
   else if(p==='/counts')body={inbox:0,unread:0};
   else if(p==='/notifications')body={items:[],unread:0};
@@ -26,7 +26,7 @@ const assert=require('node:assert/strict');
  await page.getByRole('button',{name:'Enable device notifications'}).waitFor();
  assert.equal(await page.evaluate(()=>window.permissionPrompts),0);
  const switches=page.getByRole('switch');assert.equal(await switches.count(),4);
- for(const toggle of await switches.all()){assert.equal(await toggle.isChecked(),false);assert.equal(await toggle.isDisabled(),true)}
+ for(const toggle of await switches.all()){assert.equal(await toggle.isChecked(),false);assert.equal(await toggle.isDisabled(),false)}
  await page.getByRole('button',{name:'Enable device notifications'}).click();
  await page.getByRole('button',{name:'Turn off device notifications'}).waitFor();
  assert.equal(await page.evaluate(()=>window.permissionPrompts),1);
@@ -38,5 +38,8 @@ const assert=require('node:assert/strict');
  await page.screenshot({path:'artifacts/inbox/notification-settings.png'});
  await page.getByRole('button',{name:'Turn off device notifications'}).click();
  await page.getByRole('button',{name:'Enable device notifications'}).waitFor();assert.equal(removed,true);
+ await page.getByRole('switch',{name:'Staff mentions',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('[aria-label="Staff mentions"]').checked);assert.equal(prefs.mentions,true);
+ assert.equal(await page.getByRole('heading',{name:'WhatsApp Business'}).count(),1);admin=false;await page.reload();await page.getByRole('button',{name:'Settings',exact:true}).filter({visible:true}).click();await page.getByRole('heading',{name:'Notifications',exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'WhatsApp Business'}).count(),0);
  console.log('PASS: mobile Settings, opt-in permission, defaults off, independent preferences, unsubscribe');await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});
