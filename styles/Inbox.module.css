@@ -132,3 +132,12 @@
 .rowMeta .unassignedSparkle{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:#6883b4;width:16px;height:16px}.rowMeta .unassignedSparkle svg{width:14px;height:14px}
 
 .messageText a{color:#245bb2;text-decoration:underline;overflow-wrap:anywhere;text-underline-offset:2px}
+
+.preview .messageStatus{vertical-align:middle;margin-right:4px;flex-shrink:0}
+
+.voiceSpeed{flex-shrink:0;min-width:42px;height:28px;border:0;border-radius:14px;background:#e4ecf7;color:#365d91;font-size:11px;font-weight:650;font-variant-numeric:tabular-nums;cursor:pointer}.voiceSpeed:hover{background:#d6e3f4}.voiceSpeed:focus-visible{outline:2px solid #5277a8;outline-offset:2px}
+
+.notificationSettings{max-width:640px;margin:0 0 20px;padding:16px;background:white;border:1px solid #e3e9f3;border-radius:16px}.notificationSettings h2{font-size:15px;margin:0 0 8px}.notificationSettings p{font-size:12px;line-height:1.5;color:#718099}.notificationOption{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-top:1px solid #edf0f5}.notificationOption strong{display:block;font-size:12px}.notificationOption small{display:block;font-size:11px;color:#718099;margin-top:4px}.notificationOption input{appearance:none;flex-shrink:0;width:36px;height:21px;border-radius:20px;background:#cbd4e2;cursor:pointer;transition:background .18s}.notificationOption input:before{content:"";display:block;width:15px;height:15px;margin:3px;border-radius:50%;background:white;transition:transform .18s}.notificationOption input:checked{background:#315bb0}.notificationOption input:checked:before{transform:translateX(15px)}.notificationOption input:disabled{opacity:.45;cursor:not-allowed}.notificationOption input:focus-visible{outline:2px solid #315bb0;outline-offset:3px}.pushPermission{border:0;border-radius:10px;background:#eaf0ff;color:#244c9f;padding:10px 14px;font-size:12px;margin:8px 0 16px}.pushPermission:disabled{opacity:.5}.workspace .mobileBottom{grid-template-columns:repeat(4,1fr)}
+
+/* Compact navigation visuals; keep comfortable touch targets. */
+.workspace .mobileBottom button{font-size:9px!important;line-height:12px;gap:2px;min-height:44px}.workspace .mobileBottom button>span{width:34px;height:22px}.workspace .mobileBottom button svg{width:15px;height:15px;font-size:15px}

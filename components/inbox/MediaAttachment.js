@@ -4,13 +4,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiDownload, FiPlay, FiPause, FiFile } from 'react-icons/fi';
 import { inboxApi } from './api';
 import s from '../../styles/Inbox.module.css';
+const playbackSpeeds = [1, 1.5, 2, 2.5, 3];
 const time = value => Number.isFinite(value) ? `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}` : '0:00';
 export default function MediaAttachment({ conversationId, message }) {
   const [url, setUrl] = useState(''); const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const [preview, setPreview] = useState(false);
   const [mediaReady, setMediaReady] = useState(false);
   const [playing, setPlaying] = useState(false); const [position, setPosition] = useState(0); const [duration, setDuration] = useState(0);
   const root = useRef(null); const audio = useRef(null); const pending = useRef(false);
+  useEffect(() => { if (audio.current) audio.current.playbackRate = speed; }, [speed, url]);
   const base = `/conversations/${conversationId}/messages/${message._id}`;
   const load = useCallback(async () => {
     if (pending.current) return;
@@ -31,7 +34,7 @@ export default function MediaAttachment({ conversationId, message }) {
   const toggle = async () => {
     if (!url) { await load(); return; }
     try { if (audio.current.paused) await audio.current.play(); else audio.current.pause(); }
-    catch { setError('Cannot play this audio. Retry or download it.'); }
+    catch { setError('Cannot play this audio. Please retry.'); }
   };
   const audioLoading = !error && (busy || !url || !mediaReady);
   const failed = () => { setPlaying(false); setError('Media unavailable. Retry to refresh the link, or download the file.'); };
@@ -39,8 +42,8 @@ export default function MediaAttachment({ conversationId, message }) {
     {message.type === 'audio' ? <div className={s.voicePlayer}>
       <button aria-label={audioLoading ? 'Loading audio' : playing ? 'Pause audio' : 'Play audio'} aria-busy={audioLoading} onClick={toggle} disabled={audioLoading || Boolean(error)} className={s.voicePlay}>{audioLoading ? <span className={`${s.mediaSpinner} ${s.audioSpinner}`} aria-hidden="true" /> : playing ? <FiPause /> : <FiPlay />}</button>
       <div className={s.voiceTrack}><input aria-label="Audio progress" type="range" min="0" max={Number.isFinite(duration) && duration > 0 ? duration : 1} step="0.1" value={position} disabled={!duration} onChange={event => { audio.current.currentTime = Number(event.target.value); setPosition(Number(event.target.value)); }} /><small>{`${time(position)} / ${time(duration)}`}</small></div>
-      <audio ref={audio} src={url || undefined} preload="auto" onLoadStart={() => setMediaReady(false)} onCanPlay={() => setMediaReady(true)} onWaiting={() => setMediaReady(false)} onPlaying={() => setMediaReady(true)} onLoadedMetadata={event => setDuration(event.currentTarget.duration)} onTimeUpdate={event => setPosition(event.currentTarget.currentTime)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} onError={failed} />
-      <button className={s.mediaDownload} aria-label="Download audio" onClick={download}><FiDownload /></button>
+      <audio ref={audio} src={url || undefined} preload="auto" onLoadStart={() => setMediaReady(false)} onCanPlay={() => setMediaReady(true)} onWaiting={() => setMediaReady(false)} onPlaying={() => setMediaReady(true)} onLoadedMetadata={event => { setDuration(event.currentTarget.duration); event.currentTarget.playbackRate = speed; }} onTimeUpdate={event => setPosition(event.currentTarget.currentTime)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} onError={failed} />
+      <button type="button" className={s.voiceSpeed} aria-label={`Playback speed ${speed}x. Change speed`} title="Change playback speed" onClick={() => setSpeed(current => playbackSpeeds[(playbackSpeeds.indexOf(current) + 1) % playbackSpeeds.length])}>{speed}×</button>
     </div> : ['video', 'image', 'sticker'].includes(message.type) ? <div className={s.mediaStage} aria-busy={!error && (busy || !url || !mediaReady)}>
       {url && (message.type === 'video' ? <video controls playsInline preload="auto" src={url} onLoadedData={() => setMediaReady(true)} onCanPlay={() => setMediaReady(true)} onWaiting={() => setMediaReady(false)} onPlaying={() => setMediaReady(true)} onError={failed} /> : <button className={s.imagePreviewButton} onClick={() => setPreview(true)} aria-label="View full image"><Image src={url} width={320} height={240} unoptimized alt={message.media?.name || 'Chat image'} onLoad={() => setMediaReady(true)} onError={failed} /></button>)}
       {url && message.type === 'video' && <button className={s.videoPreviewButton} onClick={() => { root.current.querySelector('video')?.pause(); setPreview(true); }}>Expand video</button>}

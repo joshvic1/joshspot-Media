@@ -1,3 +1,5 @@
+import {disableInboxPush} from '../components/inbox/NotificationSettings';
+import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import CrmLayout from '../components/crm/CrmLayout';
@@ -18,8 +20,9 @@ export default function InboxPage() {
     });
     return () => { active = false; };
   }, [router]);
-  const logout = () => { localStorage.removeItem('crmToken'); localStorage.removeItem('adminToken'); router.push('/crm-login'); };
+  const logout = async () => { await disableInboxPush().catch(() => {}); localStorage.removeItem('crmToken'); localStorage.removeItem('adminToken'); router.push('/crm-login'); };
   return <CrmLayout active="inbox" compact staff={session?.actor} onLogout={logout}>
+    <Head><link rel="manifest" href="/inbox.webmanifest" /><meta name="theme-color" content="#244c9f" /></Head>
     {session ? <InboxWorkspace session={session} /> : error ? <div role="alert" style={{ padding: 32 }}>{error}<p><button onClick={() => window.location.reload()}>Try again</button></p></div> : <InboxSkeleton />}
   </CrmLayout>;
 }
