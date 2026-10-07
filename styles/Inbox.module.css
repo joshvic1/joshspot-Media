@@ -141,3 +141,9 @@
 
 /* Compact navigation visuals; keep comfortable touch targets. */
 .workspace .mobileBottom button{font-size:9px!important;line-height:12px;gap:2px;min-height:44px}.workspace .mobileBottom button>span{width:34px;height:22px}.workspace .mobileBottom button svg{width:15px;height:15px;font-size:15px}
+
+/* Keep attachment-menu controls in scale with the compact inbox composer. */
+.workspace .composerToolPanel{width:240px;padding:8px;border-radius:14px}
+.workspace .composerToolGrid>button{min-height:44px;padding:8px 3px;gap:5px;border-radius:9px;font-size:11px;font-weight:400;line-height:1.25}
+.workspace .composerToolGrid>button svg{width:16px;height:16px;font-size:16px}
+.workspace .composerToolGrid>button span{font-size:inherit;line-height:inherit}

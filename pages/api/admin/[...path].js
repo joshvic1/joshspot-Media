@@ -6,10 +6,11 @@ export default async function handler(req, res) {
   const path = (req.query.path || []).join("/");
   const read = /^(course-payments|paid-invoices|overview|source-analytics)$/.test(path);
   const receipt = /^paid-invoices\/[a-f\d]{24}\/receipt$/.test(path);
+  const contact = /^paid-invoices\/[a-f\d]{24}\/contact$/.test(path);
   const action = receipt || /^course-payments\/[a-f\d]{24}\/(check|remind|resend)$/.test(path) || path === "sync-payments";
   const record = /^records\/(bookings|leads|invoices)\/[a-f\d]{24}(\/restore)?$/.test(path);
-  if (!read && !action && !record) return res.status(404).end();
-  const method = read ? "GET" : record && !path.endsWith("/restore") ? "DELETE" : "POST";
+  if (!read && !action && !record && !contact) return res.status(404).end();
+  const method = contact ? "PATCH" : read ? "GET" : record && !path.endsWith("/restore") ? "DELETE" : "POST";
   if (req.method !== method) { res.setHeader("Allow", method); return res.status(405).end(); }
   if (!req.headers.authorization) return res.status(401).json({ message: "Please sign in to continue." });
   const query = new URLSearchParams();
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(`${BACKEND_URL}/admin/${path}?${query}`, {
       method, headers: { authorization: req.headers.authorization, "Content-Type": "application/json" },
-      ...(method === "POST" ? { body: receipt ? JSON.stringify({email:req.body?.email,name:req.body?.name}) : "{}" } : {}),
+      ...(contact ? {body:JSON.stringify({email:req.body?.email,phone:req.body?.phone})} : method === "POST" ? { body: receipt ? JSON.stringify({email:req.body?.email,name:req.body?.name}) : "{}" } : {}),
     });
     const data = await response.json();
     return res.status(response.status).json(data);
