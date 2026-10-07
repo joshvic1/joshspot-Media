@@ -28,7 +28,6 @@ export default async function handler(req, res) {
           amount: req.body?.product === "whatsapp-course" ? 10000 : COURSE_PRICE,
           customerName: name,
           customerPhone: whatsapp,
-          whatsappReminderConsent: req.body?.whatsappReminderConsent === true,
           customerEmail: String(req.body?.email || "").trim(),
           product: req.body?.product === "whatsapp-course" ? "whatsapp-course" : "ads-course",
           attribution: {

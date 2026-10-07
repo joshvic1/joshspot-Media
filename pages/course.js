@@ -163,7 +163,6 @@ export default function CoursePage({ variant = "ads" }) {
   const [name, setName] = useState("");
   const [countryCode, setCountryCode] = useState("+234");
   const [whatsapp, setWhatsapp] = useState("");
-  const [whatsappReminderConsent,setWhatsappReminderConsent] = useState(false);
   const [checkoutEmail, setCheckoutEmail] = useState("");
   const [invoice, setInvoice] = useState(null);
   const [paymentError, setPaymentError] = useState("");
@@ -317,7 +316,6 @@ export default function CoursePage({ variant = "ads" }) {
         body: JSON.stringify({
           name,
           whatsapp: fullWhatsapp,
-          whatsappReminderConsent,
           email: checkoutEmail,
           product: isWhatsApp ? "whatsapp-course" : "ads-course",
           attribution: captureCourseAttribution(),
@@ -723,7 +721,6 @@ export default function CoursePage({ variant = "ads" }) {
                     completing payment.
                   </span>
                 </label>
-                {!isWhatsApp && <label style={{display:'flex',alignItems:'flex-start',gap:8,fontSize:13}}><input type="checkbox" style={{width:'auto',marginTop:3}} checked={whatsappReminderConsent} onChange={event=>setWhatsappReminderConsent(event.target.checked)}/><span>Send me one WhatsApp reminder if I haven’t completed this course payment. Reply STOP to opt out.</span></label>}
                 {paymentError && (
                   <p className={styles.errorText}>{paymentError}</p>
                 )}
