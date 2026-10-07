@@ -1,8 +1,8 @@
 import {useEffect,useState} from 'react';
 import {inboxApi} from './api';
 import s from '../../styles/Inbox.module.css';
-const defaults={assignments:false,messages:false,mentions:false,followups:false};
-const options=[['assignments','Assigned to me','When a conversation is assigned to you.'],['messages','New messages','All new customer messages in chats you can access.'],['mentions','Staff mentions','When someone tags you in an internal note.'],['followups','Follow-up reminders','When a follow-up assigned to you is due.']];
+const defaults={assignments:false,messages:false,mentions:false,followups:false,previews:true};
+const options=[['previews','Show names and message previews','On by default. Customer details may appear on your lock screen.'],['assignments','Assigned to me','When a conversation is assigned to you.'],['messages','New messages','All new customer messages in chats you can access.'],['mentions','Staff mentions','When someone tags you in an internal note.'],['followups','Follow-up reminders','When a follow-up assigned to you is due.']];
 const supported=()=>typeof window!=='undefined'&&window.isSecureContext&&'Notification' in window&&'serviceWorker' in navigator&&'PushManager' in window;
 export async function disableInboxPush(){
  if(!supported())return;
@@ -28,11 +28,11 @@ export default function NotificationSettings(){
    await navigator.serviceWorker.ready;
    const bytes=Uint8Array.from(atob(config.publicKey.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
    const sub=await registration.pushManager.getSubscription()||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:bytes});
-   await inboxApi('/push/subscription',{method:'PUT',body:{subscription:sub.toJSON(),preferences:{...defaults,...(typeof key==='string'?{[key]:true}:{})}}});setSubscription(sub);setPreferences({...defaults,...(typeof key==='string'?{[key]:true}:{})});
+   await inboxApi('/push/subscription',{method:'PUT',body:{subscription:sub.toJSON(),preferences:{...preferences,...(typeof key==='string'?{[key]:true}:{})}}});setSubscription(sub);setPreferences({...preferences,...(typeof key==='string'?{[key]:true}:{})});
   }catch(e){setError(e.message)}finally{setBusy(false)}
  };
- const toggle=async(key)=>{if(!subscription||permission!=='granted')return enable(key);setBusy(true);setError('');const next={...preferences,[key]:!preferences[key]};try{await inboxApi('/push/subscription',{method:'PUT',body:{subscription:subscription.toJSON(),preferences:next}});setPreferences(next)}catch(e){setError(e.message)}finally{setBusy(false)}};
- return <div className={s.notificationSettings}><h2>Notifications</h2><p>Off by default. Tap a switch to allow notifications and enable that alert. Message content and phone numbers stay out of notification previews.</p>
+ const toggle=async(key)=>{if(!subscription||permission!=='granted'){if(key==='previews'){setPreferences({...preferences,previews:!preferences.previews});return;}return enable(key);}setBusy(true);setError('');const next={...preferences,[key]:!preferences[key]};try{await inboxApi('/push/subscription',{method:'PUT',body:{subscription:subscription.toJSON(),preferences:next}});setPreferences(next)}catch(e){setError(e.message)}finally{setBusy(false)}};
+ return <div className={s.notificationSettings}><h2>Notifications</h2><p>Off by default. Tap a switch to allow notifications and enable that alert. Names and message previews are on by default; you can turn them off below.</p>
  {error&&<p role="alert" className={s.error}>{error}</p>}
  {!available?<p>Push notifications are unavailable in this browser. On iPhone or iPad, add the site to your Home Screen and open it there.</p>:permission==='denied'?<p>Notifications are blocked. Allow them in your browser or device settings, then return here.</p>:!config?.configured&&!busy?<p>Notifications are not available yet: the backend needs the notification update and signing keys. Ask your administrator to complete deployment.</p>:<button type="button" className={s.pushPermission} disabled={busy||!config?.configured} onClick={subscription&&permission==='granted'?async()=>{setBusy(true);try{await disableInboxPush();setSubscription(null);setPreferences(defaults)}catch(e){setError(e.message)}finally{setBusy(false)}}:enable}>{busy?'Please wait…':subscription&&permission==='granted'?'Turn off device notifications':'Enable device notifications'}</button>}
  <div>{options.map(([key,label,description])=><label key={key} className={s.notificationOption}><span><strong>{label}</strong><small>{description}</small></span><input type="checkbox" role="switch" aria-label={label} checked={preferences[key]} disabled={busy||!available||permission==='denied'||!config?.configured} onChange={()=>toggle(key)}/></label>)}</div>

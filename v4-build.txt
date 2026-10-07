@@ -1,0 +1,79 @@
+
+> frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local, .env
+
+  Running TypeScript ...
+  Creating an optimized production build ...
+✓ Compiled successfully in 24.8s
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/42) ...
+  Generating static pages using 7 workers (10/42) 
+  Generating static pages using 7 workers (20/42) 
+  Generating static pages using 7 workers (31/42) 
+✓ Generating static pages using 7 workers (42/42) in 2.1s
+  Finalizing page optimization ...
+
+Route (pages)
+┌ ○ /
+├   /_app
+├ ○ /404
+├ ○ /admin-7812er (1658 ms)
+├ ● /admin-7812er/[section] (2244 ms)
+│ ├ /admin-7812er/courses (414 ms)
+│ ├ /admin-7812er/sources (413 ms)
+│ ├ /admin-7812er/invoices (409 ms)
+│ ├ /admin-7812er/bookings (407 ms)
+│ ├ /admin-7812er/schedule
+│ ├ /admin-7812er/leads
+│ └ /admin-7812er/performance
+├ ○ /admin-7812er/ai-agent (1662 ms)
+├ ○ /admin-7812er/ai-knowledge (1662 ms)
+├ ○ /admin-7812er/inbox-contacts (1663 ms)
+├ ○ /admin-7812er/quick-replies (1661 ms)
+├ ○ /admin-login-0tT6Yc1
+├ ○ /ads-calculator (1650 ms)
+├ ƒ /api/admin/[...path]
+├ ƒ /api/calculator-access
+├ ƒ /api/course-email
+├ ƒ /api/course-invoice
+├ ƒ /api/course-question
+├ ƒ /api/crm/[...path]
+├ ƒ /api/inbox/[...path]
+├ ƒ /api/pay-invoice/[token]
+├ ƒ /api/script-invoice
+├ ƒ /api/workspace-login
+├ ○ /course (1659 ms)
+├ ○ /crm-ads-dashboard
+├ ○ /crm-dashboard
+├ ○ /crm-inbox (1658 ms)
+├ ○ /crm-login (771 ms)
+├ ○ /crm-verification-dashboard (765 ms)
+├ ○ /growth-assessment (756 ms)
+├ ○ /invoice-generator
+├ ○ /pay-invoice/[token]
+├ ○ /payment-success
+├ ○ /pickadate
+├ ○ /privacy-policy
+├ ● /services/[slug] (5567 ms)
+│ ├ /services/consultation (807 ms)
+│ ├ /services/video-ad-scripts (803 ms)
+│ ├ /services/ads-account-audit (764 ms)
+│ ├ /services/ads-account-setup (759 ms)
+│ ├ /services/private-ads-training (759 ms)
+│ ├ /services/promo-video-with-josh (420 ms)
+│ ├ /services/marketing-community (419 ms)
+│ └ [+2 more paths] (avg 418 ms)
+├ ○ /start
+├ ○ /tiktok-setup
+├ ○ /video-script
+└ ○ /whatsapp
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+ƒ  (Dynamic)  server-rendered on demand
+

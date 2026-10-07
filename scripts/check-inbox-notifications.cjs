@@ -25,12 +25,12 @@ const assert=require('node:assert/strict');
  await page.getByRole('button',{name:'Settings',exact:true}).filter({visible:true}).click();
  await page.getByRole('button',{name:'Enable device notifications'}).waitFor();
  assert.equal(await page.evaluate(()=>window.permissionPrompts),0);
- const switches=page.getByRole('switch');assert.equal(await switches.count(),4);
- for(const toggle of await switches.all()){assert.equal(await toggle.isChecked(),false);assert.equal(await toggle.isDisabled(),false)}
+ const switches=page.getByRole('switch');assert.equal(await switches.count(),5);
+ for(const toggle of await switches.all()){assert.equal(await toggle.isChecked(),(await toggle.getAttribute('aria-label'))==='Show names and message previews');assert.equal(await toggle.isDisabled(),false)}
  await page.getByRole('button',{name:'Enable device notifications'}).click();
  await page.getByRole('button',{name:'Turn off device notifications'}).waitFor();
  assert.equal(await page.evaluate(()=>window.permissionPrompts),1);
- for(const toggle of await switches.all())assert.equal(await toggle.isChecked(),false);
+ for(const toggle of await switches.all())assert.equal(await toggle.isChecked(),(await toggle.getAttribute('aria-label'))==='Show names and message previews');
  await page.getByRole('switch',{name:'New messages',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('[aria-label="New messages"]').checked);
  assert.equal(prefs.messages,true);assert.equal(prefs.assignments,false);

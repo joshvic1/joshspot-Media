@@ -1,0 +1,75 @@
+
+> frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local, .env
+
+  Running TypeScript ...
+  Creating an optimized production build ...
+✓ Compiled successfully in 20.2s
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/42) ...
+  Generating static pages using 7 workers (10/42) 
+  Generating static pages using 7 workers (20/42) 
+  Generating static pages using 7 workers (31/42) 
+✓ Generating static pages using 7 workers (42/42) in 1040.3ms
+  Finalizing page optimization ...
+
+Route (pages)
+┌ ○ / (585 ms)
+├   /_app
+├ ○ /404
+├ ○ /admin-7812er (563 ms)
+├ ● /admin-7812er/[section] (3192 ms)
+│ ├ /admin-7812er/schedule (577 ms)
+│ ├ /admin-7812er/courses (574 ms)
+│ ├ /admin-7812er/sources (574 ms)
+│ ├ /admin-7812er/invoices (572 ms)
+│ ├ /admin-7812er/bookings (572 ms)
+│ ├ /admin-7812er/leads
+│ └ /admin-7812er/performance
+├ ○ /admin-7812er/ai-agent (586 ms)
+├ ○ /admin-7812er/ai-knowledge (584 ms)
+├ ○ /admin-7812er/inbox-contacts (586 ms)
+├ ○ /admin-7812er/quick-replies (604 ms)
+├ ○ /admin-login-0tT6Yc1
+├ ○ /ads-calculator (584 ms)
+├ ƒ /api/admin/[...path]
+├ ƒ /api/calculator-access
+├ ƒ /api/course-email
+├ ƒ /api/course-invoice
+├ ƒ /api/course-question
+├ ƒ /api/crm/[...path]
+├ ƒ /api/inbox/[...path]
+├ ƒ /api/pay-invoice/[token]
+├ ƒ /api/script-invoice
+├ ƒ /api/workspace-login
+├ ○ /course (560 ms)
+├ ○ /crm-ads-dashboard
+├ ○ /crm-dashboard
+├ ○ /crm-inbox (583 ms)
+├ ○ /crm-login
+├ ○ /crm-verification-dashboard (575 ms)
+├ ○ /growth-assessment (573 ms)
+├ ○ /invoice-generator
+├ ○ /pay-invoice/[token]
+├ ○ /payment-success
+├ ○ /pickadate
+├ ○ /privacy-policy
+├ ● /services/[slug] (1124 ms)
+│ ├ /services/consultation
+│ ├ /services/ads-account-audit
+│ ├ /services/ads-account-setup
+│ └ [+6 more paths]
+├ ○ /start
+├ ○ /tiktok-setup
+├ ○ /video-script
+└ ○ /whatsapp
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+ƒ  (Dynamic)  server-rendered on demand
+

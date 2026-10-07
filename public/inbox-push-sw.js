@@ -2,7 +2,7 @@ self.addEventListener('push', event => {
   let data;try{data=event.data.json()}catch{return}
   const url = new URL(data.url || '/crm-inbox',self.location.origin);
   if(url.origin!==self.location.origin||url.pathname!=='/crm-inbox')return;
-  event.waitUntil(self.registration.showNotification('Joshspot Inbox',{body:data.body||'You have an inbox update.',tag:data.tag,data:{url:url.href}}));
+  event.waitUntil(self.registration.showNotification(String(data.title||'Joshspot Inbox').slice(0,100),{body:data.body||'You have an inbox update.',tag:data.tag,data:{url:url.href}}));
 });
 self.addEventListener('notificationclick',event=>{
  event.notification.close();
