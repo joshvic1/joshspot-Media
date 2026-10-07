@@ -147,3 +147,16 @@
 .workspace .composerToolGrid>button{min-height:44px;padding:8px 3px;gap:5px;border-radius:9px;font-size:11px;font-weight:400;line-height:1.25}
 .workspace .composerToolGrid>button svg{width:16px;height:16px;font-size:16px}
 .workspace .composerToolGrid>button span{font-size:inherit;line-height:inherit}
+.notificationHeading { flex-wrap:wrap; gap:12px; }
+.notificationHeading > div { display:grid; gap:4px; }
+.notificationReadAll { display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:#214ba4; padding:8px; font-size:12px; cursor:pointer; }
+.notificationReadAll svg { width:15px; height:15px; }
+.notificationOpen { display:flex; align-items:center; gap:14px; flex:1; min-width:0; padding:0; border:0; background:transparent; color:inherit; text-align:left; cursor:pointer; }
+.notificationOpen > svg { flex-shrink:0; }
+.notificationOpen > span { min-width:0; overflow-wrap:anywhere; }
+.notificationOpen > i { flex-shrink:0; }
+.notificationReadOne { display:grid; place-items:center; width:36px; height:36px; flex-shrink:0; border:0; border-radius:50%; background:transparent; color:#214ba4; cursor:pointer; }
+.notificationReadOne svg { width:16px; height:16px; }
+.notificationReadOne:hover, .notificationReadAll:hover { background:#e0e9fa; }
+.notificationReadOne:focus-visible, .notificationReadAll:focus-visible, .notificationOpen:focus-visible { outline:2px solid #214ba4; outline-offset:3px; }
+.notificationReadAll:disabled, .notificationReadOne:disabled { opacity:.45; cursor:default; }
