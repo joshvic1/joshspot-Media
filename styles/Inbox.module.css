@@ -143,8 +143,9 @@
 .workspace .mobileBottom button{font-size:9px!important;line-height:12px;gap:2px;min-height:44px}.workspace .mobileBottom button>span{width:34px;height:22px}.workspace .mobileBottom button svg{width:15px;height:15px;font-size:15px}
 
 /* Keep attachment-menu controls in scale with the compact inbox composer. */
-.workspace .composerToolPanel{width:240px;padding:8px;border-radius:14px}
-.workspace .composerToolGrid>button{min-height:44px;padding:8px 3px;gap:5px;border-radius:9px;font-size:11px;font-weight:400;line-height:1.25}
+.workspace .composerToolPanel{box-sizing:border-box;width:284px;max-width:calc(100vw - 48px);padding:7px;border-radius:14px}
+.workspace .composerToolGrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.workspace .composerToolGrid>button{min-width:0;min-height:46px;padding:7px 1px;gap:5px;border-radius:9px;font-size:9px;font-weight:400;line-height:1.25;white-space:nowrap}
 .workspace .composerToolGrid>button svg{width:16px;height:16px;font-size:16px}
 .workspace .composerToolGrid>button span{font-size:inherit;line-height:inherit}
 .notificationHeading { flex-wrap:wrap; gap:12px; }
@@ -160,3 +161,17 @@
 .notificationReadOne:hover, .notificationReadAll:hover { background:#e0e9fa; }
 .notificationReadOne:focus-visible, .notificationReadAll:focus-visible, .notificationOpen:focus-visible { outline:2px solid #214ba4; outline-offset:3px; }
 .notificationReadAll:disabled, .notificationReadOne:disabled { opacity:.45; cursor:default; }
+.voiceRecorder { display:flex; flex-direction:column; align-items:center; gap:16px; padding:20px 8px; animation:voiceEnter .2s ease-out; }
+.voiceOrb { display:grid; place-items:center; width:64px; height:64px; border-radius:50%; background:#edf3ff; color:#214ba4; font-size:26px; }
+.voiceActive { background:#fee9e8; color:#b93939; animation:voicePulse 1.6s ease-in-out infinite; }
+.voiceTimer { font-variant-numeric:tabular-nums; font-size:24px; color:#223451; }
+.voiceBars { height:30px; display:flex; align-items:center; gap:4px; }
+.voiceBars i { width:4px; height:20px; border-radius:4px; background:#214ba4; animation:voiceWave .85s ease-in-out infinite alternate; }
+.voicePreview { width:100%; max-width:340px; height:42px; }
+.voiceControls { display:flex; gap:12px; align-items:center; min-height:44px; }
+.voiceControls button { display:inline-flex; align-items:center; gap:8px; }
+.voiceRecorder > small { color:#62738b; font-size:12px; }
+@keyframes voiceEnter { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes voicePulse { 50% { box-shadow:0 0 0 10px #fee9e860; } }
+@keyframes voiceWave { from { transform:scaleY(.3); } to { transform:scaleY(1); } }
+@media (prefers-reduced-motion:reduce) { .voiceRecorder,.voiceActive,.voiceBars i { animation:none; } }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { FiSend, FiPaperclip, FiFileText, FiX, FiSmile, FiClock } from 'react-icons/fi';
+import { FiSend, FiPaperclip, FiFileText, FiX, FiSmile, FiClock, FiMic } from 'react-icons/fi';
 import { inboxApi } from './api';
+import VoiceRecorder from './VoiceRecorder';
 import NoteEditor from './NoteEditor';
 import { HiOutlineSparkles } from 'react-icons/hi';
 import ChatActions from './ChatActions';
@@ -9,6 +10,8 @@ import Templates from './Templates';
 import Modal from './Modal';
 import s from '../../styles/Inbox.module.css';
 export default function Composer({ conversation, session, canReply, windowOpen, onSent, replyTo, onCancelReply }) {
+  const [recording,setRecording]=useState(false);
+  useEffect(() => { setRecording(false); }, [conversation._id]);
   const [replyText, setReplyText] = useState(''); const [noteText, setNoteText] = useState(''); const [note, setNote] = useState(false); const [attachment, setAttachment] = useState(null);
   const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [templates, setTemplates] = useState(false);
   const toolMenu = useRef(null); const [emojiOpen, setEmojiOpen] = useState(false);
@@ -66,6 +69,7 @@ export default function Composer({ conversation, session, canReply, windowOpen, 
       <details ref={toolMenu} data-popover className={s.composerTools} onToggle={event => { if (!event.currentTarget.open) setEmojiOpen(false); }}><summary aria-label="Message tools" title="Message tools"><FiPaperclip /></summary><div className={s.composerToolPanel}>
         <div className={s.composerToolGrid}>
           <button type="button" disabled={disabled || busy || note} onClick={() => { closeTools(); file.current?.click(); }} aria-label="Attach file"><FiPaperclip /><span>Media</span></button>
+          <button type="button" disabled={!canReply || !connected || !windowOpen || busy} onClick={() => { closeTools(); pauseForTyping(); setRecording(true); }} aria-label="Record voice note"><FiMic /><span>Audio</span></button>
           <button type="button" disabled={disabled || busy} onClick={() => setEmojiOpen(!emojiOpen)} aria-label="Insert emoji" aria-expanded={emojiOpen}><FiSmile /><span>Emoji</span></button>
           <button type="button" disabled={!canReply || !connected || busy} onClick={() => { closeTools(); setTemplates(true); }} aria-label="Choose template"><FiFileText /><span>Templates</span></button>
           <button type="button" disabled={!canReply || busy} onClick={() => { closeTools(); setActions(true); }} aria-label="Chat actions"><HiOutlineSparkles /><span>Actions</span></button>
@@ -80,6 +84,7 @@ export default function Composer({ conversation, session, canReply, windowOpen, 
       </div>
       <input type="file" ref={file} hidden accept="image/png,image/jpeg,application/pdf,video/mp4,audio/mpeg,audio/ogg" onChange={upload} />
     </div>
+    {recording && canReply && windowOpen && <VoiceRecorder key={conversation._id} conversationId={conversation._id} replyTo={replyTo} onClose={() => setRecording(false)} onSent={() => { onCancelReply?.(); onSent(); }} />}
     {actions && <ChatActions conversation={conversation} session={session} onClose={() => setActions(false)} onSent={onSent} />}
     {templates && <Modal title="Send a template" onClose={() => setTemplates(false)}><Templates session={session} conversation={conversation} onSent={async () => { setTemplates(false); await onSent(); }} /></Modal>}
   </div>;
