@@ -175,3 +175,8 @@
 @keyframes voicePulse { 50% { box-shadow:0 0 0 10px #fee9e860; } }
 @keyframes voiceWave { from { transform:scaleY(.3); } to { transform:scaleY(1); } }
 @media (prefers-reduced-motion:reduce) { .voiceRecorder,.voiceActive,.voiceBars i { animation:none; } }
+
+/* Keep iOS Safari from zooming on composer focus; preserve manual pinch zoom. */
+@media (max-width:900px), (pointer:coarse) {
+  .composerInput textarea,.composerInput .inlineNoteEditor { font-size:16px; line-height:22px; }
+}
