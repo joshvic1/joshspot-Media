@@ -12,16 +12,22 @@ export default function MediaAttachment({ conversationId, message }) {
   const [preview, setPreview] = useState(false);
   const [mediaReady, setMediaReady] = useState(false);
   const [playing, setPlaying] = useState(false); const [position, setPosition] = useState(0); const [duration, setDuration] = useState(0);
-  const root = useRef(null); const audio = useRef(null); const pending = useRef(false);
+  const root = useRef(null); const audio = useRef(null); const pending = useRef(false); const compatible = useRef(false);
   useEffect(() => { if (audio.current) audio.current.playbackRate = speed; }, [speed, url]);
   const base = `/conversations/${conversationId}/messages/${message._id}`;
   const load = useCallback(async () => {
     if (pending.current) return;
     pending.current = true; setBusy(true); setError(''); setMediaReady(false);
-    try { const result = await inboxApi(`${base}/media-link`); setUrl(result.source === 'meta' ? URL.createObjectURL(await inboxApi(`${base}/media`, { blob: true, backendUrl: result.backendUrl })) : result.url); }
+    try {
+      if (message.type === 'audio' && (compatible.current || !audio.current?.canPlayType('audio/ogg; codecs="opus"'))) {
+        compatible.current = true;
+        setUrl(URL.createObjectURL(await inboxApi(`${base}/media?playback=mp3`, {blob:true})));
+        return;
+      }
+      const result = await inboxApi(`${base}/media-link`); setUrl(result.source === 'meta' ? URL.createObjectURL(await inboxApi(`${base}/media`, { blob: true, backendUrl: result.backendUrl })) : result.url); }
     catch (err) { setError(err.message); }
     finally { pending.current = false; setBusy(false); }
-  }, [base]);
+  }, [base, message.type]);
   useEffect(() => () => { if (url.startsWith('blob:')) URL.revokeObjectURL(url); }, [url]);
   useEffect(() => {
     const observer = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { observer.disconnect(); load(); } }, { rootMargin: '100px' });
@@ -36,8 +42,9 @@ export default function MediaAttachment({ conversationId, message }) {
     try { if (audio.current.paused) await audio.current.play(); else audio.current.pause(); }
     catch { setError('Cannot play this audio. Please retry.'); }
   };
-  const audioLoading = !error && (busy || !url || !mediaReady);
-  const failed = () => { setPlaying(false); setError('Media unavailable. Retry to refresh the link, or download the file.'); };
+  // Safari may wait for a user gesture before firing canplay.
+  const audioLoading = !error && (busy || !url);
+  const failed = () => { if(message.type === 'audio' && !compatible.current && !pending.current){compatible.current=true;load();return;} setPlaying(false); setError('Media unavailable. Retry to refresh the link, or download the file.'); };
   return <div ref={root} className={`${s.chatMedia} ${message.type === 'audio' ? s.voiceMedia : ''}`}>
     {message.type === 'audio' ? <div className={s.voicePlayer}>
       <button aria-label={audioLoading ? 'Loading audio' : playing ? 'Pause audio' : 'Play audio'} aria-busy={audioLoading} onClick={toggle} disabled={audioLoading || Boolean(error)} className={s.voicePlay}>{audioLoading ? <span className={`${s.mediaSpinner} ${s.audioSpinner}`} aria-hidden="true" /> : playing ? <FiPause /> : <FiPlay />}</button>

@@ -42,6 +42,32 @@ export default function Conversation({ id, targetNote, session, onBack, onUpdate
   const newerPage = useRef(null); const newerBusy = useRef(false); const [hasNewer, setHasNewer] = useState(false); const [loadingNewer, setLoadingNewer] = useState(false);
   const historyPage = useRef(null); const changes = useRef(null); const [withinDay, setWithinDay] = useState(false);
   const [highlight, setHighlight] = useState(null); const target = useRef(targetNote); const epoch = useRef(0);
+  const [scrollDate, setScrollDate] = useState('');
+  const dateTimer = useRef(null); const dateFrame = useRef(null);
+  useEffect(() => { setScrollDate(''); return () => { clearTimeout(dateTimer.current); cancelAnimationFrame(dateFrame.current); }; }, [id, targetNote]);
+  const showScrollDate = () => {
+    clearTimeout(dateTimer.current);
+    dateTimer.current = setTimeout(() => setScrollDate(''), 2000);
+    if (dateFrame.current) return;
+    dateFrame.current = requestAnimationFrame(() => {
+      dateFrame.current = null;
+      const container = scroll.current; if (!container) return;
+      const top = container.getBoundingClientRect().top + 12;
+      const visible = [...container.querySelectorAll('[data-message-date]')].find(node => node.getBoundingClientRect().bottom > top);
+      if (visible) setScrollDate(visible.dataset.messageDate);
+    });
+  };
+  const jumpToReply = async (messageId) => {
+    if (!messageId) { setError('The original message is no longer available.'); return; }
+    nearBottom.current = false;
+    const node = document.getElementById(`message-${messageId}`);
+    if (node) { setHighlight(messageId); node.scrollIntoView({block:'center', behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); return; }
+    // Reuse anchored history paging so older replies can be found without loading the entire chat.
+    epoch.current++; target.current = messageId; initialized.current = false;
+    setHighlight(null); newerPage.current = null; newerBusy.current = false;
+    setHasNewer(false); setLoadingNewer(false);
+    await load().catch(() => {});
+  };
   const merge = (items, updates = false) => { const priorLatest = latest.current; const gap = newerPage.current; setMessages(old => {
     const map = new Map(old.map(message => [message._id, message]));
     items.forEach(message => { if (!updates || map.has(message._id) || !gap && (!priorLatest || message._id > priorLatest)) map.set(message._id, message); });
@@ -136,15 +162,16 @@ export default function Conversation({ id, targetNote, session, onBack, onUpdate
     <header className={s.chatHeader}><button className={`${s.iconButton} ${s.mobileBack}`} aria-label="Back to conversations" onClick={onBack}><FiArrowLeft /></button><button className={`${s.avatar} ${s.avatarButton}`} aria-label="Open customer profile" onClick={toggleDetails}>{initials(conversation.contact.name || conversation.contact.phone)}</button><button className={s.customerTitle} onClick={toggleDetails}><strong>{conversation.contact.name || `+${conversation.contact.phone}`}</strong><span><FaWhatsapp /> WhatsApp · +{conversation.contact.phone}</span></button><div className={s.chatTools}><select aria-label="Assigned representative" disabled={!session.actor.admin || saving} value={conversation.assignedTo || ''} onChange={(event) => update({ assignedTo: event.target.value || null })}><option value="">Unassigned</option>{session.staff.map((person) => <option key={person._id} value={person._id}>{person.name}</option>)}</select>{!session.actor.admin && !conversation.assignedTo && <button onClick={() => update({ assignedTo: session.actor.id })} disabled={saving}>Assign to me</button>}{conversation.status === 'follow_up' && <button disabled={!canReply || saving} onClick={() => update({ status: 'open' })}>Clear follow-up</button>}</div><span className={s.conversationBadge}>{conversation.status.replace('_', ' ')}</span><button className={s.iconButton} aria-label="Customer details" aria-expanded={showDetails} title="Customer details" onClick={toggleDetails}><FiInfo /></button><details data-popover className={s.actionMenu}><summary aria-label="Conversation actions" title="Conversation actions"><FiMoreHorizontal /></summary><div><button onClick={event => { event.currentTarget.closest('details').open = false; setSalesDetails(true); }}><FiSliders />Sales details</button><button disabled={!canReply} onClick={(event) => { event.currentTarget.closest('details').open = false; setSchedule(true); }}><FiClock />Schedule follow-up</button><button disabled={!canReply || saving} onClick={(event) => { event.currentTarget.closest('details').open = false; update({ status: conversation.status === 'resolved' ? 'open' : 'resolved' }); }}><FiCheck />{conversation.status === 'resolved' ? 'Reopen conversation' : 'Resolve conversation'}</button>{session.actor.admin && <button onClick={event=>{event.currentTarget.closest('details').open=false;setDeleteError('');setConfirmDelete(true);}}><FiTrash2 />Delete chat</button>}</div></details></header>
 
     {error && <div className={s.error} role="alert">{error}<button onClick={() => refresh().catch((err) => setError(err.message))}>Refresh</button></div>}
-    <div className={s.messages} ref={scroll} onScroll={() => { const element = scroll.current; nearBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 100; if (nearBottom.current && newerPage.current) newer(); }}>
+    <div className={s.messages} ref={scroll} onScroll={() => { showScrollDate(); const element = scroll.current; nearBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 100; if (nearBottom.current && newerPage.current) newer(); }}>
+      <div className={s.scrollDateOverlay} aria-hidden="true">{scrollDate && <span>{scrollDate}</span>}</div>
       {highlight && <button className={s.loadMore} onClick={() => { epoch.current++; target.current = null; setHighlight(null); initialized.current = false; newerPage.current = null; setHasNewer(false); newerBusy.current = false; setLoadingNewer(false); nearBottom.current = true; load().catch(() => {}); }}>Back to latest messages</button>}
       {more && <button className={s.loadMore} disabled={saving} onClick={older}>{saving ? <RowsSkeleton count={1} /> : withinDay ? 'Load more from this 24-hour period' : 'Load previous 24 hours'}</button>}
       {!messages.length && <div className={s.empty}><FiMessageCircle /><h2>No messages in the last 24 hours</h2><p>Load previous messages above, or start a new reply when available.</p></div>}
       {messages.map((message, index) => {
         const date = dayLabel(message.occurredAt || message.createdAt);
         const previousDate = index > 0 ? dayLabel(messages[index - 1].occurredAt || messages[index - 1].createdAt) : null;
-        return <div key={message._id} id={`message-${message._id}`} className={highlight === message._id ? s.highlightNote : undefined}>{date !== previousDate && <div className={s.date}><span>{date}</span></div>}{message.type === 'activity' ? <p className={s.activity}>{message.authorName} · {message.text} · {shortTime(message.createdAt)}</p> : <MessageBubble message={message} selected={menuMessage?._id === message._id} canReply={canReply} onReply={setReplyTo} onOpen={setMenuMessage} className={`${s.bubble} ${message.direction === 'outbound' ? s.outbound : ''} ${message.type === 'note' ? s.note : ''}`}>
-          {message.replyTo && <div className={s.quotedReply}><b>{message.replyTo.authorName || 'Reply'}</b><span>{message.replyTo.text || `[${message.replyTo.type || 'message'}]`}</span></div>}
+        return <div key={message._id} id={`message-${message._id}`} data-message-date={date} className={highlight === message._id ? s.highlightNote : undefined}>{date !== previousDate && <div className={s.date}><span>{date}</span></div>}{message.type === 'activity' ? <p className={s.activity}>{message.authorName} · {message.text} · {shortTime(message.createdAt)}</p> : <MessageBubble message={message} selected={menuMessage?._id === message._id} canReply={canReply} onReply={setReplyTo} onOpen={setMenuMessage} className={`${s.bubble} ${message.direction === 'outbound' ? s.outbound : ''} ${message.type === 'note' ? s.note : ''}`}>
+          {message.replyTo && <button type="button" className={s.quotedReply} aria-label="Go to original message" onPointerDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); jumpToReply(message.replyTo.message); }}><b>{message.replyTo.authorName || 'Reply'}</b><span>{message.replyTo.text || `[${message.replyTo.type || 'message'}]`}</span></button>}
 
           {message.type === 'note' && <b className={s.messageLabel}><FiLock /> Internal note</b>}{message.type === 'template' && <b className={s.messageLabel}>WhatsApp template</b>}
           {message.media?.id && <MediaAttachment conversationId={id} message={message} onError={setError} />}

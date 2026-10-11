@@ -180,3 +180,12 @@
 @media (max-width:900px), (pointer:coarse) {
   .composerInput textarea,.composerInput .inlineNoteEditor { font-size:16px; line-height:22px; }
 }
+
+.notificationHeading{display:flex;align-items:center;gap:14px}.notificationHeading>button{display:flex;align-items:center;justify-content:space-between;flex:1;border:0;background:none;color:inherit;padding:5px 0;cursor:pointer;font-size:14px}.notificationHeading svg{transition:transform .2s}.notificationHeading>input{width:32px;height:18px;accent-color:#244fa6}.pushPrompt{position:fixed;z-index:150;bottom:80px;left:50%;transform:translateX(-50%);width:min(360px,calc(100vw - 32px));box-sizing:border-box;background:white;color:#243e62;padding:18px;border:1px solid #dce5f2;border-radius:18px;box-shadow:0 12px 45px #18345a33}.pushPrompt p{font-size:12px;line-height:1.6}.pushPrompt>div{display:flex;gap:10px}.pushPrompt button{border:0;border-radius:9px;padding:10px;background:#244fa6;color:white;cursor:pointer}.pushPrompt button+button{background:#eef2f8;color:#405d86}
+
+.notificationHeading>input{appearance:none;position:relative;flex-shrink:0;width:36px;height:21px;border:0;border-radius:14px;background:#dce3ef;cursor:pointer}.notificationHeading>input:before{content:"";position:absolute;top:3px;left:3px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .16s}.notificationHeading>input:checked{background:#315eae}.notificationHeading>input:checked:before{transform:translateX(15px)}.notificationHeading>input:disabled{opacity:.45;cursor:default}
+
+.scrollDateOverlay{position:sticky;top:4px;height:0;z-index:4;display:flex;justify-content:center;pointer-events:none;overflow:visible}
+.scrollDateOverlay>span{align-self:flex-start;padding:5px 12px;border-radius:12px;background:#e7edf6f5;color:#526680;box-shadow:0 2px 8px #243b601a;font-size:11px;line-height:1.4;font-weight:600}
+button.quotedReply{display:block;width:100%;text-align:left;border-top:0;border-right:0;border-bottom:0;font-family:inherit;cursor:pointer}
+button.quotedReply:hover{background:#e4ecf8}button.quotedReply:focus-visible{outline:2px solid #6285c0;outline-offset:2px}
