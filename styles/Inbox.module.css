@@ -189,3 +189,7 @@
 .scrollDateOverlay>span{align-self:flex-start;padding:5px 12px;border-radius:12px;background:#e7edf6f5;color:#526680;box-shadow:0 2px 8px #243b601a;font-size:11px;line-height:1.4;font-weight:600}
 button.quotedReply{display:block;width:100%;text-align:left;border-top:0;border-right:0;border-bottom:0;font-family:inherit;cursor:pointer}
 button.quotedReply:hover{background:#e4ecf8}button.quotedReply:focus-visible{outline:2px solid #6285c0;outline-offset:2px}
+
+.unreadCount{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:20px;background:#27ad70;color:white;font-size:10px;line-height:18px;font-weight:700}
+
+.preview:has(.unreadCount){position:relative;padding-right:32px}.preview .unreadCount{position:absolute;right:0;top:50%;transform:translateY(-50%)}

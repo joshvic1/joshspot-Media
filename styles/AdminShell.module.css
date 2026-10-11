@@ -48,3 +48,5 @@
 .immersive .workspace { margin-left:0; min-height:0; }
 .immersive .inboxContent { height:var(--inbox-viewport-height,100dvh); min-height:0; padding:20px; background:#e8edf5; }
 @media(max-width:900px) { .immersive .inboxContent { padding:0; } }
+
+.navGroup{margin:4px 0}.navGroup>summary{cursor:pointer;padding:12px 10px;border-radius:10px;color:#d0d8e8;font-size:13px;font-weight:600}.navGroup>summary:hover{background:#ffffff0c}.navGroup>a{margin-left:10px;font-size:12px!important}.navGroup[open]>summary{color:#fff}

@@ -10,6 +10,7 @@ export const adminPages = [
   ["overview", "Overview", FiGrid, "Your business at a glance."],
   ["ai-agent", "AI Agent", FiBookOpen, "Configure your assistant, knowledge, sales flows and human handoff."],
   ["inbox-contacts", "Inbox contacts", FiUsers, "All your WhatsApp contacts, 20 at a time."],
+  ["staff", "Staff management", FiUsers, "Add staff accounts and choose their access role."],
   ["earnings", "Staff earnings", FiBarChart2, "Review response times, deductions and monthly statements."],
   ["quick-replies", "Quick replies", FiClipboard, "Manage the replies your team inserts with a slash."],
   ["courses", "Course payments", FiBookOpen, "Every checkout. Every customer. One clear view."],
@@ -48,7 +49,7 @@ export default function AdminLayout({ active, children }) {
     const handleKey = (event) => {
       if (event.key === "Escape") { setOpen(false); toggle.current?.focus(); }
       if (event.key === "Tab") {
-        const items = menu.current?.querySelectorAll("a, button");
+        const items = menu.current && [...menu.current.querySelectorAll("a, button, summary")].filter(el=>el.getClientRects().length);
         if (!items?.length) return;
         const first = items[0], last = items[items.length - 1];
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -63,10 +64,13 @@ export default function AdminLayout({ active, children }) {
       {mobile && <button className={styles.close} aria-label="Close menu" onClick={() => { setOpen(false); toggle.current?.focus(); }}><FiX /></button>}
     </div>
     <div className={styles.navLabel}>WORKSPACE</div>
-    <nav aria-label="Admin navigation">{adminPages.map(([key, title, Icon]) => (
-      <Link key={key} href={`${adminHref(key)}${demo ? "?preview=demo" : ""}`} aria-current={active === key ? "page" : undefined}
-        className={active === key ? styles.active : ""} onClick={() => setOpen(false)}><Icon />{title}</Link>
-    ))}<Link href="/crm-inbox" onClick={() => setOpen(false)}><FiUsers />Joshspot Inbox</Link><Link href="/crm-dashboard" onClick={() => setOpen(false)}><FiUsers />CRM dashboard</Link></nav>
+    <nav aria-label="Admin navigation"><Link href={adminHref('overview')} aria-current={active==='overview'?'page':undefined} className={active==='overview'?styles.active:''} onClick={()=>setOpen(false)}><FiGrid/>Overview</Link>{[
+      ['Inbox & AI',['ai-agent','inbox-contacts','quick-replies']],
+      ['Staff',['staff','earnings']],
+      ['Payments',['courses','invoices']],
+      ['Customers & planning',['bookings','schedule','leads']],
+      ['Reports',['sources','performance']]
+    ].map(([title,keys])=><details className={styles.navGroup} key={title} open={keys.includes(active)||undefined}><summary>{title}</summary>{keys.map(key=>{const [,label,Icon]=adminPages.find(p=>p[0]===key);return <Link key={key} href={`${adminHref(key)}${demo?'?preview=demo':''}`} aria-current={active===key?'page':undefined} className={active===key?styles.active:''} onClick={()=>setOpen(false)}><Icon/>{label}</Link>})}{title==='Inbox & AI'&&<Link href="/crm-inbox" onClick={()=>setOpen(false)}><FiUsers/>Joshspot Inbox</Link>}{title==='Customers & planning'&&<Link href="/crm-dashboard" onClick={()=>setOpen(false)}><FiUsers/>CRM dashboard</Link>}</details>)}</nav>
     <div className={styles.sidebarBottom}>
       <a href="https://mytiklink.com/admin/users" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> Visit Mytiklink</a>
       <a href="/course" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> View course page</a>
