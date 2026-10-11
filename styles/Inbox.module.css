@@ -193,3 +193,7 @@ button.quotedReply:hover{background:#e4ecf8}button.quotedReply:focus-visible{out
 .unreadCount{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:20px;background:#27ad70;color:white;font-size:10px;line-height:18px;font-weight:700}
 
 .preview:has(.unreadCount){position:relative;padding-right:32px}.preview .unreadCount{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+
+.listHeader{gap:8px;align-items:center}.listHeader>.iconButton{flex-shrink:0;margin-left:0}.folderTabs{flex-shrink:1;gap:7px}.folderTabs button{font-weight:700!important;white-space:nowrap}.folderTabs button:disabled{font-weight:700!important;opacity:1;color:#8392a9}
+.previewLine{display:flex;align-items:center;gap:8px;min-width:0;min-height:22px}.previewLine>.preview{flex:1;min-width:0}.previewLine>.unreadCount{position:static;transform:none;box-sizing:border-box;min-width:20px;height:20px;line-height:20px;border-radius:999px;overflow:visible;padding:0 5px;text-align:center}
+.settingsBody{padding:0 clamp(12px,3vw,24px) 20px;box-sizing:border-box;min-width:0}.settingsBody>*{box-sizing:border-box;max-width:100%;min-width:0}.settingsBody .notificationSettings{width:100%;max-width:none}.settingsBody .connectionCard{margin-left:0;margin-right:0}
