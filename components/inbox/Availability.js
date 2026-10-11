@@ -7,8 +7,8 @@ export default function Availability(){
  async function toggle(){setBusy(true);setError('');try{setData(await inboxApi('/availability',{method:'PUT',body:{offline:!data.offline,revision:data.revision,day:data.day}}));window.dispatchEvent(new Event('inbox-update'));}catch(e){setError(e.message);try{setData(await inboxApi('/availability'))}catch{}}finally{setBusy(false)}}
  const disabled=busy||!data?.enabled||!data?.working;
  return <div className={s.availability}>
- <button type="button" role="switch" aria-label="Staff online status" aria-checked={Boolean(data&&!data.offline)} disabled={disabled} onClick={toggle} className={data?.offline?s.offline:s.online} title={!data?.enabled?'Activate earnings tracking to enable availability':!data.working?'Outside working hours':data.offline?'Return online':'Take an offline break'}>
- <span className={s.track}><i/></span><span><b>{busy?'Updating…':!data?'Loading…':!data.working?'Off hours':data.offline?'Offline':'Online'}</b>{data?.working&&<small>{(data.remainingMs>0?`${Math.ceil(data.remainingMs/60000)}m break left`:`${Math.floor(data.offlineMs/60000)-60}m over allowance`)}</small>}</span>
+ <button type="button" role="switch" aria-label="Staff online status" aria-checked={Boolean(data&&!data.offline)} disabled={disabled} onClick={toggle} className={!data?.working?s.offHours:data.offline?s.offline:s.online} title={!data?.enabled?'Activate earnings tracking to enable availability':!data.working?'Outside working hours':data.offline?'Return online':'Take an offline break'}>
+ <span className={s.statusText}><b>{busy?'Updating…':!data?'Loading…':!data.working?'Off hours':data.offline?'Offline':'Online'}</b>{data?.working&&<small>{(data.remainingMs>0?`${Math.ceil(data.remainingMs/60000)}m break left`:`${Math.floor(data.offlineMs/60000)-60}m over allowance`)}</small>}</span><span className={s.track} aria-hidden="true"><i/></span>
  </button>{error&&<p role="alert">{error}</p>}
  </div>;
 }

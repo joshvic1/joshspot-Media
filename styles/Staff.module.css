@@ -1,0 +1,8 @@
+.editor { margin-top: 20px; scroll-margin-top: 24px; }
+.heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.hint { color:#64748b; font-size:13px; line-height:1.6; max-width:700px; }
+.group { border:1px solid #e2e8f0; border-radius:14px; padding:16px; margin:18px 0; min-width:0; }
+.group legend { font-size:14px; font-weight:700; padding:0 8px; }
+.permissions { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px 20px; }
+.permissions label { display:flex; align-items:center; gap:10px; font-size:13px; padding:8px 0; cursor:pointer; }
+.permissions input { width:17px; height:17px; flex:0 0 17px; margin:0; accent-color:#254da5; }
