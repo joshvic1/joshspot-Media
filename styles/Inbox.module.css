@@ -176,9 +176,14 @@
 @keyframes voiceWave { from { transform:scaleY(.3); } to { transform:scaleY(1); } }
 @media (prefers-reduced-motion:reduce) { .voiceRecorder,.voiceActive,.voiceBars i { animation:none; } }
 
-/* Keep iOS Safari from zooming on composer focus; preserve manual pinch zoom. */
+/* Keep touch-browser editable controls at the iOS focus-zoom threshold.
+   Cover search and modal fields too; do not restrict manual viewport zoom. */
 @media (max-width:900px), (pointer:coarse) {
-  .composerInput textarea,.composerInput .inlineNoteEditor { font-size:16px; line-height:22px; }
+  .workspace input:not([type="checkbox"]):not([type="radio"]),
+  .workspace select,.workspace textarea,.workspace [contenteditable="true"],
+  .modal input:not([type="checkbox"]):not([type="radio"]),
+  .modal select,.modal textarea,.modal [contenteditable="true"] { font-size:16px!important; }
+  .workspace .composerInput textarea,.workspace .inlineNoteEditor { line-height:22px; }
 }
 
 .notificationHeading{display:flex;align-items:center;gap:14px}.notificationHeading>button{display:flex;align-items:center;justify-content:space-between;flex:1;border:0;background:none;color:inherit;padding:5px 0;cursor:pointer;font-size:14px}.notificationHeading svg{transition:transform .2s}.notificationHeading>input{width:32px;height:18px;accent-color:#244fa6}.pushPrompt{position:fixed;z-index:150;bottom:80px;left:50%;transform:translateX(-50%);width:min(360px,calc(100vw - 32px));box-sizing:border-box;background:white;color:#243e62;padding:18px;border:1px solid #dce5f2;border-radius:18px;box-shadow:0 12px 45px #18345a33}.pushPrompt p{font-size:12px;line-height:1.6}.pushPrompt>div{display:flex;gap:10px}.pushPrompt button{border:0;border-radius:9px;padding:10px;background:#244fa6;color:white;cursor:pointer}.pushPrompt button+button{background:#eef2f8;color:#405d86}

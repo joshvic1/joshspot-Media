@@ -3,7 +3,7 @@ import Earnings from './Earnings';
 import NotificationSettings,{NotificationPermissionPrompt} from './NotificationSettings';
 import MessageStatus from './MessageStatus';
 import { ChatSkeleton, RowsSkeleton } from './Skeleton';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { FiInbox, FiUser, FiUsers, FiMail, FiClock, FiCheckCircle, FiFileText, FiSearch, FiPlus, FiMessageCircle, FiRefreshCw, FiSettings, FiSliders, FiArrowUpRight, FiMenu, FiX, FiBell } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { HiOutlineSparkles } from 'react-icons/hi';
@@ -24,9 +24,9 @@ export default function InboxWorkspace({ session }) {
   useInboxConnection();
   const [pushVersion,setPushVersion]=useState(0);
   const [targetNote, setTargetNote] = useState(null);
-  const [notifications, setNotifications] = useState({ items: [], unread: 0, next: null, loading: !session.actor.admin });
+  const [notifications, setNotifications] = useState({ items: [], unread: 0, next: null, loading: true });
   const notificationLoad = async (cursor) => { const result = await inboxApi(`/notifications${cursor ? `?before=${cursor}` : ''}`); setNotifications(old => ({ ...result, items: cursor ? [...old.items, ...result.items.filter(item => !old.items.some(row => row._id === item._id))] : result.items })); };
-  useInboxRefresh(() => notificationLoad(), 'notifications', !session.actor.admin);
+  useInboxRefresh(() => notificationLoad(), 'notifications', true);
   const openCrmNavigation = useCrmNavigation();
   const [mobileFilters, setMobileFilters] = useState(false);
   const navigate = (key) => { setView(key); setSelected(null); setQuery(''); setAgent(''); setStatus(''); setFilters({}); };
@@ -51,7 +51,8 @@ export default function InboxWorkspace({ session }) {
     if (/^[a-f0-9]{24}$/i.test(conversation || '')) { setSelected(conversation); setView('inbox'); if (/^[a-f0-9]{24}$/i.test(message || '')) setTargetNote(message); }
   }, []);
   const [newContact, setNewContact] = useState(false); const [saving, setSaving] = useState(false); const [contactError, setContactError] = useState('');
-  const [notice, setNotice] = useState(''); const generation = useRef(0); const fetching = useRef(new Set()); const loaded = useRef(false); const expanded = useRef(false); const previous = useRef(null); const list = useRef(null);
+  const [notice, setNotice] = useState(''); const generation = useRef(0); const fetching = useRef(new Set()); const loaded = useRef(false); const expanded = useRef(false); const previous = useRef(null); const list = useRef(null); const listPosition=useRef(0);
+  useLayoutEffect(()=>{if(!selected&&list.current)list.current.scrollTop=listPosition.current;},[selected]);
   useEffect(() => { const timer = setTimeout(() => setSearch(query.trim()), 300); return () => clearTimeout(timer); }, [query]);
   const load = useCallback(async (cursor, quiet = false) => {
     const current = generation.current;
@@ -84,12 +85,12 @@ export default function InboxWorkspace({ session }) {
   const listEnabled = !['templates', 'team', 'settings', 'notifications'].includes(view);
   useEffect(() => {
     generation.current += 1; previous.current = null; loaded.current = false; expanded.current = false; setRows([]); setNext(null);
-    if (list.current) list.current.scrollTop = 0;
+    listPosition.current=0; if (list.current) list.current.scrollTop = 0;
     return () => { generation.current += 1; };
   }, [load]);
   useInboxRefresh(async () => { const result = await load(null, loaded.current); await refreshCounts(); return result; }, JSON.stringify([view, search, agent, status, filters]), listEnabled);
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 4000); return () => clearTimeout(timer); }, [notice]);
-  const refresh = () => { expanded.current = false; load(); refreshCounts(); };
+  const refresh = () => { load(null, true); refreshCounts(); };
   const createContact = async (event) => {
     event.preventDefault(); setSaving(true); setContactError('');
     const data = new FormData(event.currentTarget);
@@ -108,8 +109,8 @@ export default function InboxWorkspace({ session }) {
         <header className={s.listHeader}>{view === 'contacts' ? <h1>Contacts</h1> : <div className={s.folderTabs} aria-label="Conversation views"><button disabled={!session.actor.admin && session.actor.role==='CSS'} aria-pressed={view !== 'mine'} onClick={() => navigate('inbox')}>{status ? status.replace('_', ' ') : view === 'mine' || view === 'inbox' ? (agent || Object.values(filters).some(Boolean) ? 'Filtered' : 'All') : views.find(([key]) => key === view)?.[1] || 'All'}</button><span aria-hidden="true" /><button aria-pressed={view === 'mine'} onClick={() => navigate('mine')}>Mine</button></div>}{!session.actor.admin&&<Availability/>}<button className={s.iconButton} title="New conversation" aria-label="New conversation" onClick={() => setNewContact(true)}><FiPlus /></button></header>
         <div className={s.searchControls}><div className={s.search}><FiSearch /><input aria-label="Search conversations" placeholder="Search conversations…" value={query} onChange={(event) => setQuery(event.target.value)} />{query && <button className={`${s.iconButton} ${s.searchClear}`} aria-label="Clear search" onClick={() => setQuery('')}><FiX /></button>}</div><button className={`${s.iconButton} ${s.searchFilter}`} aria-label="Filter conversations" onClick={() => setMobileFilters(true)}><FiSliders />{(agent || status || Object.values(filters).some(Boolean) || !['inbox','contacts','mine'].includes(view)) && <i />}</button></div>
         {error && <div className={s.error} role="alert">{error}<button onClick={() => load()}>Retry</button></div>}
-        <div className={s.list} ref={list} aria-busy={loading} onScroll={(event) => { const el = event.currentTarget; if (next && !loading && el.scrollTop > 0 && el.scrollHeight - el.scrollTop - el.clientHeight < 160) load(next); }}>
-          {loading && !rows.length ? <RowsSkeleton /> : !rows.length ? <div className={s.empty}><FiInbox /><h2>{search ? 'No matching conversations' : 'A clear inbox'}</h2><p>{search ? 'Try a name, phone number, label or message keyword.' : 'Customer conversations will appear here when messages arrive.'}</p></div> : rows.map((row) => <button key={row._id} className={`${s.row} ${row._id === selected ? s.selected : ''} ${row.unread ? s.unread : ''}`} onClick={() => { setTargetNote(null); setSelected(row._id); }} aria-pressed={row._id === selected}>
+        <div className={s.list} ref={list} aria-busy={loading} onScroll={(event) => { const el = event.currentTarget; if(!selected)listPosition.current=el.scrollTop; if (next && !loading && el.scrollTop > 0 && el.scrollHeight - el.scrollTop - el.clientHeight < 160) load(next); }}>
+          {loading && !rows.length ? <RowsSkeleton /> : !rows.length ? <div className={s.empty}><FiInbox /><h2>{search ? 'No matching conversations' : 'A clear inbox'}</h2><p>{search ? 'Try a name, phone number, label or message keyword.' : 'Customer conversations will appear here when messages arrive.'}</p></div> : rows.map((row) => <button key={row._id} className={`${s.row} ${row._id === selected ? s.selected : ''} ${row.unread ? s.unread : ''}`} onClick={() => { listPosition.current=list.current?.scrollTop||0; setTargetNote(null); setSelected(row._id); }} aria-pressed={row._id === selected}>
             <span className={s.avatar}>{initials(row.contact?.name || row.contact?.phone)}</span><span className={s.rowBody}><span className={s.rowTitle}><strong>{row.contact?.name || `+${row.contact?.phone}`}</strong><time title={fullDate(row.lastMessageAt)}>{relativeTime(row.lastMessageAt)}</time></span><span className={s.previewLine}><span className={s.preview}>{view !== 'contacts' && row.previewStatus && <MessageStatus status={row.previewStatus} />}{view === 'contacts' ? `+${row.contact?.phone} · ${row.contact?.email || row.contact?.status}` : row.preview || 'Start a conversation'}</span>{row.unreadCount>0 && <b className={s.unreadCount} aria-label={`${row.unreadCount} unread messages`}>{row.unreadCount>99?'99+':row.unreadCount}</b>}</span><span className={s.rowMeta}>{row.status === 'follow_up' && row.followUpAt ? <small title={fullDate(row.followUpAt)} className={new Date(row.followUpAt) < new Date() ? s.overdue : ''}><FiClock />{new Date(row.followUpAt) < new Date() ? 'Due' : new Date(row.followUpAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</small> : row.labels?.[0] && <small>{row.labels[0]}</small>}{!row.assignedTo && <span className={s.unassignedSparkle} role="img" aria-label="Unassigned conversation" title="Unassigned"><HiOutlineSparkles aria-hidden="true" /></span>}</span></span>
           </button>)}
           {next && (loading ? <RowsSkeleton count={2} /> : <button className={s.loadMore} onClick={() => load(next)}>Load more</button>)}
