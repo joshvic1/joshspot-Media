@@ -3,7 +3,7 @@ import Earnings from './Earnings';
 import NotificationSettings,{NotificationPermissionPrompt} from './NotificationSettings';
 import MessageStatus from './MessageStatus';
 import { ChatSkeleton, RowsSkeleton } from './Skeleton';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FiInbox, FiUser, FiUsers, FiMail, FiClock, FiCheckCircle, FiFileText, FiSearch, FiPlus, FiMessageCircle, FiRefreshCw, FiSettings, FiSliders, FiArrowUpRight, FiMenu, FiX, FiBell } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { HiOutlineSparkles } from 'react-icons/hi';

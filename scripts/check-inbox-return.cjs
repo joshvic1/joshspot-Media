@@ -35,6 +35,6 @@ const assert = require('node:assert/strict');
  await page.getByRole('textbox',{name:'Message',exact:true}).waitFor();
  await page.getByRole('button',{name:'Back to conversations',exact:true}).click();
  const after=await page.getByText('Customer 25',{exact:true}).evaluate(e=>e.closest('button').parentElement.scrollTop);
- assert.ok(Math.abs(before-after)<2,`${before} -> ${after}`);console.log('PASS: list scroll restored on return');
+ assert.ok(Math.abs(before-after)<2,`${before} -> ${after}`);assert.deepEqual(errors,[]);console.log('PASS: list scroll restored on return without client exceptions');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});
