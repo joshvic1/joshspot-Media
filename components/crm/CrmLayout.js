@@ -61,22 +61,41 @@ export default function CrmLayout({
   useEffect(() => {
     if (!compact) return;
     const viewport = window.visualViewport;
-    const resize = () => {
-      shell.current?.style.setProperty(
-        "--inbox-viewport-height",
-        `${Math.round(viewport?.height || window.innerHeight)}px`,
-      );
-      if (shell.current)
-        shell.current.dataset.keyboardOpen = String(
-          window.innerHeight - (viewport?.height || window.innerHeight) > 150,
-        );
+    const body = document.body, html = document.documentElement;
+    const scrollY = window.scrollY;
+    const before = { position: body.style.position, top: body.style.top, width: body.style.width, overflow: body.style.overflow, htmlOverflow: html.style.overflow };
+    // Only the Inbox's message/list panes scroll. Prevent iOS focus panning from
+    // exposing the document behind the keyboard-sized shell.
+    body.style.position = "fixed"; body.style.top = "0px";
+    body.style.width = "100%"; body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
+    let frame;
+    const sync = () => {
+      frame = null;
+      if (!shell.current || (viewport && Math.abs(viewport.scale - 1) > 0.01)) return;
+      const height = viewport?.height || window.innerHeight;
+      shell.current.style.setProperty("--inbox-viewport-height", `${height}px`);
+      shell.current.style.setProperty("--inbox-viewport-top", `${viewport?.offsetTop || 0}px`);
+      shell.current.dataset.keyboardOpen = String(window.innerHeight - height > 150);
     };
-    resize();
+    const resize = () => { if (frame == null) frame = requestAnimationFrame(sync); };
+    sync();
     viewport?.addEventListener("resize", resize);
+    viewport?.addEventListener("scroll", resize);
     window.addEventListener("resize", resize);
+    document.addEventListener("focusin", resize);
+    document.addEventListener("focusout", resize);
     return () => {
+      cancelAnimationFrame(frame);
       viewport?.removeEventListener("resize", resize);
+      viewport?.removeEventListener("scroll", resize);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("focusin", resize);
+      document.removeEventListener("focusout", resize);
+      body.style.position = before.position; body.style.top = before.top;
+      body.style.width = before.width; body.style.overflow = before.overflow;
+      html.style.overflow = before.htmlOverflow;
+      window.scrollTo(0, scrollY);
     };
   }, [compact]);
   const page = pages.find(([key]) => key === active) || pages[0];

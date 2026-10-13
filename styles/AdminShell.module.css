@@ -43,7 +43,7 @@
 @media(max-width:600px) { .content { padding:25px 16px 40px; } .topbar { padding:15px 16px; } .adminBadge { display:none; } .pageHeader h1 { font-size:28px; } .headerMark { display:none; } }
 /* Inbox owns the viewport; CRM navigation is available from its brand button. */
 .inboxContent { height:100dvh; min-height:0; overflow:hidden; }
-.immersive { height:var(--inbox-viewport-height,100dvh); min-height:0; overflow:hidden; background:#e8edf5; }
+.immersive { position:fixed; left:0; right:0; top:var(--inbox-viewport-top,0px); width:100%; height:var(--inbox-viewport-height,100dvh); min-height:0; overflow:hidden; background:#e8edf5; }
 .immersive .desktopSidebar { display:none; }
 .immersive .workspace { margin-left:0; min-height:0; }
 .immersive .inboxContent { height:var(--inbox-viewport-height,100dvh); min-height:0; padding:20px; background:#e8edf5; }
