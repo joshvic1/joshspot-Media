@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
  page.on('pageerror', e=>errors.push(e.message)); await page.addInitScript(()=>localStorage.setItem('adminToken','fixture-only'));
  const now=new Date().toISOString(); const mid=i=>String(i).padStart(24,'0');
  const note={_id:mid(1),type:'note',direction:'internal',text:'Please review this mention',createdAt:now,authorName:'Admin'};
- const reply=i=>({_id:mid(i),type:'text',direction:'inbound',text:`Later reply ${i}`,createdAt:now,...(i===53?{replyTo:{message:mid(1),text:'Original quote',authorName:'Customer'}}:{})});
+ const reply=i=>({_id:mid(i),type:'text',direction:'outbound',author:'staff',authorName:'Support',status:'sent',providerId:'wamid.fixture',text:`Later reply ${i}`,createdAt:now,...(i===53?{replyTo:{message:mid(1),text:'Original quote',authorName:'Customer'}}:{})});
  const chat={_id:'chat',contact:{name:'Mention Customer',phone:'2348000000000'},assignedTo:'staff',status:'open',labels:[],lastMessageAt:now,lastInboundAt:now,ai:{active:false}};
  let fresh=false; let forward=0;let saved;
  await page.route('**/api/**', async route=>{
@@ -29,6 +29,7 @@ const assert = require('node:assert/strict');
  await page.setViewportSize({width:390,height:844});await page.goto('http://localhost:3005/crm-inbox');await page.getByText('Mention Customer',{exact:true}).click();
  await page.getByText('Later reply 53',{exact:true}).click({button:'right'});
  await page.getByRole('button',{name:'Save to Quick Replies',exact:true}).click();
+ await page.getByRole('dialog',{name:'Save to Quick Replies',exact:true}).waitFor();
  assert.equal(await page.getByLabel('Response',{exact:true}).inputValue(),'Later reply 53');
  await page.getByLabel('Keyword',{exact:true}).fill('setup');await page.getByLabel('Response',{exact:true}).fill('Hello\n\nHere are the details.');
  await page.getByRole('button',{name:'Save quick reply',exact:true}).click();await page.getByRole('status').filter({hasText:'Saved as /setup'}).waitFor();
