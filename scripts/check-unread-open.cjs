@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
  const now=new Date().toISOString(); const mid=i=>String(i).padStart(24,'0');
  const note={_id:mid(1),type:'note',direction:'internal',text:'Please review this mention',createdAt:now,authorName:'Admin'};
  const reply=i=>({_id:mid(i),type:'text',direction:'inbound',text:`Later reply ${i}`,createdAt:now,...(i===53?{replyTo:{message:mid(1),text:'Original quote',authorName:'Customer'}}:{})});
- const chat={_id:'chat',contact:{name:'Mention Customer',phone:'2348000000000'},lastInboundId:mid(53),assignedTo:'staff',status:'open',labels:[],lastMessageAt:now,lastInboundAt:now,ai:{active:false}};
+ const chat={_id:'chat',contact:{name:'Mention Customer',phone:'2348000000000'},unread:true,unreadCount:2,lastInboundId:mid(53),assignedTo:'staff',status:'open',labels:[],lastMessageAt:now,lastInboundAt:now,ai:{active:false}};
  let fresh=false; let forward=0;let reads=[];
  await page.route('**/api/**', async route=>{
   const u=new URL(route.request().url()),p=u.pathname.replace('/api/inbox','');let value={};
@@ -27,11 +27,11 @@ const assert = require('node:assert/strict');
   await route.fulfill({json:value});
  });
  try{
- await page.setViewportSize({width:390,height:844});await page.goto('http://localhost:3005/crm-inbox');await page.getByText('Mention Customer',{exact:true}).click();
+ await page.setViewportSize({width:390,height:844});await page.goto('http://localhost:3005/crm-inbox');await page.getByRole('button',{name:'Filter conversations',exact:true}).click();await page.getByRole('radio',{name:'Unread',exact:true}).check();await page.getByRole('button',{name:'Apply filters',exact:true}).click();await page.getByText('Mention Customer',{exact:true}).click();
  await page.getByText('Later reply 52',{exact:true}).waitFor();
  await page.waitForFunction(()=>document.querySelector('[aria-label="Message"]'));
  for(let i=0;i<30&&!reads.length;i++)await page.waitForTimeout(100);
- assert.deepEqual(reads,[mid(53)]);await page.getByRole('button',{name:'Back to latest messages',exact:true}).waitFor();assert.deepEqual(errors,[]);
+ assert.deepEqual(reads,[mid(53)]);await page.getByRole('button',{name:'Back to latest messages',exact:true}).waitFor();await page.getByRole('button',{name:'Back to conversations',exact:true}).click();await page.getByRole('heading',{name:'A clear inbox'}).waitFor();assert.equal(await page.getByText('Mention Customer',{exact:true}).count(),0);assert.deepEqual(errors,[]);
  console.log('PASS: first-unread opening preserves anchor and acknowledges existing unread messages');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

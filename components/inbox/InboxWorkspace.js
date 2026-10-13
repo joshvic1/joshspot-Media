@@ -43,6 +43,9 @@ export default function InboxWorkspace({ session }) {
     document.addEventListener('pointerdown', close); document.addEventListener('keydown', close);
     return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', close); };
   }, []);
+  const acknowledged = useRef(new Map());
+  const applyReadState = (items) => items.map(row => { const marker=acknowledged.current.get(row._id); return marker && row.lastInboundId && row.lastInboundId<=marker ? {...row,unread:false,unreadCount:0} : row; }).filter(row=>view!=='unread'||row.unread);
+  const markRead = (conversationId,messageId) => { const previous=acknowledged.current.get(conversationId);if(!previous||messageId>previous)acknowledged.current.set(conversationId,messageId);setRows(old=>applyReadState(old)); };
   const [rows, setRows] = useState([]); const [next, setNext] = useState(null); const [counts, setCounts] = useState({});
   const [selected, setSelected] = useState(null); const [error, setError] = useState(''); const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -67,7 +70,7 @@ export default function InboxWorkspace({ session }) {
       if (current !== generation.current) return;
       const latestInbound = result.items.map((row) => row.lastInboundId || '').sort().at(-1);
       if (!cursor) previous.current = latestInbound || previous.current;
-      setRows((old) => cursor ? [...old, ...result.items.filter((item) => !old.some((row) => row._id === item._id))] : quiet && old.length > 20 ? [...result.items, ...old.filter(row => !result.items.some(item => item._id === row._id))] : result.items);
+      setRows((old) => applyReadState(cursor ? [...old, ...result.items.filter((item) => !old.some((row) => row._id === item._id))] : quiet && old.length > 20 ? [...result.items, ...old.filter(row => !result.items.some(item => item._id === row._id))] : result.items));
       if (!quiet || !expanded.current) setNext(result.next); loaded.current = true; setError('');
       if (!cursor && window.matchMedia('(min-width: 901px)').matches) {
         setSelected((current) => current || result.items[0]?._id || null);
@@ -116,7 +119,7 @@ export default function InboxWorkspace({ session }) {
           {next && (loading ? <RowsSkeleton count={2} /> : <button className={s.loadMore} onClick={() => load(next)}>Load more</button>)}
         </div>
       </section>
-      {selected ? <Conversation key={selected} id={selected} targetNote={targetNote} session={session} onBack={() => setSelected(null)} onDeleted={deletedId=>{generation.current++;setRows(old=>old.filter(row=>row._id!==deletedId));setSelected(null);setTargetNote(null);}} onUpdate={refresh} /> : loading ? <ChatSkeleton /> : <div className={s.conversationWorkspace}><section className={s.welcome}><div className={s.welcomeIcon}><FiMessageCircle /></div><h2>Select a conversation</h2>{!session.provider.configured && <button className={s.secondary} onClick={() => setView('settings')}>Connect WhatsApp <FiArrowUpRight /></button>}</section><aside className={`${s.customerPanel} ${s.emptyCustomer}`} aria-label="Customer details"><header>Contact details</header><div className={s.empty}><FiUser /><p>Select a conversation to view customer information.</p></div></aside></div>}
+      {selected ? <Conversation key={selected} id={selected} targetNote={targetNote} session={session} onBack={() => setSelected(null)} onDeleted={deletedId=>{generation.current++;setRows(old=>old.filter(row=>row._id!==deletedId));setSelected(null);setTargetNote(null);}} onRead={markRead} onUpdate={refresh} /> : loading ? <ChatSkeleton /> : <div className={s.conversationWorkspace}><section className={s.welcome}><div className={s.welcomeIcon}><FiMessageCircle /></div><h2>Select a conversation</h2>{!session.provider.configured && <button className={s.secondary} onClick={() => setView('settings')}>Connect WhatsApp <FiArrowUpRight /></button>}</section><aside className={`${s.customerPanel} ${s.emptyCustomer}`} aria-label="Customer details"><header>Contact details</header><div className={s.empty}><FiUser /><p>Select a conversation to view customer information.</p></div></aside></div>}
     </>}
     <NotificationPermissionPrompt actorId={session.actor.id} onSettings={()=>{setPushVersion(v=>v+1);navigate('settings')}}/><nav className={s.mobileBottom} aria-label="Mobile Inbox navigation">{[['inbox','Inbox',FiMessageCircle],['follow_up','Follow up',FiClock],['notifications','Alerts',FiBell],['settings','Settings',FiSettings]].map(([key,label,Icon]) => <button key={key} aria-current={view === key || key === 'inbox' && ['mine','unread','unassigned','resolved'].includes(view) ? 'page' : undefined} onClick={() => navigate(key)}><span><Icon />{key === 'notifications' && notifications.unread > 0 && <b className={s.notificationBadge}>{notifications.unread > 99 ? '99+' : notifications.unread}</b>}</span>{label}</button>)}</nav>
     {mobileFilters && <MobileFilters session={session} view={view} agent={agent} status={status} filters={filters} onClose={() => setMobileFilters(false)} onApply={(values) => { setView(values.view); setSelected(null); setAgent(values.agent); setStatus(values.status); setFilters(values.filters); setMobileFilters(false); }} />}

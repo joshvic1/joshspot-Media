@@ -28,7 +28,7 @@ function noteText(message, staff) {
   parts.push(text.slice(start)); return parts;
 }
 
-export default function Conversation({ id, targetNote, session, onBack, onUpdate, onDeleted }) {
+export default function Conversation({ id, targetNote, session, onBack, onUpdate, onDeleted, onRead }) {
   const [away,setAway]=useState(false),[typingNow,setTypingNow]=useState(Date.now());
   useEffect(()=>{const timer=setInterval(()=>setTypingNow(Date.now()),1000);return()=>clearInterval(timer);},[]);
   const skipUnread=useRef(false);
@@ -112,7 +112,7 @@ export default function Conversation({ id, targetNote, session, onBack, onUpdate
       // Mention/quote jumps and later arrivals still require reaching the latest page.
       const openedNormally = initial && !targetNote;
       if (inbound && (openedNormally || (!newerPage.current && nearBottom.current)) && !document.hidden && lastRead.current !== inbound) {
-        await inboxApi(`/conversations/${id}/read`, { method: 'POST', body: { messageId: inbound } }); lastRead.current = inbound; onUpdate();
+        await inboxApi(`/conversations/${id}/read`, { method: 'POST', body: { messageId: inbound } }); lastRead.current = inbound; onRead?.(id,inbound); onUpdate();
       }
     } catch (err) { if (alive.current && version === epoch.current) setError(err.message); throw err; }
     finally { if (inFlight.current === version) inFlight.current = null; if (alive.current && version === epoch.current) setLoading(false); }

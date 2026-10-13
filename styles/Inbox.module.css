@@ -204,3 +204,10 @@ button.quotedReply:hover{background:#e4ecf8}button.quotedReply:focus-visible{out
 .settingsBody{padding:0 clamp(12px,3vw,24px) 20px;box-sizing:border-box;min-width:0}.settingsBody>*{box-sizing:border-box;max-width:100%;min-width:0}.settingsBody .notificationSettings{width:100%;max-width:none}.settingsBody .connectionCard{margin-left:0;margin-right:0}
 
 .chatLiveBar{position:relative;height:0;z-index:8;flex-shrink:0}.jumpLatest{position:absolute;right:16px;bottom:12px;display:grid;place-items:center;width:36px;height:36px;border:1px solid #dce5ef;border-radius:50%;background:white;color:#315b9b;box-shadow:0 3px 12px #243b6020;cursor:pointer}.typingToast{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;flex-direction:column;gap:4px;pointer-events:none;max-width:75%;white-space:nowrap}.typingToast span{padding:7px 12px;border:1px solid #dce5ef;border-radius:16px;background:#f7faff;color:#47617f;font-size:11px;box-shadow:0 3px 12px #243b6014}.typingToast i{display:inline-block;letter-spacing:2px;animation:typingPulse 1s ease-in-out infinite}@keyframes typingPulse{50%{opacity:.35}}@media(prefers-reduced-motion:reduce){.typingToast i{animation:none}}
+
+.crmRecordDetails { display: grid; gap: 0; margin: 0; }
+.crmRecordDetails > div { padding: 12px 0; border-bottom: 1px solid #e8edf5; min-width: 0; }
+.crmRecordDetails > div:last-child { border-bottom: 0; }
+.crmRecordDetails dt { font-size: 12px; color: #73839b; margin-bottom: 5px; }
+.crmRecordDetails dd { margin: 0; font-size: 14px; color: #233854; white-space: pre-wrap; overflow-wrap: anywhere; }
+.crmRecordDetails a { color: #2856a3; text-decoration: underline; }
