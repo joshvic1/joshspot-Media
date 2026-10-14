@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/router";
-import { FiMenu, FiX, FiGrid, FiCalendar, FiUsers, FiBarChart2, FiBookOpen, FiClipboard, FiLogOut, FiArrowUpRight } from "react-icons/fi";
+import { FiMenu, FiX, FiGrid, FiCalendar, FiUsers, FiBarChart2, FiBookOpen, FiClipboard, FiLogOut, FiArrowUpRight, FiMessageSquare, FiCreditCard, FiChevronDown } from "react-icons/fi";
 import styles from "../../styles/AdminShell.module.css";
 import RecordDeletion from "./RecordDeletion";
 
@@ -70,7 +70,7 @@ export default function AdminLayout({ active, children }) {
       ['Payments',['courses','invoices']],
       ['Customers & planning',['bookings','schedule','leads']],
       ['Reports',['sources','performance']]
-    ].map(([title,keys])=><details className={styles.navGroup} key={title} open={keys.includes(active)||undefined}><summary>{title}</summary>{keys.map(key=>{const [,label,Icon]=adminPages.find(p=>p[0]===key);return <Link key={key} href={`${adminHref(key)}${demo?'?preview=demo':''}`} aria-current={active===key?'page':undefined} className={active===key?styles.active:''} onClick={()=>setOpen(false)}><Icon/>{label}</Link>})}{title==='Inbox & AI'&&<Link href="/crm-inbox" onClick={()=>setOpen(false)}><FiUsers/>Joshspot Inbox</Link>}{title==='Customers & planning'&&<Link href="/crm-dashboard" onClick={()=>setOpen(false)}><FiUsers/>CRM dashboard</Link>}</details>)}</nav>
+    ].map(([title,keys])=><details className={`${styles.navGroup} ${keys.includes(active)?styles.currentGroup:''}`} key={title} open={keys.includes(active)||undefined}><summary><span className={styles.groupIcon}>{title==='Inbox & AI'?<FiMessageSquare/>:title==='Staff'?<FiUsers/>:title==='Payments'?<FiCreditCard/>:title==='Reports'?<FiBarChart2/>:<FiCalendar/>}</span><span>{title}</span><FiChevronDown className={styles.groupChevron}/></summary>{keys.map(key=>{const [,label,Icon]=adminPages.find(p=>p[0]===key);return <Link key={key} href={`${adminHref(key)}${demo?'?preview=demo':''}`} aria-current={active===key?'page':undefined} className={active===key?styles.active:''} onClick={()=>setOpen(false)}><Icon/>{label}</Link>})}{title==='Inbox & AI'&&<Link href="/crm-inbox" onClick={()=>setOpen(false)}><FiUsers/>Joshspot Inbox</Link>}{title==='Customers & planning'&&<Link href="/crm-dashboard" onClick={()=>setOpen(false)}><FiUsers/>CRM dashboard</Link>}</details>)}</nav>
     <div className={styles.sidebarBottom}>
       <a href="https://mytiklink.com/admin/users" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> Visit Mytiklink</a>
       <a href="/course" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> View course page</a>

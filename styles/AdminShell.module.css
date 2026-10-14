@@ -50,3 +50,15 @@
 @media(max-width:900px) { .immersive .inboxContent { padding:0; } }
 
 .navGroup{margin:4px 0}.navGroup>summary{cursor:pointer;padding:12px 10px;border-radius:10px;color:#d0d8e8;font-size:13px;font-weight:600}.navGroup>summary:hover{background:#ffffff0c}.navGroup>a{margin-left:10px;font-size:12px!important}.navGroup[open]>summary{color:#fff}
+
+/* Grouped workspace navigation */
+.desktopSidebar,.mobileSidebar{padding:26px 16px 18px;background:linear-gradient(180deg,#111d32,#10192b)}
+.brand{padding:0 7px;margin-bottom:32px}.navLabel{padding-left:12px;font-size:9px;letter-spacing:2px}
+.shell nav{gap:8px}.navGroup{margin:0;border:1px solid transparent;border-radius:14px;overflow:hidden}
+.navGroup>summary{display:flex;align-items:center;gap:10px;list-style:none;padding:11px 10px;font-size:12px;font-weight:600;color:#bdc9dc;transition:background .18s,color .18s}
+.navGroup>summary::-webkit-details-marker{display:none}.groupIcon{display:grid;place-items:center;width:30px;height:30px;flex-shrink:0;border:1px solid #ffffff12;background:#ffffff06;border-radius:9px}
+.shell nav .groupIcon svg{font-size:16px}.shell nav .groupChevron{margin-left:auto;font-size:14px;transition:transform .2s;color:#73849d}.navGroup[open] .groupChevron{transform:rotate(180deg)}
+.navGroup[open]{background:#ffffff04;border-color:#ffffff0c;padding-bottom:8px}.navGroup[open]>summary{color:#f0f5ff}.currentGroup>summary .groupIcon{color:#c7f17c;background:#c7f17c12;border-color:#c7f17c25}
+.shell nav .navGroup>a{margin:3px 8px 3px 15px;border-radius:8px;padding:11px 10px;gap:10px;font-size:11px!important;line-height:1.4;transition:background .18s,color .18s}.shell nav .navGroup>a svg{font-size:15px}.shell nav .navGroup>a.active{background:#c7f17c;color:#182c24;box-shadow:0 3px 10px #00000012}
+.sidebarBottom{padding-top:28px}.sidebarBottom>a,.sidebarBottom>button{font-size:11px;padding:10px 12px}.profile{margin-top:12px;padding-top:17px}.content{min-width:0}.workspace{min-width:0}
+@media(prefers-reduced-motion:reduce){.navGroup>summary,.shell nav .groupChevron,.shell nav .navGroup>a{transition:none}}
