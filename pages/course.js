@@ -416,7 +416,11 @@ export default function CoursePage({ variant = "ads" }) {
   };
 
   return (
-    <>
+    <CourseExitHelp active={!previewPaid && accessInvoice?.status !== "paid"} drawerOpen={drawerOpen || previewPaid} whatsappCourse={isWhatsApp} onClose={() => {
+      setDrawerOpen(false);
+      if (previewPaid) router.replace(isWhatsApp ? "/whatsapp" : "/course", undefined, { shallow: true });
+    }}>
+    {requestClose => <>
       <Head>
         <title>
           {isWhatsApp
@@ -625,12 +629,7 @@ export default function CoursePage({ variant = "ads" }) {
           <section
             className={`${styles.drawer} ${isWhatsApp ? modern.drawerPanel : ""}`}
           >
-            <CourseExitHelp active={!previewPaid && accessInvoice?.status !== "paid"} whatsappCourse={isWhatsApp} onClose={() => {
-              setDrawerOpen(false);
-              if (previewPaid) router.replace(isWhatsApp ? "/whatsapp" : "/course", undefined, { shallow: true });
-            }}>
-              {requestClose => <button className={styles.closeDrawer} onClick={requestClose} type="button" aria-label="Close checkout"><FiX aria-hidden="true" /></button>}
-            </CourseExitHelp>
+            <button className={styles.closeDrawer} onClick={requestClose} type="button" aria-label="Close checkout"><FiX aria-hidden="true" /></button>
 
             <div
               className={`${styles.drawerHeader} ${isWhatsApp ? modern.drawerHeading : ""}`}
@@ -782,7 +781,8 @@ export default function CoursePage({ variant = "ads" }) {
           </section>
         </aside>
       )}
-    </>
+    </>}
+    </CourseExitHelp>
   );
 }
 
