@@ -1,4 +1,5 @@
 import Head from "next/head";
+import CourseExitHelp from "../components/CourseExitHelp";
 import StatusAdPreview from "../components/StatusAdPreview";
 import { captureCourseAttribution } from "../utils/courseAttribution";
 import { trackCourse, trackCoursePurchase } from "../utils/coursePixel";
@@ -624,22 +625,12 @@ export default function CoursePage({ variant = "ads" }) {
           <section
             className={`${styles.drawer} ${isWhatsApp ? modern.drawerPanel : ""}`}
           >
-            <button
-              className={styles.closeDrawer}
-              onClick={() => {
-                setDrawerOpen(false);
-                if (previewPaid)
-                  router.replace(
-                    isWhatsApp ? "/whatsapp" : "/course",
-                    undefined,
-                    { shallow: true },
-                  );
-              }}
-              type="button"
-              aria-label="Close checkout"
-            >
-              <FiX aria-hidden="true" />
-            </button>
+            <CourseExitHelp active={!previewPaid && accessInvoice?.status !== "paid"} whatsappCourse={isWhatsApp} onClose={() => {
+              setDrawerOpen(false);
+              if (previewPaid) router.replace(isWhatsApp ? "/whatsapp" : "/course", undefined, { shallow: true });
+            }}>
+              {requestClose => <button className={styles.closeDrawer} onClick={requestClose} type="button" aria-label="Close checkout"><FiX aria-hidden="true" /></button>}
+            </CourseExitHelp>
 
             <div
               className={`${styles.drawerHeader} ${isWhatsApp ? modern.drawerHeading : ""}`}
