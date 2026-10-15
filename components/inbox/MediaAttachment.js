@@ -12,6 +12,8 @@ export default function MediaAttachment({ conversationId, message }) {
   const [preview, setPreview] = useState(false);
   const [mediaReady, setMediaReady] = useState(false);
   const [playing, setPlaying] = useState(false); const [position, setPosition] = useState(0); const [duration, setDuration] = useState(0);
+  const watchdog = useRef(null);
+  useEffect(()=>()=>clearTimeout(watchdog.current),[]);
   const root = useRef(null); const audio = useRef(null); const pending = useRef(false); const compatible = useRef(false);
   useEffect(() => { if (audio.current) audio.current.playbackRate = speed; }, [speed, url]);
   const base = `/conversations/${conversationId}/messages/${message._id}`;
@@ -19,7 +21,7 @@ export default function MediaAttachment({ conversationId, message }) {
     if (pending.current) return;
     pending.current = true; setBusy(true); setError(''); setMediaReady(false);
     try {
-      if (message.type === 'audio' && (compatible.current || !audio.current?.canPlayType('audio/ogg; codecs="opus"'))) {
+      if (message.type === 'audio' && (compatible.current || /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1) || !audio.current?.canPlayType('audio/ogg; codecs="opus"'))) {
         compatible.current = true;
         setUrl(URL.createObjectURL(await inboxApi(`${base}/media?playback=mp3`, {blob:true})));
         return;
@@ -39,8 +41,13 @@ export default function MediaAttachment({ conversationId, message }) {
   };
   const toggle = async () => {
     if (!url) { await load(); return; }
-    try { if (audio.current.paused) await audio.current.play(); else audio.current.pause(); }
-    catch { setError('Cannot play this audio. Please retry.'); }
+    try { if (audio.current.paused) {
+      const start=audio.current.currentTime;
+      clearTimeout(watchdog.current);
+      watchdog.current=setTimeout(()=>{if(audio.current&&audio.current.currentTime===start){audio.current.pause();if(!compatible.current){compatible.current=true;load();}else setError('Audio did not start. Tap Retry to reload it.');}},10000);
+      await audio.current.play();
+    } else {clearTimeout(watchdog.current);audio.current.pause();} }
+    catch { clearTimeout(watchdog.current);if(!compatible.current){compatible.current=true;await load();}else setError('Cannot play this audio. Please retry.'); }
   };
   // Safari may wait for a user gesture before firing canplay.
   const audioLoading = !error && (busy || !url);
@@ -49,7 +56,7 @@ export default function MediaAttachment({ conversationId, message }) {
     {message.type === 'audio' ? <div className={s.voicePlayer}>
       <button aria-label={audioLoading ? 'Loading audio' : playing ? 'Pause audio' : 'Play audio'} aria-busy={audioLoading} onClick={toggle} disabled={audioLoading || Boolean(error)} className={s.voicePlay}>{audioLoading ? <span className={`${s.mediaSpinner} ${s.audioSpinner}`} aria-hidden="true" /> : playing ? <FiPause /> : <FiPlay />}</button>
       <div className={s.voiceTrack}><input aria-label="Audio progress" type="range" min="0" max={Number.isFinite(duration) && duration > 0 ? duration : 1} step="0.1" value={position} disabled={!duration} onChange={event => { audio.current.currentTime = Number(event.target.value); setPosition(Number(event.target.value)); }} /><small>{`${time(position)} / ${time(duration)}`}</small></div>
-      <audio ref={audio} src={url || undefined} preload="auto" onLoadStart={() => setMediaReady(false)} onCanPlay={() => setMediaReady(true)} onWaiting={() => setMediaReady(false)} onPlaying={() => setMediaReady(true)} onLoadedMetadata={event => { setDuration(event.currentTarget.duration); event.currentTarget.playbackRate = speed; }} onTimeUpdate={event => setPosition(event.currentTarget.currentTime)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} onError={failed} />
+      <audio playsInline ref={audio} src={url || undefined} preload="auto" onLoadStart={() => setMediaReady(false)} onCanPlay={() => setMediaReady(true)} onWaiting={() => setMediaReady(false)} onPlaying={() => setMediaReady(true)} onLoadedMetadata={event => { setDuration(event.currentTarget.duration); event.currentTarget.playbackRate = speed; }} onTimeUpdate={event => { if(event.currentTarget.currentTime>0)clearTimeout(watchdog.current);setPosition(event.currentTarget.currentTime); }} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} onError={failed} />
       <button type="button" className={s.voiceSpeed} aria-label={`Playback speed ${speed}x. Change speed`} title="Change playback speed" onClick={() => setSpeed(current => playbackSpeeds[(playbackSpeeds.indexOf(current) + 1) % playbackSpeeds.length])}>{speed}×</button>
     </div> : ['video', 'image', 'sticker'].includes(message.type) ? <div className={s.mediaStage} aria-busy={!error && (busy || !url || !mediaReady)}>
       {url && (message.type === 'video' ? <video controls playsInline preload="auto" src={url} onLoadedData={() => setMediaReady(true)} onCanPlay={() => setMediaReady(true)} onWaiting={() => setMediaReady(false)} onPlaying={() => setMediaReady(true)} onError={failed} /> : <button className={s.imagePreviewButton} onClick={() => setPreview(true)} aria-label="View full image"><Image src={url} width={320} height={240} unoptimized alt={message.media?.name || 'Chat image'} onLoad={() => setMediaReady(true)} onError={failed} /></button>)}

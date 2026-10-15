@@ -8,19 +8,20 @@ export default function VoiceRecorder({ conversationId, replyTo, onClose, onSent
  const recorder=useRef(null),stream=useRef(null),blob=useRef(null),preview=useRef(''),alive=useRef(true),timer=useRef(null),ticket=useRef(null),clientId=useRef(null);
  const release=()=>{clearInterval(timer.current);stream.current?.getTracks().forEach(t=>t.stop());stream.current=null;};
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;if(recorder.current?.state==='recording')recorder.current.stop();release();if(preview.current)URL.revokeObjectURL(preview.current);};},[]);
- const stop=()=>{if(recorder.current?.state==='recording')recorder.current.stop();release();};
+ const stop=()=>{if(recorder.current?.state==='recording')recorder.current.stop();clearInterval(timer.current);};
  const start=async()=>{
   setError('');setStage('permission');
   try{
    if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder)throw new Error('Recording is not supported here. Use a current browser over HTTPS.');
    const mic=await navigator.mediaDevices.getUserMedia({audio:true});
    if(!alive.current){mic.getTracks().forEach(t=>t.stop());return;}stream.current=mic;
-   const mime=['audio/webm;codecs=opus','audio/mp4','audio/ogg;codecs=opus'].find(t=>MediaRecorder.isTypeSupported(t));
+   const apple=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+   const mime=(apple?['audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm;codecs=opus']:['audio/webm;codecs=opus','audio/mp4','audio/ogg;codecs=opus']).find(t=>MediaRecorder.isTypeSupported(t));
    const r=new MediaRecorder(mic,mime?{mimeType:mime,audioBitsPerSecond:64000}:undefined);recorder.current=r;const chunks=[];let bytes=0;
    r.ondataavailable=e=>{if(e.data.size){chunks.push(e.data);bytes+=e.data.size;if(bytes>=4*1024*1024)stop();}};
    r.onerror=()=>{stop();if(alive.current){setError('Recording failed. Please try again.');setStage('ready');}};
    r.onstop=()=>{release();if(!alive.current)return;blob.current=new Blob(chunks,{type:r.mimeType});if(!blob.current.size){setError('No audio captured. Please try again.');setStage('ready');return;}if(preview.current)URL.revokeObjectURL(preview.current);preview.current=URL.createObjectURL(blob.current);setUrl(preview.current);ticket.current=null;clientId.current=crypto.randomUUID();setStage('preview');};
-   setSeconds(0);r.start(250);setStage('recording');const began=Date.now();timer.current=setInterval(()=>{const elapsed=Math.floor((Date.now()-began)/1000);setSeconds(elapsed);if(elapsed>=180)stop();},250);
+   setSeconds(0);r.start();setStage('recording');const began=Date.now();timer.current=setInterval(()=>{const elapsed=Math.floor((Date.now()-began)/1000);setSeconds(elapsed);if(elapsed>=180)stop();},250);
   }catch(e){release();if(alive.current){setStage('ready');setError(e.name==='NotAllowedError'?'Allow microphone access in your browser to record a voice note.':e.message||'Could not access the microphone.');}}
  };
  const send=async()=>{
