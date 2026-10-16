@@ -2,8 +2,8 @@ import {useEffect,useState} from 'react';
 import {FiChevronDown} from 'react-icons/fi';
 import {inboxApi} from './api';
 import s from '../../styles/Inbox.module.css';
-const defaults={assignments:true,messages:true,mentions:true,followups:true,previews:true};
-const options=[['previews','Show names and message previews','On by default. Customer details may appear on your lock screen.'],['assignments','Assigned to me','When a conversation is assigned to you.'],['messages','New messages','All new customer messages in chats you can access.'],['mentions','Staff mentions','When someone tags you in an internal note.'],['followups','Follow-up reminders','When a follow-up assigned to you is due.']];
+const defaults={assignments:false,messages:false,mentions:true,followups:false,previews:true};
+const options=[['previews','Show contact names','Show the chat name in mention notifications on your lock screen.'],['mentions','Staff mentions','Notify me only when someone tags me in an internal note.']];
 const supported=()=>typeof window!=='undefined'&&window.isSecureContext&&'Notification' in window&&'serviceWorker' in navigator&&'PushManager' in window;
 export async function disableInboxPush(){
  if(!supported())return;
@@ -38,7 +38,7 @@ export default function NotificationSettings({actorId}){
  return <div className={s.notificationSettings}>
  <div className={s.notificationHeading}><button type="button" aria-expanded={expanded} onClick={()=>setExpanded(!expanded)}><strong>Notifications</strong><FiChevronDown style={{transform:expanded?'rotate(180deg)':undefined}}/></button><input type="checkbox" role="switch" aria-label="Device notifications" checked={Boolean(subscription&&permission==='granted')} disabled={busy||!available||permission==='denied'||!config?.configured} onChange={()=>subscription&&permission==='granted'?turnOff():enable()}/></div>
  {error&&<p role="alert" className={s.error}>{error}</p>}
- {expanded&&<div><p>Alert types are on by default for new devices. Enable notifications on this device to receive them.</p>
+ {expanded&&<div><p>Only tags in internal notes send notifications. Assignments, new messages and follow-up reminders do not send alerts.</p>
  {!available?<p>On iPhone or iPad, add this site to your Home Screen and open it there to enable notifications.</p>:permission==='denied'?<p>Notifications are blocked. Allow them in your browser or device settings.</p>:!config?.configured&&!busy?<p>Device notifications are not configured yet. Contact your administrator.</p>:null}
  <div>{options.map(([key,label,description])=><label key={key} className={s.notificationOption}><span><strong>{label}</strong><small>{description}</small></span><input type="checkbox" role="switch" aria-label={label} checked={preferences[key]} disabled={busy||!available||permission==='denied'||!config?.configured} onChange={()=>toggle(key)}/></label>)}</div>
  <p>Preferences apply to this browser and account. Alerts in the inbox remain available when device notifications are off.</p></div>}</div>;
@@ -60,5 +60,5 @@ export function NotificationPermissionPrompt({actorId,onSettings}){
   await inboxApi('/push/subscription',{method:'PUT',body:{subscription:subscription.toJSON(),preferences:defaults}});setShow(false);onSettings();
  }catch(e){setError(e.message)}finally{setBusy(false)}};
  if(!show)return null;
- return <div className={s.pushPrompt} role="dialog" aria-label="Enable inbox notifications"><strong>Stay on top of your chats</strong><p>Allow Joshspot Inbox to notify you about new messages, assignments, mentions and follow-ups on this device.</p>{error&&<p role="alert">{error}</p>}<div><button disabled={busy} onClick={enable}>{busy?'Enabling…':'Enable notifications'}</button><button disabled={busy} onClick={()=>{sessionStorage.setItem(`inbox-push-later:${actorId}`,'1');setShow(false)}}>Not now</button></div></div>;
+ return <div className={s.pushPrompt} role="dialog" aria-label="Enable inbox notifications"><strong>Stay on top of your chats</strong><p>Allow Joshspot Inbox to notify you when someone tags you in an internal note on this device.</p>{error&&<p role="alert">{error}</p>}<div><button disabled={busy} onClick={enable}>{busy?'Enabling…':'Enable notifications'}</button><button disabled={busy} onClick={()=>{sessionStorage.setItem(`inbox-push-later:${actorId}`,'1');setShow(false)}}>Not now</button></div></div>;
 }
