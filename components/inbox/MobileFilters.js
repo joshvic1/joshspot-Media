@@ -5,7 +5,7 @@ import s from '../../styles/Inbox.module.css';
 const folders = [['inbox','All',FiInbox],['mine','Mine',FiUser],['unassigned','Unassigned',FiUsers],['unread','Unread',FiMail],['follow_up','Follow up',FiClock],['resolved','Resolved',FiCheckCircle]];
 export default function MobileFilters({ session, view, agent, status, filters, onApply, onClose }) {
   const id = useId();
-  const ownOnly = !session.actor.admin && session.actor.role === 'CSS';
+  const ownOnly = !session.actor.admin;
   const [draft, setDraft] = useState({ view: ownOnly && ['inbox','contacts','unassigned'].includes(view) ? 'mine' : view === 'contacts' ? 'inbox' : view, agent: ownOnly ? session.actor.id : agent, status, filters: { ...filters } });
   const field = (key, value) => setDraft((old) => ({ ...old, filters: { ...old.filters, [key]: value } }));
   return <Modal title="Filter conversations" onClose={onClose} footer={<><button type="button" className={s.secondary} onClick={() => setDraft({ view: ownOnly ? 'mine' : 'inbox', agent: ownOnly ? session.actor.id : '', status: '', filters: {} })}>Reset</button><button type="submit" form={id} className={s.primary}>Apply filters</button></>}>

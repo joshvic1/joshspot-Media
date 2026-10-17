@@ -3,7 +3,7 @@ import { inboxApi } from './api';
 import s from '../../styles/Inbox.module.css';
 export default function AIControls({conversation,session,onUpdate,onError,detailsOnly=false}){
  const [busy,setBusy]=useState(false),[editing,setEditing]=useState(false),[text,setText]=useState(''),[correction,setCorrection]=useState({});
- const ai=conversation.ai || {};const draft=ai.draft;const canControl=session.actor.admin || !conversation.assignedTo || conversation.assignedTo===session.actor.id;
+ const ai=conversation.ai || {};const draft=ai.draft;const canControl=session.actor.admin || (!conversation.noteOnly && conversation.assignedTo===session.actor.id);
  useEffect(()=>setCorrection({}),[conversation._id]);
  useEffect(()=>{setText(draft?.response||'');setEditing(false);},[draft?.inputId,draft?.response]);
  async function action(path,body,method='POST'){setBusy(true);try{await inboxApi(`/ai/conversations/${conversation._id}/${path}`,{method,body});await onUpdate();if(path==='state')setCorrection({});}catch(e){onError(e.message);}finally{setBusy(false);}}

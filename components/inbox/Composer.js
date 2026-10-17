@@ -12,7 +12,7 @@ import s from '../../styles/Inbox.module.css';
 export default function Composer({ conversation, session, canReply, windowOpen, onSent, replyTo, onCancelReply }) {
   const [recording,setRecording]=useState(false);
   useEffect(() => { setRecording(false); }, [conversation._id]);
-  const [replyText, setReplyText] = useState(''); const [noteText, setNoteText] = useState(''); const [note, setNote] = useState(false); const [attachment, setAttachment] = useState(null);
+  const [replyText, setReplyText] = useState(''); const [noteText, setNoteText] = useState(''); const [noteChoice, setNote] = useState(false); const noteOnly = conversation.noteOnly === true; const note = noteOnly || noteChoice; const [attachment, setAttachment] = useState(null);
   const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [templates, setTemplates] = useState(false);
   const toolMenu = useRef(null); const [emojiOpen, setEmojiOpen] = useState(false);
   const closeTools = () => { if (toolMenu.current) toolMenu.current.open = false; setEmojiOpen(false); };
@@ -42,7 +42,7 @@ export default function Composer({ conversation, session, canReply, windowOpen, 
   useEffect(() => { if (replyTo) { setNote(false); input.current?.focus(); } }, [replyTo]);
   const hasContent = Boolean(text.trim() || (!note && attachment));
   const connected = session.provider.configured;
-  const disabled = !canReply || (!note && (!connected || !windowOpen));
+  const disabled = !(canReply || noteOnly) || (!note && (!connected || !windowOpen));
   const send = async () => {
     if (busy || disabled || !hasContent) return;
     stopPresence(); setBusy(true); setError('');
@@ -64,7 +64,7 @@ export default function Composer({ conversation, session, canReply, windowOpen, 
     } catch (err) { setError(err.message || 'Could not read this file.'); } finally { setBusy(false); }
   };
   return <div className={s.composerArea} style={{ position: 'relative' }}>
-    {!canReply ? <div className={s.windowNotice}>Assign this conversation to yourself before replying.</div> : !connected && <div className={s.windowNotice}>WhatsApp is not connected. Internal notes are available.</div>}
+    {noteOnly ? <div className={s.windowNotice}>You were tagged to help. Only internal notes are available.</div> : !canReply ? <div className={s.windowNotice}>Assign this conversation to yourself before replying.</div> : !connected && <div className={s.windowNotice}>WhatsApp is not connected. Internal notes are available.</div>}
     {error && <div className={s.error} role="alert">{error}</div>}
     {!note && slash && !disabled && <div className={a.quick} role="listbox" aria-label="Quick replies">{quickMatches.length ? quickMatches.map((item, index) => <button type="button" role="option" aria-selected={index === quickIndex} key={item._id} onMouseDown={e => e.preventDefault()} onClick={() => insertQuick(item)}><b>/{item.keyword}</b><span>{item.response}</span></button>) : <p>No matching quick replies.</p>}</div>}
     <div className={`${s.composer} ${note ? s.noteComposer : ''}`}>
@@ -85,7 +85,7 @@ export default function Composer({ conversation, session, canReply, windowOpen, 
       <div hidden={!note}><NoteEditor ref={noteEditor} value={noteText} staff={session.staff} quickReplies={quick} actorId={session.actor.id} disabled={disabled || busy} onChange={(value, ids) => { setNoteText(value); setMentions(ids); if(value)reportPresence();else stopPresence(); }} onSend={send} /></div>
       {!note && (!windowOpen && connected ? <div className={s.closedWindow}><FiClock /><div><b>Continue with a template</b><p>The 24-hour reply window has ended.</p></div><button disabled={!canReply} className={s.secondary} onClick={() => setTemplates(true)}>Choose template</button></div> : <textarea rows={1} ref={input} aria-label="Message" placeholder="Write a message…" value={replyText} disabled={disabled || busy} maxLength={attachment ? 1024 : 4096} onChange={event => { setReplyText(event.target.value); detectSlash(event.target); if (event.target.value) pauseForTyping(); else stopPresence(); }} onClick={event => detectSlash(event.currentTarget)} onKeyDown={event => { if (slash && !event.nativeEvent.isComposing) { if (event.key === 'Escape') { event.preventDefault(); setSlash(null); return; } if (['ArrowUp', 'ArrowDown'].includes(event.key)) { event.preventDefault(); setQuickIndex(old => (old + (event.key === 'ArrowDown' ? 1 : -1) + Math.max(1, quickMatches.length)) % Math.max(1, quickMatches.length)); return; } if (['Enter', 'Tab'].includes(event.key)) { event.preventDefault(); if (quickMatches[quickIndex]) insertQuick(quickMatches[quickIndex]); return; } } if (event.key === 'Enter' && !window.matchMedia('(max-width: 900px), (pointer: coarse)').matches && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(); } }} />)}
       </div>
-<button className={`${s.send} ${note || !hasContent ? s.noteAction : ''}`} aria-label={hasContent ? note ? 'Send internal note' : 'Send message' : note ? 'Cancel internal note' : 'Write internal note'} aria-busy={busy} disabled={busy || !canReply || (hasContent && disabled)} onClick={() => { if (hasContent) send(); else { setNote(!note); setError(''); } }}>{busy ? <span className={s.sendSpinner} role="status" aria-label="Sending" /> : <>{hasContent ? 'Send' : 'Note'}{hasContent ? <FiSend /> : note ? <FiX /> : <FiFileText />}</>}</button>
+<button className={`${s.send} ${note || !hasContent ? s.noteAction : ''}`} aria-label={hasContent ? note ? 'Send internal note' : 'Send message' : note ? 'Cancel internal note' : 'Write internal note'} aria-busy={busy} disabled={busy || !(canReply || noteOnly) || (hasContent && disabled) || (noteOnly && !hasContent)} onClick={() => { if (hasContent) send(); else { setNote(!note); setError(''); } }}>{busy ? <span className={s.sendSpinner} role="status" aria-label="Sending" /> : <>{hasContent ? 'Send' : 'Note'}{hasContent ? <FiSend /> : note ? <FiX /> : <FiFileText />}</>}</button>
       </div>
       <input type="file" ref={file} hidden accept="image/png,image/jpeg,application/pdf,video/mp4,audio/mpeg,audio/ogg" onChange={upload} />
     </div>
