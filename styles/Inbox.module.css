@@ -233,3 +233,5 @@ button.quotedReply:hover{background:#e4ecf8}button.quotedReply:focus-visible{out
  .workspace .emptyCustomer>header{color:#36527a}
  .workspace .emptyCustomer .empty p,.workspace .emptyCustomer .empty svg{color:#526781}
 }
+
+.workspace .staffRow{background:#fff7e1;border-bottom-color:#eddfb8;border-left:3px solid #d8b563}.workspace .staffRow:hover,.workspace .staffRow.selected{background:#faecc6}.workspace .staffRow .avatar{background:#f0d99d;color:#76531d}.workspace .staffRow .rowTitle strong{color:#6b4c1e}.workspace .staffRow .preview{color:#8a7044}.workspace .staffRow .rowMeta small{color:#967133;background:transparent}.workspace .staffRow .unreadCount{background:#a57b2d;color:white}
