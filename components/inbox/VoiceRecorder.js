@@ -3,7 +3,7 @@ import { FiMic, FiSquare, FiTrash2, FiSend } from 'react-icons/fi';
 import Modal from './Modal';
 import { inboxApi } from './api';
 import s from '../../styles/Inbox.module.css';
-export default function VoiceRecorder({ conversationId, replyTo, onClose, onSent }) {
+export default function VoiceRecorder({ conversationId, replyTo, onClose, onSent, onSendRecording }) {
  const [stage,setStage]=useState('ready'),[seconds,setSeconds]=useState(0),[url,setUrl]=useState(''),[error,setError]=useState('');
  const recorder=useRef(null),stream=useRef(null),blob=useRef(null),preview=useRef(''),alive=useRef(true),timer=useRef(null),ticket=useRef(null),clientId=useRef(null);
  const release=()=>{clearInterval(timer.current);stream.current?.getTracks().forEach(t=>t.stop());stream.current=null;};
@@ -27,6 +27,7 @@ export default function VoiceRecorder({ conversationId, replyTo, onClose, onSent
  const send=async()=>{
   setStage('sending');setError('');
   try{
+   if(onSendRecording){await onSendRecording(blob.current,clientId.current);onClose();onSent();return;}
    if(!ticket.current){const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Could not read recording.'));reader.readAsDataURL(blob.current);});ticket.current=await inboxApi(`/conversations/${conversationId}/media`,{method:'POST',body:{data,name:'voice-note',recording:true}});}
    await inboxApi(`/conversations/${conversationId}/messages`,{method:'POST',body:{type:'audio',text:'',ticket:ticket.current.ticket,clientId:clientId.current,...(replyTo?{replyTo:replyTo._id}:{})}});
    onClose();onSent();

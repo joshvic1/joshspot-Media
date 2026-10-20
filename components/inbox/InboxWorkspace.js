@@ -108,7 +108,7 @@ export default function InboxWorkspace({ session }) {
     </aside>
     {listEnabled && <header className={s.desktopLayoutBar} aria-label="Desktop inbox layout">
       <div className={s.desktopBrand}><FiMessageCircle /><div><strong>Inbox</strong><span>Your customer workspace</span></div></div>
-      <div className={s.panelControls}>{[['list','Conversations',FiInbox],['chat','Conversation',FiMessageCircle],['details','Customer details',FiUser]].map(([key,label,Icon])=><div className={s.panelControl} key={key}>
+      <div className={s.panelControls}>{[['list','Conversations',FiInbox],['chat','Conversation',FiMessageCircle],['details',selected?.startsWith('staff:')?'Teammate details':'Customer details',FiUser]].map(([key,label,Icon])=><div className={s.panelControl} key={key}>
         <button type="button" aria-label={`${panels[key]?'Hide':'Show'} ${label} column`} aria-pressed={panels[key]} disabled={panels[key]&&Object.values(panels).filter(Boolean).length===1} onClick={()=>togglePanel(key)}><Icon/><span>{label}</span></button>
         <button type="button" aria-label={`Expand ${label} column`} title={`Focus on ${label.toLowerCase()}`} onClick={()=>focusPanel(key)}><FiMaximize2/></button>
       </div>)}</div>
