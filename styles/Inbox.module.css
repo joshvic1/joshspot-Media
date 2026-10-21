@@ -235,3 +235,37 @@ button.quotedReply:hover{background:#e4ecf8}button.quotedReply:focus-visible{out
 }
 
 .workspace .staffRow{background:#fff7e1;border-bottom-color:#eddfb8;border-left:3px solid #d8b563}.workspace .staffRow:hover,.workspace .staffRow.selected{background:#faecc6}.workspace .staffRow .avatar{background:#f0d99d;color:#76531d}.workspace .staffRow .rowTitle strong{color:#6b4c1e}.workspace .staffRow .preview{color:#8a7044}.workspace .staffRow .rowMeta small{color:#967133;background:transparent}.workspace .staffRow .unreadCount{background:#a57b2d;color:white}
+
+/* Filter controls are shared by desktop dialogs and mobile sheets. */
+@media (min-width:901px) {
+.sheetFilterForm{padding:17px 16px 20px;display:grid;gap:17px}.sheetFilterForm fieldset{border:0;padding:0;margin:0;min-width:0}.sheetFilterForm legend{padding:0;margin-bottom:10px;font-size:12px;font-weight:600;color:#637797}.folderChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.folderChoices>label{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:66px;border:1px solid #e2e9f4;border-radius:14px;background:white;color:#6c81a1;font-size:11px;font-weight:500;cursor:pointer}.folderChoices svg{font-size:18px}.folderChoices input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}.folderChoices>label:focus-within{outline:2px solid #547cbd;outline-offset:2px}.folderChoices>.folderChosen{border-color:#b4cc8c;background:#e7f1d8;color:#3c613a;box-shadow:0 2px 6px #47703508}.sheetFilterForm>label,.advancedFilters label{display:grid;gap:7px;font-size:12px;font-weight:600;color:#5c7193}.sheetFilterForm input:not([type=radio]),.sheetFilterForm select{width:100%;min-width:0;height:44px;border:1px solid #dce5f2;border-radius:12px;background:white;color:#304d76;font-size:16px;padding:10px 12px}.sheetFilterForm input::placeholder{color:#889ab4}.advancedFilters{border-top:1px solid #e3eaf4;padding-top:3px}.advancedFilters>summary{cursor:pointer;padding:14px 2px 0;color:#365d92;font-size:13px;font-weight:600}.advancedFilters>summary span{display:block;font-size:11px;font-weight:400;color:#8395af;margin:5px 0 0 15px}.advancedFilters>div{display:grid;gap:15px;padding-top:16px}
+}
+
+/* Desktop dialogs use a bounded, centered surface with independently scrolling content. */
+.modal { color-scheme:light; background:#fff; }
+@media (min-width:901px) {
+  .modal,.modal.drawer { position:fixed; inset:0; margin:auto; width:min(680px,calc(100vw - 64px)); max-width:none; height:fit-content; max-height:calc(100dvh - 64px); padding:0; border:1px solid #dfe7f2; border-radius:22px; overflow:hidden; color:#263e60; box-shadow:0 24px 90px #10254a40; }
+  .modal[open] { display:flex; flex-direction:column; }
+  .modal>header { flex-shrink:0; position:relative; padding:20px 24px; gap:20px; background:#fff; }
+  .modal>header h2 { font-size:17px; font-weight:700; letter-spacing:-.2px; }
+  .modal>header .iconButton { width:36px; height:36px; border-radius:50%; background:#f0f4fa; color:#526d94; }
+  .modal>header .iconButton:hover { background:#e3ebf7; color:#214ba4; }
+  .sheetBody { display:block; flex:1 1 auto; min-height:0; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; background:#f8faff; }
+  .sheetBody>.form { padding:24px; gap:16px; }
+  .modal .form label { font-size:13px; }
+  .modal input:not([type=radio]):not([type=checkbox]),.modal select,.modal textarea { background:#fff; color:#304d76; }
+  .modal .form input,.modal .form select,.modal .form textarea { font-size:14px; padding:11px 12px; border:1px solid #dce5f2; border-radius:10px; }
+  .sheetFooter { flex-shrink:0; padding:16px 24px; justify-content:flex-end; gap:10px; }
+  .sheetFooter>button { min-height:42px; padding:10px 22px; border-radius:11px; font-size:13px!important; }
+  .sheetFooter>.primary { flex:0 1 auto; min-width:160px; }
+  .sheetFilterForm { padding:24px; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+  .sheetFilterForm>fieldset,.advancedFilters { grid-column:1/-1; }
+  .sheetFilterForm legend,.sheetFilterForm>label,.advancedFilters label { font-size:13px; }
+  .sheetFilterForm input:not([type=radio]),.sheetFilterForm select { font-size:14px; }
+  .folderChoices>label { min-height:76px; font-size:13px; transition:background .15s,border-color .15s; }
+  .folderChoices>label:hover { border-color:#a9bddb; }
+  .folderChoices>label:has(input:disabled) { opacity:.45; cursor:not-allowed; }
+  .folderChoices input:disabled { cursor:not-allowed; }
+  .advancedFilters>div { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .modal .templates { padding:24px; }
+}

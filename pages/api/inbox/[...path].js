@@ -16,6 +16,10 @@ export default async function handler(req, res) {
       const result = await response.json();
       return res.json({ url: `${base}/inbox/events?ticket=${encodeURIComponent(result.ticket)}` });
     }
+    if (path.at(-1) === 'audio-ticket' && response.ok) {
+      const result=await response.json();
+      return res.json({url:`${base}/inbox/audio-playback?ticket=${encodeURIComponent(result.ticket)}`});
+    }
     if (path.at(-1) === 'media-link' && response.ok) {
       const result = await response.json();
       if (result.source === 'meta') result.backendUrl = `${base}/inbox/${path.slice(0, -1).join('/')}/media`;
