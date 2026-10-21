@@ -1,3 +1,4 @@
+import SiteSeo from '../components/SiteSeo';
 import "../styles/globals.css";
 import { Poppins } from "next/font/google";
 import { useEffect } from "react";
@@ -78,7 +79,7 @@ export default function App({ Component, pageProps }) {
   return (
     <main className={poppins.className}>
       {" "}
-      <Component {...pageProps} />{" "}
+      <SiteSeo pageProps={pageProps} /><Component {...pageProps} />{" "}
     </main>
   );
 }

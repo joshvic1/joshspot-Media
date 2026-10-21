@@ -1,4 +1,3 @@
-import Head from "next/head";
 import CourseExitHelp from "../components/CourseExitHelp";
 import StatusAdPreview from "../components/StatusAdPreview";
 import { captureCourseAttribution } from "../utils/courseAttribution";
@@ -421,19 +420,7 @@ export default function CoursePage({ variant = "ads" }) {
       if (previewPaid) router.replace(isWhatsApp ? "/whatsapp" : "/course", undefined, { shallow: true });
     }}>
     {requestClose => <>
-      <Head>
-        <title>
-          {isWhatsApp
-            ? "WhatsApp Status Ads Course | Joshspot Media"
-            : "COURSE | Joshspot Media"}
-        </title>
-        {isWhatsApp && (
-          <meta
-            name="description"
-            content="Learn how to run ads in WhatsApp Status with Joshspot Media. Understand account access, campaign setup, Status creatives, budgets and results. Course price: ₦10,000."
-          />
-        )}
-      </Head>
+
 
       {!isWhatsApp && <div className={styles.offerStrip}>
         <span>Originally <del>₦20,000</del> <strong>Now ₦8,000</strong> <b>Save 60%</b></span>
@@ -647,7 +634,7 @@ export default function CoursePage({ variant = "ads" }) {
                 </p>
               )}
             </div>
-            
+
 
             {previewPaid ? (
               <>

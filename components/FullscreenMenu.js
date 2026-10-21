@@ -3,7 +3,7 @@ import Link from "next/link";
 import { FiX, FiArrowUpRight } from "react-icons/fi";
 import styles from "../styles/Public.module.css";
 
-const links = [["Home", "/"], ["Services", "/#services"], ["Learn", "/#learn"], ["Contact", "/#contact"]];
+const links = [["Home", "/"], ["Services", "/services"], ["Learn", "/#learn"], ["Blog", "/blog"], ["Contact", "/#contact"]];
 
 export default function FullscreenMenu({ close }) {
   const dialog = useRef(null);

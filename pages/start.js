@@ -35,7 +35,7 @@ export default function Start() {
 
             {/* WORK WITH ME */}
             <Link
-              href="https://joshspotmedia.com/#services"
+              href="https://www.joshspotmedia.com/services"
               className={styles.cardLink}
             >
               <div className={styles.cardHighlight}>

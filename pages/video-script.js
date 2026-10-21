@@ -1,4 +1,3 @@
-import Head from "next/head";
 import { useEffect, useState } from "react";
 import {
   FiArrowRight,
@@ -185,9 +184,7 @@ export default function VideoScriptPage() {
 
   return (
     <>
-      <Head>
-        <title>Video Script | Joshspot Media</title>
-      </Head>
+
 
       <main className={styles.page}>
         <section className={styles.hero}>

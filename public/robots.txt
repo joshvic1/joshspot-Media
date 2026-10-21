@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Allow: /api/blog/images/
+
+# Search crawlers, including Googlebot, Bingbot and OAI-SearchBot, are allowed above.
+# Training access is not needed for search visibility.
+User-agent: GPTBot
+Disallow: /
+
+Sitemap: https://www.joshspotmedia.com/sitemap.xml

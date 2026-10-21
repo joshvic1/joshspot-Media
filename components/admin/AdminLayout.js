@@ -7,6 +7,7 @@ import styles from "../../styles/AdminShell.module.css";
 import RecordDeletion from "./RecordDeletion";
 
 export const adminPages = [
+  ["blog", "Blog", FiBookOpen, "Write, shape and publish ideas from Joshspot Media."],
   ["overview", "Overview", FiGrid, "Your business at a glance."],
   ["ai-agent", "AI Agent", FiBookOpen, "Configure your assistant, knowledge, sales flows and human handoff."],
   ["inbox-contacts", "Inbox contacts", FiUsers, "All your WhatsApp contacts, 20 at a time."],
@@ -69,8 +70,9 @@ export default function AdminLayout({ active, children }) {
       ['Staff',['staff','earnings']],
       ['Payments',['courses','invoices']],
       ['Customers & planning',['bookings','schedule','leads']],
-      ['Reports',['sources','performance']]
-    ].map(([title,keys])=><details className={`${styles.navGroup} ${keys.includes(active)?styles.currentGroup:''}`} key={title} open={keys.includes(active)||undefined}><summary><span className={styles.groupIcon}>{title==='Inbox & AI'?<FiMessageSquare/>:title==='Staff'?<FiUsers/>:title==='Payments'?<FiCreditCard/>:title==='Reports'?<FiBarChart2/>:<FiCalendar/>}</span><span>{title}</span><FiChevronDown className={styles.groupChevron}/></summary>{keys.map(key=>{const [,label,Icon]=adminPages.find(p=>p[0]===key);return <Link key={key} href={`${adminHref(key)}${demo?'?preview=demo':''}`} aria-current={active===key?'page':undefined} className={active===key?styles.active:''} onClick={()=>setOpen(false)}><Icon/>{label}</Link>})}{title==='Inbox & AI'&&<Link href="/crm-inbox" onClick={()=>setOpen(false)}><FiUsers/>Joshspot Inbox</Link>}{title==='Customers & planning'&&<Link href="/crm-dashboard" onClick={()=>setOpen(false)}><FiUsers/>CRM dashboard</Link>}</details>)}</nav>
+      ['Reports',['sources','performance']],
+      ['Website',['blog']]
+    ].map(([title,keys])=><details className={`${styles.navGroup} ${keys.includes(active)?styles.currentGroup:''}`} key={title} open={keys.includes(active)||undefined}><summary><span className={styles.groupIcon}>{title==='Inbox & AI'?<FiMessageSquare/>:title==='Staff'?<FiUsers/>:title==='Payments'?<FiCreditCard/>:title==='Website'?<FiBookOpen/>:title==='Reports'?<FiBarChart2/>:<FiCalendar/>}</span><span>{title}</span><FiChevronDown className={styles.groupChevron}/></summary>{keys.map(key=>{const [,label,Icon]=adminPages.find(p=>p[0]===key);return <Link key={key} href={`${adminHref(key)}${demo?'?preview=demo':''}`} aria-current={active===key?'page':undefined} className={active===key?styles.active:''} onClick={()=>setOpen(false)}><Icon/>{label}</Link>})}{title==='Inbox & AI'&&<Link href="/crm-inbox" onClick={()=>setOpen(false)}><FiUsers/>Joshspot Inbox</Link>}{title==='Customers & planning'&&<Link href="/crm-dashboard" onClick={()=>setOpen(false)}><FiUsers/>CRM dashboard</Link>}</details>)}</nav>
     <div className={styles.sidebarBottom}>
       <a href="https://mytiklink.com/admin/users" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> Visit Mytiklink</a>
       <a href="/course" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> View course page</a>

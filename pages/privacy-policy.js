@@ -1,4 +1,3 @@
-import Head from "next/head";
 import PublicLayout from "../components/PublicLayout";
 import styles from "../styles/Privacy.module.css";
 
@@ -14,7 +13,7 @@ const sections = [
 
 export default function PrivacyPolicy() {
   return <PublicLayout>
-    <Head><title>Privacy Policy | Joshspot Media</title><meta name="description" content="How Joshspot Media and Joshspot Inbox handle customer information, WhatsApp conversations and data deletion requests." /><link rel="canonical" href="https://joshspotmedia.com/privacy-policy" /></Head>
+
     <article className={styles.policy}>
       <header className={styles.hero}><span className={styles.eyebrow}>JOSHSPOT MEDIA · TRUST & PRIVACY</span><h1>Privacy policy</h1><p>Your conversations. Your information.<br />Here is how we handle them.</p><span className={styles.date}>Last updated: 3 October 2026</span></header>
       <div className={styles.layout}><nav className={styles.contents} aria-label="Privacy policy sections"><strong>On this page</strong>{sections.map(([id, title]) => <a key={id} href={`#${id}`}>{title}</a>)}<a className={styles.contact} href="mailto:admin@joshspotmedia.com">Contact us ↗</a></nav>

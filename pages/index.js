@@ -1,4 +1,3 @@
-import Head from "next/head";
 import HomeHero from "../components/HomeHero";
 import Link from "next/link";
 import { FiArrowRight, FiBookOpen } from "react-icons/fi";
@@ -8,7 +7,7 @@ import { services } from "../config/services";
 import styles from "../styles/Public.module.css";
 export default function Home() {
 return <PublicLayout hero={<HomeHero />}>
-<Head><title>Joshspot Media | Your next move in business</title><meta name="description" content="Practical marketing support from Joshspot Media. Book consultations, ads account audits, account setup and private training, or learn at your own pace." /></Head>
+
 
 <section id="services" className={styles.section}><div className={styles.sectionHeading}><div><h2>What do you need help with?</h2><p>Explore the details, choose your service, and book right here.</p></div><span className={styles.count}>06 services</span></div><div className={styles.serviceGrid}>{services.filter(s=>!s.resource).map(service=><ServiceCard key={service.id} service={service} />)}</div></section>
 <section className={styles.fullWidthSteps} aria-labelledby="steps-title"><div className={styles.steps}><div><h2 id="steps-title">Ready? Here’s how to book.</h2></div><ol><li><span>01</span><div><strong>Pick what you need</strong><p>See a service you need? Click View details to know what you’re getting.</p></div></li><li><span>02</span><div><strong>Tell us who you are</strong><p>Click Book service, choose your option and fill in your details.</p></div></li><li><span>03</span><div><strong>Make your payment</strong><p>Complete your payment and follow the next steps. Let’s get to work.</p></div></li></ol></div></section>
