@@ -63,7 +63,6 @@ export default function CrmAdsDashboard() {
   const [permissions, setPermissions] = useState({ canCreate: false, fields: [] });
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState("");
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -158,18 +157,10 @@ export default function CrmAdsDashboard() {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const startCreate = () => {
-    setEditingId("");
-    setForm(emptyForm);
-    setIsFormOpen(true);
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
-  };
 
   const startEdit = (client) => {
     setEditingId(client._id);
-    setIsFormOpen(true);
+
     setForm({
       ...emptyForm,
       ...fieldOrder.reduce((values, field) => {
@@ -185,7 +176,7 @@ export default function CrmAdsDashboard() {
   const resetForm = () => {
     setEditingId("");
     setForm(emptyForm);
-    setIsFormOpen(false);
+
   };
 
   const searchClients = (event) => {
@@ -279,7 +270,7 @@ export default function CrmAdsDashboard() {
   };
 
 
-  const canShowForm = isFormOpen || editingId;
+  const canShowForm = Boolean(editingId);
 
   return (
     <CrmLayout active="ads" staff={staff} onLogout={logout}>
@@ -288,12 +279,7 @@ export default function CrmAdsDashboard() {
       <section className={styles.contentGrid}>
         <div className={styles.panel} ref={formRef}>
           <div className={styles.panelHeader}>
-            <h2>{editingId ? "Update Ads Client" : "Add Ads Client"}</h2>
-            {permissions.canCreate && (
-              <button className={styles.secondaryBtn} onClick={startCreate}>
-                + Add client
-              </button>
-            )}
+            <h2>Update Ads Client</h2>
           </div>
 
           {canShowForm ? (
@@ -344,9 +330,7 @@ export default function CrmAdsDashboard() {
             </form>
           ) : (
             <p className={styles.emptyState}>
-              {permissions.canCreate
-                ? "Click + Add client to open the form."
-                : "Setup staff can update existing ads clients only. Select a client below."}
+              Select a client below to edit their details. Add new clients from the CRM inbox.
             </p>
           )}
         </div>

@@ -197,11 +197,11 @@ export default function CrmVerificationDashboard() {
       <section className={styles.contentGrid}>
         <div className={styles.panel} ref={formRef}>
           <div className={styles.panelHeader}>
-            <h2>{editingId ? "Update Verification Client" : "Add Verification Client"}</h2>
+            <h2>Update Verification Client</h2>
             <span>Service: Verification</span>
           </div>
 
-          <form className={styles.form} onSubmit={saveClient}>
+          {editingId ? <form className={styles.form} onSubmit={saveClient}>
             <label>
               <span>Name</span>
               <input
@@ -283,7 +283,7 @@ export default function CrmVerificationDashboard() {
                 Cancel Update
               </button>
             )}
-          </form>
+          </form> : <p className={styles.emptyState}>Select a client below to edit their details. Add new clients from the CRM inbox.</p>}
         </div>
 
         <div className={styles.panel}>

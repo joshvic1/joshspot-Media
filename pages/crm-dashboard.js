@@ -55,7 +55,6 @@ export default function CrmDashboard() {
   const [permissions, setPermissions] = useState({ canCreate: false, fields: [] });
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState("");
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -138,18 +137,10 @@ export default function CrmDashboard() {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const startCreate = () => {
-    setEditingId("");
-    setForm(emptyForm);
-    setIsFormOpen(true);
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
-  };
 
   const startEdit = (client) => {
     setEditingId(client._id);
-    setIsFormOpen(true);
+
     setForm({
       ...emptyForm,
       ...fieldOrder.reduce((values, field) => {
@@ -191,7 +182,7 @@ export default function CrmDashboard() {
         const res = await API.post("/crm/clients", payload);
         setActiveSearch("");
         setSearchInput("");
-        setIsFormOpen(false);
+
         setPendingScrollClientId(res.data._id);
         await fetchClients();
       }
@@ -213,7 +204,7 @@ export default function CrmDashboard() {
   };
 
 
-  const canShowForm = isFormOpen || editingId;
+  const canShowForm = Boolean(editingId);
 
   return (
     <CrmLayout active="setup" staff={staff} onLogout={logout}>
@@ -222,12 +213,7 @@ export default function CrmDashboard() {
       <section className={styles.contentGrid}>
         <div className={styles.panel} ref={formRef}>
           <div className={styles.panelHeader}>
-            <h2>{editingId ? "Update Client" : "Add New Client"}</h2>
-            {permissions.canCreate && (
-              <button className={styles.secondaryBtn} onClick={startCreate}>
-                + Add new client
-              </button>
-            )}
+            <h2>Update Client</h2>
           </div>
 
           {canShowForm ? (
@@ -265,9 +251,7 @@ export default function CrmDashboard() {
             </form>
           ) : (
             <p className={styles.emptyState}>
-              {permissions.canCreate
-                ? "Click + Add new client to open the form."
-                : "Setup staff can update existing clients only. Select a client below."}
+              Select a client below to edit their details. Add new clients from the CRM inbox.
             </p>
           )}
         </div>
