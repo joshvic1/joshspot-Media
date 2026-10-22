@@ -134,7 +134,7 @@ export default function CrmLayout({
       <div className={styles.navLabel}>CLIENT MANAGEMENT</div>
       <nav aria-label="CRM navigation">
         {pages
-          .filter(([key]) => key !== "inbox" || staff?.admin === true || ["ADMIN", "CSS", "SS"].includes(staff?.role))
+          .filter(([key]) => key !== "inbox" || staff?.admin === true || (["ADMIN", "CSS", "SS"].includes(staff?.role) || staff?.permissions?.inboxAccess === true))
           .map(([key, href, title, , Icon]) => (
             <Link
               key={key}

@@ -269,3 +269,17 @@ button.quotedReply:hover{background:#e4ecf8}button.quotedReply:focus-visible{out
   .advancedFilters>div { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .modal .templates { padding:24px; }
 }
+.recordDate { display:flex; align-items:center; gap:5px; font-size:11px; color:#64748b; margin-top:5px; }
+.recordDetailLayout { display:grid; gap:16px; padding:4px 0 12px; }
+.recordDetailHero { display:flex; align-items:center; gap:12px; padding:20px; border:1px solid #dce6f5; border-radius:16px; background:linear-gradient(125deg,#edf3ff,#f8faff); flex-wrap:wrap; }
+.recordDetailIcon { display:grid; place-items:center; width:44px; height:44px; border-radius:13px; background:#fff; color:#3157a2; font-size:22px; }
+.recordDetailHero small { display:block; font-size:12px; color:#63748e; margin-bottom:4px; }
+.recordDetailHero strong { display:block; font-size:24px; color:#213e70; letter-spacing:-.5px; }
+.recordStatus { margin-left:auto; padding:6px 10px; border-radius:20px; background:#fff2d2; color:#865c11; font-size:12px; font-weight:700; text-transform:capitalize; }
+.recordStatus[data-status=paid] { background:#dcf5e8; color:#176445; }
+.recordStatus[data-status=failed],.recordStatus[data-status=expired] { background:#fde9e9; color:#a53a3a; }
+.recordDetailSection { border:1px solid #e3e9f2; border-radius:14px; padding:16px; background:#fff; }
+.recordDetailSection h3 { display:flex; align-items:center; gap:8px; margin:0 0 8px; font-size:13px; color:#29436b; }
+.recordDetailSection .crmRecordDetails { grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:20px; }
+.recordDetailSection .crmRecordDetails dd { font-size:13px; line-height:1.6; }
+@media(max-width:480px) { .recordDetailSection .crmRecordDetails { grid-template-columns:1fr; } .recordDetailHero { padding:16px; } .recordDetailHero strong { font-size:21px; } }

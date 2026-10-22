@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { FiFileText, FiUser, FiCreditCard, FiClock } from 'react-icons/fi';
 import Modal from './Modal';
 import { RowsSkeleton } from './Skeleton';
 import { inboxApi, fullDate } from './api';
@@ -19,7 +20,19 @@ export default function RecordDetails({ conversationId, record, onClose }) {
     inboxApi(`/conversations/${conversationId}/crm/${record.kind}/${record.id}`).then(result => { if (active) setData(result.record); }).catch(err => { if (active) setError(err.message); });
     return () => { active = false; };
   }, [conversationId, record.kind, record.id]);
+  const invoice = record.kind === 'Invoice';
+  const groups = [
+    { title: 'Customer & service', icon: FiUser, keys: ['name','customerName','businessName','clientNumber','customerPhone','customerEmail','servicePaidFor','service','product'] },
+    { title: invoice ? 'Payment references' : 'Record information', icon: FiCreditCard, keys: invoice ? ['_id','reference','paymentProvider','flutterwaveTransactionId','flutterwaveOrderRef'] : ['_id','adsPublished','fundsStatus','landingPageLink','videoLinks'] },
+    { title: 'Timeline', icon: FiClock, keys: ['createdAt','paidAt','expiresAt'] },
+    { title: 'Notes', icon: FiFileText, keys: ['note'] }
+  ];
+  const fieldLabels = { ...labels, _id: invoice ? 'Invoice ID' : 'Record ID', reference: 'Payment reference', paymentProvider: 'Payment provider', flutterwaveTransactionId: 'Transaction ID', flutterwaveOrderRef: 'Order reference' };
+  const has = key => data && data[key] !== undefined && data[key] !== null && data[key] !== '';
   return <Modal title={titles[record.kind] || 'Record details'} onClose={onClose}>
-    {error ? <p className={s.error} role="alert">{error}</p> : !data ? <RowsSkeleton count={3} /> : <dl className={s.crmRecordDetails}>{Object.entries(labels).filter(([key]) => data[key] !== undefined && data[key] !== null && data[key] !== '').map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{display(key, data[key])}</dd></div>)}</dl>}
+    {error ? <p className={s.error} role="alert">{error}</p> : !data ? <RowsSkeleton count={3} /> : <div className={s.recordDetailLayout}>
+      <div className={s.recordDetailHero}><span className={s.recordDetailIcon}><FiFileText /></span><div><small>{invoice ? 'Invoice amount' : 'Amount paid'}</small><strong>{has(invoice ? 'amount' : 'amountPaid') ? display(invoice ? 'amount' : 'amountPaid', invoice ? data.amount : data.amountPaid) : titles[record.kind]}</strong></div>{data.status && <span className={s.recordStatus} data-status={data.status}>{data.status}</span>}</div>
+      {groups.map(({title, icon: Icon, keys}) => { const visible = keys.filter(has); return visible.length > 0 && <section key={title} className={s.recordDetailSection}><h3><Icon />{title}</h3><dl className={s.crmRecordDetails}>{visible.map(key => <div key={key}><dt>{fieldLabels[key]}</dt><dd>{display(key, data[key])}</dd></div>)}</dl>{invoice && title === 'Payment references' && !has('reference') && <p className={s.detailHint}>No payment reference recorded yet.</p>}</section>; })}
+    </div>}
   </Modal>;
 }

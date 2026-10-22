@@ -15,7 +15,7 @@ export default function WorkspaceLogin({ admin = false }) {
       const signedInAsAdmin = data.accountType === 'admin';
       if (signedInAsAdmin) { localStorage.setItem("adminToken",data.token); localStorage.removeItem('crmToken'); localStorage.removeItem('crmStaff'); }
       else { localStorage.removeItem('adminToken'); localStorage.setItem("crmToken",data.token);localStorage.setItem("crmStaff",JSON.stringify(data.staff)); }
-      await router.push(router.query.next === '/crm-inbox' ? '/crm-inbox' : signedInAsAdmin ? "/admin-7812er" : data.staff?.role === "SS" ? "/crm-inbox" : "/crm-dashboard");
+      await router.push(router.query.next === '/crm-inbox' ? '/crm-inbox' : signedInAsAdmin ? "/admin-7812er" : (data.staff?.role === "SS" || data.staff?.permissions?.inboxAccess === true) ? "/crm-inbox" : "/crm-dashboard");
     } catch (error) { setError(error.response?.status === 401 ? "The email or password is incorrect. Please try again." : "We couldn't sign you in right now. Please try again."); }
     finally { setLoading(false); }
   };
