@@ -10,8 +10,8 @@ export async function disableInboxPush(){
  const registration=await navigator.serviceWorker.getRegistration('/crm-inbox');const subscription=await registration?.pushManager.getSubscription();
  if(subscription){await inboxApi('/push/subscription',{method:'DELETE',body:{endpoint:subscription.endpoint}});await subscription.unsubscribe()}
 }
-export default function NotificationSettings({actorId}){
- const [expanded,setExpanded]=useState(false);
+export default function NotificationSettings({actorId,defaultExpanded=false}){
+ const [expanded,setExpanded]=useState(defaultExpanded);
  const [preferences,setPreferences]=useState(defaults),[permission,setPermission]=useState('default'),[subscription,setSubscription]=useState(null),[config,setConfig]=useState(null),[busy,setBusy]=useState(true),[error,setError]=useState(''),[available,setAvailable]=useState(false);
  useEffect(()=>{let active=true;const refreshPermission=()=>setPermission(supported()?Notification.permission:'unsupported');refreshPermission();setAvailable(supported());
  (async()=>{try{
@@ -30,7 +30,8 @@ export default function NotificationSettings({actorId}){
    await navigator.serviceWorker.ready;
    const bytes=Uint8Array.from(atob(config.publicKey.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
    const sub=await registration.pushManager.getSubscription()||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:bytes});
-   await inboxApi('/push/subscription',{method:'PUT',body:{subscription:sub.toJSON(),preferences:{...preferences,...(typeof key==='string'?{[key]:true}:{})}}});localStorage.removeItem(`inbox-push-off:${actorId}`);setSubscription(sub);setPreferences({...preferences,...(typeof key==='string'?{[key]:true}:{})});
+   const next={...defaults,...(typeof key==='string'?{[key]:true}:{})};
+   await inboxApi('/push/subscription',{method:'PUT',body:{subscription:sub.toJSON(),preferences:next}});localStorage.removeItem(`inbox-push-off:${actorId}`);setSubscription(sub);setPreferences(next);
   }catch(e){setError(e.message)}finally{setBusy(false)}
  };
  const toggle=async(key)=>{if(!subscription||permission!=='granted'){if(key==='previews'){setPreferences({...preferences,previews:!preferences.previews});return;}return enable(key);}setBusy(true);setError('');const next={...preferences,[key]:!preferences[key]};try{await inboxApi('/push/subscription',{method:'PUT',body:{subscription:subscription.toJSON(),preferences:next}});setPreferences(next)}catch(e){setError(e.message)}finally{setBusy(false)}};

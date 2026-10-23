@@ -63,38 +63,55 @@ export default function CrmLayout({
     const viewport = window.visualViewport;
     const body = document.body, html = document.documentElement;
     const scrollY = window.scrollY;
-    const before = { position: body.style.position, top: body.style.top, width: body.style.width, overflow: body.style.overflow, htmlOverflow: html.style.overflow };
+    const before = { position: body.style.position, top: body.style.top, width: body.style.width, height: body.style.height, overflow: body.style.overflow, htmlOverflow: html.style.overflow, htmlHeight: html.style.height, overscroll: html.style.overscrollBehavior };
     // Only the Inbox's message/list panes scroll. Prevent iOS focus panning from
     // exposing the document behind the keyboard-sized shell.
     body.style.position = "fixed"; body.style.top = "0px";
     body.style.width = "100%"; body.style.overflow = "hidden";
-    html.style.overflow = "hidden";
+    body.style.height = "100%";
+    html.style.overflow = "hidden"; html.style.height = "100%";
+    html.style.overscrollBehavior = "none";
     let frame;
+    let settling = [];
     const sync = () => {
       frame = null;
       if (!shell.current || (viewport && Math.abs(viewport.scale - 1) > 0.01)) return;
+      // WebKit can scroll the layout viewport during focus even with a fixed
+      // body. Only the inner panes should scroll; don't retain that document gap.
+      if (window.scrollY !== 0 || window.scrollX !== 0) window.scrollTo(0, 0);
       const height = viewport?.height || window.innerHeight;
       shell.current.style.setProperty("--inbox-viewport-height", `${height}px`);
       shell.current.style.setProperty("--inbox-viewport-top", `${viewport?.offsetTop || 0}px`);
       shell.current.dataset.keyboardOpen = String(window.innerHeight - height > 150);
     };
     const resize = () => { if (frame == null) frame = requestAnimationFrame(sync); };
+    const settle = () => {
+      settling.forEach(clearTimeout);
+      resize();
+      // Keyboard/browser bars can finish animating after their first resize.
+      settling = [100, 300, 600].map(delay => setTimeout(resize, delay));
+    };
     sync();
     viewport?.addEventListener("resize", resize);
     viewport?.addEventListener("scroll", resize);
     window.addEventListener("resize", resize);
-    document.addEventListener("focusin", resize);
-    document.addEventListener("focusout", resize);
+    window.addEventListener("scroll", resize, { passive: true });
+    document.addEventListener("focusin", settle);
+    document.addEventListener("focusout", settle);
     return () => {
       cancelAnimationFrame(frame);
+      settling.forEach(clearTimeout);
       viewport?.removeEventListener("resize", resize);
       viewport?.removeEventListener("scroll", resize);
       window.removeEventListener("resize", resize);
-      document.removeEventListener("focusin", resize);
-      document.removeEventListener("focusout", resize);
+      window.removeEventListener("scroll", resize);
+      document.removeEventListener("focusin", settle);
+      document.removeEventListener("focusout", settle);
       body.style.position = before.position; body.style.top = before.top;
       body.style.width = before.width; body.style.overflow = before.overflow;
-      html.style.overflow = before.htmlOverflow;
+      body.style.height = before.height;
+      html.style.overflow = before.htmlOverflow; html.style.height = before.htmlHeight;
+      html.style.overscrollBehavior = before.overscroll;
       window.scrollTo(0, scrollY);
     };
   }, [compact]);
