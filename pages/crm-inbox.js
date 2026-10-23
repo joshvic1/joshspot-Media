@@ -15,7 +15,7 @@ export default function InboxPage() {
     let active = true;
     inboxApi('/session').then((result) => { if (active) setSession(result); }).catch((err) => {
       if (!active) return;
-      if (err.status === 401) router.replace('/crm-login?next=/crm-inbox');
+      if (err.status === 401) router.replace('/crm-login?next='+encodeURIComponent('/crm-inbox'+window.location.search));
       else setError(err.message);
     });
     return () => { active = false; };

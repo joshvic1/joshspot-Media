@@ -2,8 +2,8 @@ import {useEffect,useState} from 'react';
 import {FiChevronDown} from 'react-icons/fi';
 import {inboxApi} from './api';
 import s from '../../styles/Inbox.module.css';
-const defaults={assignments:false,messages:false,mentions:true,staff_messages:true,followups:false,previews:true};
-const options=[['staff_messages','Staff messages','Notify me when a teammate sends me a private message.'],['previews','Show contact names','Show the chat name in mention notifications on your lock screen.'],['mentions','Staff mentions','Notify me only when someone tags me in an internal note.']];
+const defaults={assignments:false,new_chats:false,messages:false,mentions:true,staff_messages:true,followups:false,previews:true};
+const options=[['mentions','Staff mentions','When someone tags you in an internal note.'],['staff_messages','Staff messages','When a teammate sends you a private message.'],['assignments','Chat assigned to me','When a person or the AI assigns a conversation to you.'],['new_chats','New conversations','The first message in a new conversation you can access.'],['messages','Every customer message','Off by default. Sends an alert for each customer message in chats you can access. This can be frequent.'],['followups','Scheduled follow-ups','When a follow-up you scheduled is due.'],['previews','Names and message previews','Show contact names and message text on your lock screen.']];
 const supported=()=>typeof window!=='undefined'&&window.isSecureContext&&'Notification' in window&&'serviceWorker' in navigator&&'PushManager' in window;
 export async function disableInboxPush(){
  if(!supported())return;
@@ -38,7 +38,7 @@ export default function NotificationSettings({actorId}){
  return <div className={s.notificationSettings}>
  <div className={s.notificationHeading}><button type="button" aria-expanded={expanded} onClick={()=>setExpanded(!expanded)}><strong>Notifications</strong><FiChevronDown style={{transform:expanded?'rotate(180deg)':undefined}}/></button><input type="checkbox" role="switch" aria-label="Device notifications" checked={Boolean(subscription&&permission==='granted')} disabled={busy||!available||permission==='denied'||!config?.configured} onChange={()=>subscription&&permission==='granted'?turnOff():enable()}/></div>
  {error&&<p role="alert" className={s.error}>{error}</p>}
- {expanded&&<div><p>Staff messages and tags in internal notes send notifications. Assignments, new messages and follow-up reminders do not send alerts.</p>
+ {expanded&&<div><p>Choose the alerts you want on this device. These choices do not change anyone else’s notifications.</p>
  {!available?<p>On iPhone or iPad, add this site to your Home Screen and open it there to enable notifications.</p>:permission==='denied'?<p>Notifications are blocked. Allow them in your browser or device settings.</p>:!config?.configured&&!busy?<p>Device notifications are not configured yet. Contact your administrator.</p>:null}
  <div>{options.map(([key,label,description])=><label key={key} className={s.notificationOption}><span><strong>{label}</strong><small>{description}</small></span><input type="checkbox" role="switch" aria-label={label} checked={preferences[key]} disabled={busy||!available||permission==='denied'||!config?.configured} onChange={()=>toggle(key)}/></label>)}</div>
  <p>Preferences apply to this browser and account. Alerts in the inbox remain available when device notifications are off.</p></div>}</div>;

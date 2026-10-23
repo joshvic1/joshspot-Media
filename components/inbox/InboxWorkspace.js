@@ -54,10 +54,26 @@ export default function InboxWorkspace({ session }) {
   const [rows, setRows] = useState([]); const [next, setNext] = useState(null); const [counts, setCounts] = useState({});
   const [selected, setSelected] = useState(null); const [error, setError] = useState(''); const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
+    const openTarget = value => {
+      let url;try{url=new URL(value,window.location.origin);}catch{return;}
+      if(url.origin!==window.location.origin||url.pathname!=='/crm-inbox')return;
+    const query = url.searchParams;
     const conversation = query.get('conversation'), message = query.get('message'), staffChat=query.get('staffChat');
     if (/^[a-f0-9]{24}$/i.test(staffChat||'')){setSelected('staff:'+staffChat);setView('inbox');if(/^[a-f0-9]{24}$/i.test(message||''))setTargetNote(message);}
     if (/^[a-f0-9]{24}$/i.test(conversation || '')) { setSelected(conversation); setView('inbox'); if (/^[a-f0-9]{24}$/i.test(message || '')) setTargetNote(message); }
+
+      navigator.serviceWorker?.controller?.postMessage({type:'INBOX_NOTIFICATION_ACK',url:url.href});
+    };
+    openTarget(window.location.href);
+    const message = event => {if(event.data?.type==='INBOX_NOTIFICATION_OPEN')openTarget(event.data.url);};
+    const ready = () => navigator.serviceWorker?.controller?.postMessage({type:'INBOX_NOTIFICATION_READY'});
+    const visible = () => {if(document.visibilityState==='visible')ready();};
+    navigator.serviceWorker?.addEventListener('message',message);
+    navigator.serviceWorker?.addEventListener('controllerchange',ready);
+    document.addEventListener('visibilitychange',visible);
+    window.addEventListener('focus',ready);ready();
+    navigator.serviceWorker?.getRegistration('/crm-inbox').then(r=>r?.update()).catch(()=>{});
+    return ()=>{navigator.serviceWorker?.removeEventListener('message',message);navigator.serviceWorker?.removeEventListener('controllerchange',ready);document.removeEventListener('visibilitychange',visible);window.removeEventListener('focus',ready);};
   }, []);
   const [newContact, setNewContact] = useState(false); const [saving, setSaving] = useState(false); const [contactError, setContactError] = useState('');
   const [notice, setNotice] = useState(''); const generation = useRef(0); const fetching = useRef(new Set()); const loaded = useRef(false); const expanded = useRef(false); const previous = useRef(null); const list = useRef(null); const listPosition=useRef(0);
