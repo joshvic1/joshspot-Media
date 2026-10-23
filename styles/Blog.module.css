@@ -5,3 +5,5 @@
 .articleCta{margin-bottom:48px}
 
 .prose iframe{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;border-radius:14px;margin:24px 0;background:#111827}.prose iframe:global(.ProseMirror-selectednode){outline:3px solid #315eae;outline-offset:3px}
+
+.articleSocials{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:24px}.articleSocials>span{font-size:12px;font-weight:600;color:#64748b}.articleSocials>div{display:flex;gap:10px}.articleSocials a{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce4ee;border-radius:50%;background:#fff;color:#24477b;font-size:18px;transition:background .15s,color .15s}.articleSocials a:hover{background:#24477b;color:#fff}.articleSocials a:focus-visible{outline:3px solid #89a9df;outline-offset:3px}
