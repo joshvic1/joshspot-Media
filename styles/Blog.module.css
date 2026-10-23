@@ -3,3 +3,5 @@
 .grid{margin-bottom:48px}
 
 .articleCta{margin-bottom:48px}
+
+.prose iframe{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;border-radius:14px;margin:24px 0;background:#111827}.prose iframe:global(.ProseMirror-selectednode){outline:3px solid #315eae;outline-offset:3px}
