@@ -284,3 +284,9 @@ button.quotedReply:hover{background:#e4ecf8}button.quotedReply:focus-visible{out
 .recordDetailSection .crmRecordDetails { grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:20px; }
 .recordDetailSection .crmRecordDetails dd { font-size:13px; line-height:1.6; }
 @media(max-width:480px) { .recordDetailSection .crmRecordDetails { grid-template-columns:1fr; } .recordDetailHero { padding:16px; } .recordDetailHero strong { font-size:21px; } }
+
+/* Native modal keeps keyboard focus inside the notification prompt. */
+dialog.pushPrompt{inset:0;margin:auto;transform:none;width:min(410px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:28px 24px;border:1px solid #dce5f2;border-radius:24px;text-align:center;box-shadow:0 24px 80px #10244940;color:#243e62;background:#fff}
+dialog.pushPrompt::backdrop{background:#152b4d66;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.pushPromptIcon{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;margin-bottom:16px;border-radius:18px;background:#edf3ff;color:#315eae;font-size:25px}
+.pushPrompt h2{margin:0;font-size:20px;line-height:1.3}.pushPrompt p{font-size:13px;line-height:1.65;color:#60718b;margin:12px 0 22px}.pushPrompt>div{display:flex;flex-direction:column;gap:9px}.pushPrompt button{font:inherit;font-size:13px;font-weight:600;min-height:44px;border-radius:12px}.pushPrompt button:disabled{opacity:.55;cursor:default}.pushPrompt button:focus-visible{outline:3px solid #8eafe8;outline-offset:3px}

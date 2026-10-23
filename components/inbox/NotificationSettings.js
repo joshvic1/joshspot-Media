@@ -1,5 +1,5 @@
-import {useEffect,useState} from 'react';
-import {FiChevronDown} from 'react-icons/fi';
+import {useEffect,useState,useRef} from 'react';
+import {FiChevronDown,FiBell} from 'react-icons/fi';
 import {inboxApi} from './api';
 import s from '../../styles/Inbox.module.css';
 const defaults={assignments:true,new_chats:true,messages:false,mentions:true,staff_messages:true,followups:true,previews:true};
@@ -46,20 +46,22 @@ export default function NotificationSettings({actorId,defaultExpanded=false}){
 }
 
 export function NotificationPermissionPrompt({actorId,onSettings}){
+ const dialog=useRef(null);
  const [show,setShow]=useState(false),[cfg,setCfg]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ useEffect(()=>{if(!show)return;const element=dialog.current,previous=document.activeElement;element.showModal();return()=>{element.close();previous?.focus({preventScroll:true})}},[show]);
  useEffect(()=>{let active=true;(async()=>{try{
-  if(!supported()||Notification.permission==='denied'||localStorage.getItem(`inbox-push-off:${actorId}`)||sessionStorage.getItem(`inbox-push-later:${actorId}`))return;
+  if(!supported())return;
   const config=await inboxApi('/push/config');if(!active||!config.configured)return;
   const registration=await navigator.serviceWorker.getRegistration('/crm-inbox');const sub=await registration?.pushManager.getSubscription();
-  if(active&&!sub){setCfg(config);setShow(true)}
+  if(active&&(!sub||Notification.permission!=='granted')){setCfg(config);setShow(true)}
  }catch{} })();return()=>{active=false}},[actorId]);
  const enable=async()=>{setBusy(true);setError('');try{
   if(await Notification.requestPermission()!=='granted'){setShow(false);return;}
   const registration=await navigator.serviceWorker.register('/inbox-push-sw.js',{scope:'/crm-inbox'});await navigator.serviceWorker.ready;
   const bytes=Uint8Array.from(atob(cfg.publicKey.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
   const subscription=await registration.pushManager.getSubscription()||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:bytes});
-  await inboxApi('/push/subscription',{method:'PUT',body:{subscription:subscription.toJSON(),preferences:defaults}});setShow(false);onSettings();
+  await inboxApi('/push/subscription',{method:'PUT',body:{subscription:subscription.toJSON(),preferences:defaults}});localStorage.removeItem(`inbox-push-off:${actorId}`);setShow(false);onSettings();
  }catch(e){setError(e.message)}finally{setBusy(false)}};
  if(!show)return null;
- return <div className={s.pushPrompt} role="dialog" aria-label="Enable inbox notifications"><strong>Stay on top of your chats</strong><p>Allow Joshspot Inbox to notify you when a teammate messages you or tags you in an internal note on this device.</p>{error&&<p role="alert">{error}</p>}<div><button disabled={busy} onClick={enable}>{busy?'Enabling…':'Enable notifications'}</button><button disabled={busy} onClick={()=>{sessionStorage.setItem(`inbox-push-later:${actorId}`,'1');setShow(false)}}>Not now</button></div></div>;
+ return <dialog ref={dialog} className={s.pushPrompt} aria-labelledby="push-prompt-title" aria-describedby="push-prompt-description" onCancel={event=>{event.preventDefault();if(!busy)setShow(false)}}><span className={s.pushPromptIcon}><FiBell/></span><h2 id="push-prompt-title">Stay on top of your chats</h2><p id="push-prompt-description">Get alerts for staff messages, mentions, assigned chats and scheduled follow-ups on this device.</p>{Notification.permission==='denied'&&<p>Notifications are blocked in your browser. Allow notifications in your device or browser settings, then reload this page.</p>}{error&&<p role="alert">{error}</p>}<div><button disabled={busy||Notification.permission==='denied'} onClick={enable}>{busy?'Enabling…':'Enable notifications'}</button><button disabled={busy} onClick={()=>setShow(false)}>Not now</button></div></dialog>;
 }
