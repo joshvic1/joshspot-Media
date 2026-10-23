@@ -2,8 +2,8 @@ import {useEffect,useState} from 'react';
 import {FiChevronDown} from 'react-icons/fi';
 import {inboxApi} from './api';
 import s from '../../styles/Inbox.module.css';
-const defaults={assignments:false,new_chats:false,messages:false,mentions:true,staff_messages:true,followups:false,previews:true};
-const options=[['mentions','Staff mentions','When someone tags you in an internal note.'],['staff_messages','Staff messages','When a teammate sends you a private message.'],['assignments','Chat assigned to me','When a person or the AI assigns a conversation to you.'],['new_chats','New conversations','The first message in a new conversation you can access.'],['messages','Every customer message','Off by default. Sends an alert for each customer message in chats you can access. This can be frequent.'],['followups','Scheduled follow-ups','When a follow-up you scheduled is due.'],['previews','Names and message previews','Show contact names and message text on your lock screen.']];
+const defaults={assignments:true,new_chats:true,messages:false,mentions:true,staff_messages:true,followups:true,previews:true};
+const options=[['mentions','Staff mentions','Notify me when a staff member tags me in an internal note.'],['staff_messages','Staff messages','Notify me when a teammate sends me a message.'],['assignments','Chat assigned to me','When a conversation has been assigned to you.'],['new_chats','New conversations','Notify me when there’s a new conversation.'],['messages','Every customer message','Notify me when a customer sends any message at all.'],['followups','Scheduled follow-ups','Notify me when a follow-up I scheduled is due.'],['previews','Names and message previews','Show contact names and message text on your lock screen.']];
 const supported=()=>typeof window!=='undefined'&&window.isSecureContext&&'Notification' in window&&'serviceWorker' in navigator&&'PushManager' in window;
 export async function disableInboxPush(){
  if(!supported())return;

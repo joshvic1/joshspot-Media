@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { FiCpu, FiBookOpen, FiLayers, FiMessageSquare, FiActivity, FiSettings, FiShield, FiZap } from 'react-icons/fi';
 import { useCallback, useEffect, useState } from 'react';
@@ -55,6 +56,8 @@ function Logs({report}){
  return <section><div className={s.toolbar}>{['kind','q','conversation','intent','service','platform','stage','knowledge','handoff','action','from','to'].map(key=><input key={key} aria-label={`Filter ${key}`} type={['from','to'].includes(key)?'date':'text'} placeholder={key} value={filters[key]||''} onChange={e=>setFilters({...filters,[key]:e.target.value})}/>)}</div>{!items.length&&<div className={s.emptyState}><FiActivity/><strong>No activity to show</strong><p>Agent activity will appear here. Adjust your filters to explore another period.</p></div>}{items.map(item=><details className={s.log} key={item._id}><summary>{new Date(item.createdAt).toLocaleString()} · {item.action || item.kind} {item.handoff && `· ${item.handoff}`}</summary><pre>{JSON.stringify(item,null,2)}</pre></details>)}{next&&<button onClick={()=>load(next)}>Load more activity</button>}</section>;
 }
 export default function AIAgent(){
+ const router=useRouter();
+ useEffect(()=>{setSettingsOpen(router.query.view==='settings');if(router.query.view==='knowledge')setTab('Knowledge Base');},[router.query.view]);
  const [tab,setTab]=useState('Knowledge Base'),[config,setConfig]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[settingsOpen,setSettingsOpen]=useState(false),[migration,setMigration]=useState(null);
  const load=useCallback(async()=>{try{const value=await inboxApi('/ai/config');setConfig(value);setData(value.data);}catch(e){setError(e.message);}},[]);
  useEffect(()=>{load();},[load]);

@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/router";
-import { FiMenu, FiX, FiGrid, FiCalendar, FiUsers, FiBarChart2, FiBookOpen, FiClipboard, FiLogOut, FiArrowUpRight, FiMessageSquare, FiCreditCard, FiChevronDown } from "react-icons/fi";
+import { FiMenu, FiX, FiGrid, FiCalendar, FiUsers, FiBarChart2, FiBookOpen, FiClipboard, FiLogOut, FiArrowUpRight, FiMessageSquare, FiCreditCard, FiChevronDown, FiCpu, FiSettings } from "react-icons/fi";
 import styles from "../../styles/AdminShell.module.css";
 import RecordDeletion from "./RecordDeletion";
 
@@ -66,18 +66,25 @@ export default function AdminLayout({ active, children }) {
       {mobile && <button className={styles.close} aria-label="Close menu" onClick={() => { setOpen(false); toggle.current?.focus(); }}><FiX /></button>}
     </div>
     <div className={styles.navLabel}>WORKSPACE</div>
-    <nav aria-label="Admin navigation"><Link href={adminHref('overview')} aria-current={active==='overview'?'page':undefined} className={active==='overview'?styles.active:''} onClick={()=>setOpen(false)}><FiGrid/>Overview</Link>{[
-      ['Inbox & AI',['ai-agent','inbox-contacts','quick-replies']],
-      ['Staff',['staff','earnings']],
-      ['Payments',['courses','invoices']],
-      ['Customers & planning',['bookings','schedule','leads']],
-      ['Reports',['sources','performance']],
-      ['Website',['blog','general-settings']]
-    ].map(([title,keys])=><details className={`${styles.navGroup} ${keys.includes(active)?styles.currentGroup:''}`} key={title} open={keys.includes(active)||undefined}><summary><span className={styles.groupIcon}>{title==='Inbox & AI'?<FiMessageSquare/>:title==='Staff'?<FiUsers/>:title==='Payments'?<FiCreditCard/>:title==='Website'?<FiBookOpen/>:title==='Reports'?<FiBarChart2/>:<FiCalendar/>}</span><span>{title}</span><FiChevronDown className={styles.groupChevron}/></summary>{keys.map(key=>{const [,label,Icon]=adminPages.find(p=>p[0]===key);return <Link key={key} href={`${adminHref(key)}${demo?'?preview=demo':''}`} aria-current={active===key?'page':undefined} className={active===key?styles.active:''} onClick={()=>setOpen(false)}><Icon/>{label}</Link>})}{title==='Inbox & AI'&&<Link href="/crm-inbox" onClick={()=>setOpen(false)}><FiUsers/>Joshspot Inbox</Link>}{title==='Customers & planning'&&<Link href="/crm-dashboard" onClick={()=>setOpen(false)}><FiUsers/>CRM dashboard</Link>}</details>)}</nav>
+    <nav aria-label="Admin navigation">{[
+      {key:'overview',label:'Overview',icon:FiGrid,href:adminHref('overview')},
+      {label:'Chatbot inbox',icon:FiMessageSquare,children:[['inbox','Open inbox','/crm-inbox',FiMessageSquare],['quick-replies','Quick replies',adminHref('quick-replies'),FiClipboard],['inbox-contacts','Inbox contacts',adminHref('inbox-contacts'),FiUsers]]},
+      {label:'AI settings',icon:FiCpu,children:[['ai-agent','AI agents',adminHref('ai-agent'),FiCpu],['ai-settings','AI settings',adminHref('ai-agent')+'?view=settings',FiSettings],['ai-knowledge-base','Knowledge base',adminHref('ai-agent')+'?view=knowledge',FiBookOpen]]},
+      {label:'Staff',icon:FiUsers,children:[['staff','Staff management',adminHref('staff'),FiUsers],['earnings','Staff earnings',adminHref('earnings'),FiBarChart2]]},
+      {key:'invoices',label:'Paid invoices',icon:FiCreditCard,href:adminHref('invoices')},
+      {label:'Course',icon:FiBookOpen,children:[['courses','Course payments',adminHref('courses'),FiCreditCard],['sources','Sources that convert',adminHref('sources'),FiBarChart2],['mytiklink','Visit Mytiklink','https://mytiklink.com/admin/users',FiArrowUpRight,true],['course-page','View course page','/course',FiArrowUpRight,true],['whatsapp-page','WhatsApp course page','/whatsapp',FiArrowUpRight,true]]},
+      {label:'Customers & planning',icon:FiCalendar,children:[['bookings','Bookings',adminHref('bookings'),FiClipboard],['schedule','Schedule',adminHref('schedule'),FiCalendar],['leads','Growth leads',adminHref('leads'),FiUsers],['performance','Service performance',adminHref('performance'),FiBarChart2]]},
+      {label:'CRM dashboard',icon:FiGrid,children:[['setup-clients','Setup clients','/crm-dashboard',FiUsers],['ads-clients','Ads clients','/crm-ads-dashboard',FiBarChart2],['verification-clients','Verification clients','/crm-verification-dashboard',FiClipboard]]},
+      {label:'Websites',icon:FiBookOpen,children:[['blog','Blog',adminHref('blog'),FiBookOpen]]},
+      {key:'general-settings',label:'General settings',icon:FiSettings,href:adminHref('general-settings')}
+    ].map(item=>{
+      const current=active==='ai-agent'?(router.query.view==='settings'?'ai-settings':router.query.view==='knowledge'?'ai-knowledge-base':'ai-agent'):active;
+      const navLink=(key,label,href,Icon,external=false)=><Link key={key} href={demo&&!external?href+(href.includes('?')?'&':'?')+'preview=demo':href} target={external?'_blank':undefined} rel={external?'noopener noreferrer':undefined} aria-current={current===key?'page':undefined} className={current===key?styles.active:''} onClick={()=>setOpen(false)}><Icon/>{label}</Link>;
+      if(!item.children)return navLink(item.key,item.label,item.href,item.icon);
+      const selected=item.children.some(([key])=>key===current);
+      return <details className={`${styles.navGroup} ${selected?styles.currentGroup:''}`} key={item.label} open={selected||undefined}><summary><span className={styles.groupIcon}><item.icon/></span><span>{item.label}</span><FiChevronDown className={styles.groupChevron}/></summary>{item.children.map(args=>navLink(...args))}</details>;
+    })}</nav>
     <div className={styles.sidebarBottom}>
-      <a href="https://mytiklink.com/admin/users" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> Visit Mytiklink</a>
-      <a href="/course" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> View course page</a>
-      <a href="/whatsapp" target="_blank" rel="noopener noreferrer"><FiArrowUpRight /> WhatsApp course page</a>
       <button onClick={() => { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); }}><FiLogOut /> Sign out</button>
       <div className={styles.profile}><span>J</span><div>Josh<small>Administrator</small></div></div>
     </div>
