@@ -8,7 +8,10 @@ const formatDate = (value) => value ? new Intl.DateTimeFormat("en-NG", { dateSty
 async function request(path, token, options = {}) {
   const response = await fetch(`/api/admin/${path}`, {
     ...options,
-    headers: { authorization: `Bearer ${token}`, "Content-Type": "application/json", ...(options.headers || {}) },
+    // The established admin API accepts the raw session JWT. Keeping this
+    // consistent with the rest of the dashboard avoids a proxy adding a
+    // second authentication format before the backend receives it.
+    headers: { authorization: token, "Content-Type": "application/json", ...(options.headers || {}) },
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.message || "Unable to complete that action.");
