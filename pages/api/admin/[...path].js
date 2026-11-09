@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const telegramSetup = path === "telegram-access/setup";
   const telegramCreateChannel = path === "telegram-access/channels";
   const telegramChannel = /^telegram-access\/channels\/[a-f\d]{24}$/.test(path);
-  const telegramAction = /^telegram-access\/[a-f\d]{24}\/(revoke|restore)$/.test(path);
+  const telegramAction = /^telegram-access\/[a-f\d]{24}\/(revoke|restore|reset-binding)$/.test(path);
   if (!read && !action && !record && !contact && !settings && !telegramRead && !telegramSetup && !telegramCreateChannel && !telegramChannel && !telegramAction) return res.status(404).end();
   const method = settings ? req.method : contact ? "PATCH" : read || telegramRead ? "GET" : telegramChannel ? req.method : record && !path.endsWith("/restore") ? "DELETE" : "POST";
   if (telegramChannel && !["PATCH", "DELETE"].includes(req.method)) { res.setHeader("Allow", "PATCH, DELETE"); return res.status(405).end(); }
