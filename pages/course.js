@@ -178,16 +178,7 @@ export default function CoursePage({ variant = "ads" }) {
     ? {
         status: "paid",
         preview: true,
-        courses: [
-          {
-            title: "How to run TikTok ads",
-            url: "https://t.me/+zpLNcLN6nAhhNDY8",
-          },
-          {
-            title: "Facebook & Instagram Ads",
-            url: "https://t.me/+RwLlZhhBUXk2ZDk0",
-          },
-        ],
+        telegramAccessUrl: "https://t.me/joshspotmedia_bot?start=preview-course-access",
       }
     : null;
   const accessInvoice = previewInvoice || invoice;
@@ -293,8 +284,13 @@ export default function CoursePage({ variant = "ads" }) {
     event.preventDefault();
     setPaymentError("");
 
-    if (!name.trim() || !whatsapp.trim()) {
-      setPaymentError("Please enter your name and WhatsApp number.");
+    if (!name.trim() || !whatsapp.trim() || !checkoutEmail.trim()) {
+      setPaymentError("Please enter your name, WhatsApp number and email address.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutEmail.trim())) {
+      setPaymentError("Please enter a valid email address.");
       return;
     }
 
@@ -684,18 +680,18 @@ export default function CoursePage({ variant = "ads" }) {
                   </div>
                 </label>
                 <label>
-                  Email address (optional)
+                  Email address
                   <input
                     type="email"
                     autoComplete="email"
                     maxLength={254}
                     placeholder="you@example.com"
+                    required
                     value={checkoutEmail}
                     onChange={(event) => setCheckoutEmail(event.target.value)}
                   />
                   <span>
-                    Get your course links and a reminder if you have trouble
-                    completing payment.
+                    We will use this email to protect and restore your course access.
                   </span>
                 </label>
                 {paymentError && (
@@ -774,115 +770,21 @@ export default function CoursePage({ variant = "ads" }) {
 }
 
 function CourseAccess({ invoice, isWhatsApp }) {
-  const [email, setEmail] = useState("");
-  const [sending, setSending] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-
-  const sendLinks = async (event) => {
-    event.preventDefault();
-    if (sending) return;
-    setSending(true);
-    setMessage("");
-    setError("");
-    if (invoice.preview) {
-      setMessage(
-        "The video links has been sent to your email. Also check your spam folder too incase you can't find it in your inbox.",
-      );
-      setSending(false);
-      return;
-    }
-    try {
-      const response = await fetch("/api/course-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: invoice.token, email }),
-      });
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(
-          data.message || "The email did not send. Please try again.",
-        );
-      setMessage(data.message);
-      trackCourse("CourseLinksEmailed", {}, { custom: true });
-    } catch (error) {
-      setError(error.message || "The email did not send. Please try again.");
-    } finally {
-      setSending(false);
-    }
-  };
-
+  const action = isWhatsApp ? "Access your course on Telegram" : "Access your courses on Telegram";
+  const accessUrl = invoice.telegramAccessUrl || "";
   return (
     <div className={`${styles.courseAccess} ${isWhatsApp ? modern.paidAccess : ""}`}>
-      <section
-        className={styles.emailAccess}
-        aria-labelledby="save-course-links"
-      >
-        <h3 id="save-course-links">
-          Enter your email below so i can send the courses link
-        </h3>
-        <p>
-          After you enter your email below, i will send the courses link to you
-          so you dont ever lose access to it and you can watch it anytime.
-        </p>
-        <form className={styles.checkoutForm} onSubmit={sendLinks}>
-          <label htmlFor="course-email">Your email address</label>
-          <input
-            id="course-email"
-            type="email"
-            autoComplete="email"
-            maxLength={254}
-            required
-            placeholder="you@example.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <button type="submit" disabled={sending}>
-            {sending
-              ? "Sending your links..."
-              : "Send the links to me via email"}
-          </button>
-          {message && (
-            <p className={styles.statusText} role="status">
-              {message}
-            </p>
-          )}
-          {error && (
-            <p className={styles.errorText} role="alert">
-              {error}
-            </p>
-          )}
-        </form>
+      <section className={styles.telegramAccess} aria-labelledby="telegram-course-access">
+        <h3 id="telegram-course-access">Your payment is confirmed.</h3>
+        <p>Click the button below to access your course on Telegram.</p>
+        {accessUrl ? <a
+          className={styles.telegramButton}
+          onClick={() => { if (!invoice.preview) trackCourse("CourseTelegramClick", { course_name: isWhatsApp ? "WhatsApp Status ads" : "TikTok, Facebook & Instagram ads" }, { custom: true }); }}
+          href={accessUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        ><FiSend aria-hidden="true" /> {action}</a> : <p className={styles.statusText}>Your secure course access is being prepared. Please refresh in a moment.</p>}
       </section>
-      {isWhatsApp ? <section className={styles.telegramAccess}>
-        <h3>You are in! Let’s get you started.</h3>
-        <p>Your payment is confirmed. Join the Telegram training channel to start your WhatsApp Status ads course.</p>
-        <a className={styles.telegramButton} onClick={() => { if (!invoice.preview) trackCourse("CourseTelegramClick", {course_name:"WhatsApp Status ads"}, {custom:true}); }} href={invoice.preview ? "https://t.me/+LimBMFUxVvphZTU0" : invoice.contactUrl} target="_blank" rel="noopener noreferrer"><FiSend /> Join WhatsApp course on Telegram</a>
-      </section> : (      <section className={styles.telegramAccess} aria-labelledby="join-courses">
-        <h3 id="join-courses">
-          You can also, click the buttons below to access the courses directly
-        </h3>
-        {invoice.courses?.map((course) => (
-          <a
-            onClick={() => {
-              if (!invoice.preview)
-                trackCourse(
-                  "CourseTelegramClick",
-                  { course_name: course.title },
-                  { custom: true },
-                );
-            }}
-            key={course.url}
-            className={styles.telegramButton}
-            href={course.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FiSend aria-hidden="true" /> Join {course.title}
-          </a>
-        ))}
-      </section>
-      )}
     </div>
   );
 }

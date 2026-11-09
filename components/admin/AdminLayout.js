@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/router";
-import { FiMenu, FiX, FiGrid, FiCalendar, FiUsers, FiBarChart2, FiBookOpen, FiClipboard, FiLogOut, FiArrowUpRight, FiMessageSquare, FiCreditCard, FiChevronDown, FiCpu, FiSettings } from "react-icons/fi";
+import { FiMenu, FiX, FiGrid, FiCalendar, FiUsers, FiBarChart2, FiBookOpen, FiClipboard, FiLogOut, FiArrowUpRight, FiMessageSquare, FiCreditCard, FiChevronDown, FiCpu, FiSettings, FiSend } from "react-icons/fi";
 import styles from "../../styles/AdminShell.module.css";
 import RecordDeletion from "./RecordDeletion";
 
@@ -16,6 +16,7 @@ export const adminPages = [
   ["earnings", "Staff earnings", FiBarChart2, "Review response times, deductions and monthly statements."],
   ["quick-replies", "Quick replies", FiClipboard, "Manage the replies your team inserts with a slash."],
   ["courses", "Course payments", FiBookOpen, "Every checkout. Every customer. One clear view."],
+  ["telegram-access", "Telegram course access", FiSend, "Control protected course access for every paid buyer."],
   ["sources", "Sources that convert", FiBarChart2, "See which tracking links bring in course purchases."],
   ["invoices", "Paid invoices", FiClipboard, "Confirmed invoice payments, customer details and revenue."],
   ["bookings", "Bookings", FiClipboard, "Manage client bookings and service details."],
@@ -72,7 +73,7 @@ export default function AdminLayout({ active, children }) {
       {label:'AI settings',icon:FiCpu,children:[['ai-agent','AI agents',adminHref('ai-agent'),FiCpu],['ai-settings','AI settings',adminHref('ai-agent')+'?view=settings',FiSettings],['ai-knowledge-base','Knowledge base',adminHref('ai-agent')+'?view=knowledge',FiBookOpen]]},
       {label:'Staff',icon:FiUsers,children:[['staff','Staff management',adminHref('staff'),FiUsers],['earnings','Staff earnings',adminHref('earnings'),FiBarChart2]]},
       {key:'invoices',label:'Paid invoices',icon:FiCreditCard,href:adminHref('invoices')},
-      {label:'Course',icon:FiBookOpen,children:[['courses','Course payments',adminHref('courses'),FiCreditCard],['sources','Sources that convert',adminHref('sources'),FiBarChart2],['mytiklink','Visit Mytiklink','https://mytiklink.com/admin/users',FiArrowUpRight,true],['course-page','View course page','/course',FiArrowUpRight,true],['whatsapp-page','WhatsApp course page','/whatsapp',FiArrowUpRight,true]]},
+      {label:'Course',icon:FiBookOpen,children:[['courses','Course payments',adminHref('courses'),FiCreditCard],['telegram-access','Telegram access',adminHref('telegram-access'),FiSend],['sources','Sources that convert',adminHref('sources'),FiBarChart2],['mytiklink','Visit Mytiklink','https://mytiklink.com/admin/users',FiArrowUpRight,true],['course-page','View course page','/course',FiArrowUpRight,true],['whatsapp-page','WhatsApp course page','/whatsapp',FiArrowUpRight,true]]},
       {label:'Customers & planning',icon:FiCalendar,children:[['bookings','Bookings',adminHref('bookings'),FiClipboard],['schedule','Schedule',adminHref('schedule'),FiCalendar],['leads','Growth leads',adminHref('leads'),FiUsers],['performance','Service performance',adminHref('performance'),FiBarChart2]]},
       {label:'CRM dashboard',icon:FiGrid,children:[['setup-clients','Setup clients','/crm-dashboard',FiUsers],['ads-clients','Ads clients','/crm-ads-dashboard',FiBarChart2],['verification-clients','Verification clients','/crm-verification-dashboard',FiClipboard]]},
       {label:'Websites',icon:FiBookOpen,children:[['blog','Blog',adminHref('blog'),FiBookOpen]]},

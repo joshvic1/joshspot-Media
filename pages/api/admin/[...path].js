@@ -11,8 +11,14 @@ export default async function handler(req, res) {
   const contact = /^paid-invoices\/[a-f\d]{24}\/contact$/.test(path);
   const action = receipt || /^course-payments\/[a-f\d]{24}\/(check|remind|resend)$/.test(path) || path === "sync-payments";
   const record = /^records\/(bookings|leads|invoices)\/[a-f\d]{24}(\/restore)?$/.test(path);
-  if (!read && !action && !record && !contact && !settings) return res.status(404).end();
-  const method = settings ? req.method : contact ? "PATCH" : read ? "GET" : record && !path.endsWith("/restore") ? "DELETE" : "POST";
+  const telegramRead = path === "telegram-access";
+  const telegramSetup = path === "telegram-access/setup";
+  const telegramCreateChannel = path === "telegram-access/channels";
+  const telegramChannel = /^telegram-access\/channels\/[a-f\d]{24}$/.test(path);
+  const telegramAction = /^telegram-access\/[a-f\d]{24}\/(revoke|restore)$/.test(path);
+  if (!read && !action && !record && !contact && !settings && !telegramRead && !telegramSetup && !telegramCreateChannel && !telegramChannel && !telegramAction) return res.status(404).end();
+  const method = settings ? req.method : contact ? "PATCH" : read || telegramRead ? "GET" : telegramChannel ? req.method : record && !path.endsWith("/restore") ? "DELETE" : "POST";
+  if (telegramChannel && !["PATCH", "DELETE"].includes(req.method)) { res.setHeader("Allow", "PATCH, DELETE"); return res.status(405).end(); }
   if (req.method !== method) { res.setHeader("Allow", method); return res.status(405).end(); }
   if (!req.headers.authorization) return res.status(401).json({ message: "Please sign in to continue." });
   const query = new URLSearchParams();
@@ -20,7 +26,7 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(`${BACKEND_URL}/admin/${path}?${query}`, {
       method, headers: { authorization: req.headers.authorization, "Content-Type": "application/json" },
-      ...(settings && method === "PUT" ? {body:JSON.stringify({courseGateway:req.body?.courseGateway})} : contact ? {body:JSON.stringify({email:req.body?.email,phone:req.body?.phone})} : method === "POST" ? { body: receipt ? JSON.stringify({email:req.body?.email,name:req.body?.name}) : "{}" } : {}),
+      ...(settings && method === "PUT" ? {body:JSON.stringify({courseGateway:req.body?.courseGateway})} : contact ? {body:JSON.stringify({email:req.body?.email,phone:req.body?.phone})} : (telegramSetup || telegramCreateChannel || telegramChannel || telegramAction) ? { body: JSON.stringify(req.body || {}) } : method === "POST" ? { body: receipt ? JSON.stringify({email:req.body?.email,name:req.body?.name}) : "{}" } : {}),
     });
     const data = await response.json();
     return res.status(response.status).json(data);

@@ -2,7 +2,7 @@ import ChatActions from './ChatActions';
 import { RowsSkeleton } from './Skeleton';
 import { useEffect, useState } from 'react';
 import RecordDetails from './RecordDetails';
-import { FiEye, FiX, FiUser, FiTag, FiClock, FiFolder, FiPaperclip, FiActivity, FiLock } from 'react-icons/fi';
+import { FiEye, FiX, FiUser, FiTag, FiClock, FiFolder, FiPaperclip, FiActivity, FiLock, FiMail, FiSend } from 'react-icons/fi';
 import { inboxApi, fullDate, initials } from './api';
 import Modal from './Modal';
 import MediaAttachment from './MediaAttachment';
@@ -23,6 +23,13 @@ const localDateTime = (date) => { if (!date) return ''; const value = new Date(d
 export default function CustomerDetails({ conversation, session, canEdit, onClose, onUpdate, onChange, inline = false }) {
   const [editingRecord, setEditingRecord] = useState(null);
   const [viewingRecord, setViewingRecord] = useState(null);
+  const [courseAccess, setCourseAccess] = useState(null);
+  const [courseAccessLoading, setCourseAccessLoading] = useState(false);
+  const [courseModal, setCourseModal] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState('');
+  const [courseEmail, setCourseEmail] = useState('');
+  const [courseSending, setCourseSending] = useState(false);
+  const [courseError, setCourseError] = useState('');
   const [fields, setFields] = useState(conversation.contact); const [labels, setLabels] = useState(conversation.labels.join(', '));
   const [when, setWhen] = useState(localDateTime(conversation.followUpAt));
   const [records, setRecords] = useState([]); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [saving, setSaving] = useState(false); const [saved, setSaved] = useState('');
@@ -31,6 +38,12 @@ export default function CustomerDetails({ conversation, session, canEdit, onClos
     inboxApi(`/conversations/${conversation._id}/crm`).then((result) => { if (active) setRecords(result); }).catch((err) => { if (active) setError(err.message); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [conversation._id]);
+  useEffect(() => {
+    if (!session.actor.admin) return undefined;
+    let active = true; setCourseAccessLoading(true);
+    inboxApi(`/conversations/${conversation._id}/course-access`).then((result) => { if (active) setCourseAccess(result); }).catch((err) => { if (active) setCourseAccess({ courses: [], error: err.message }); }).finally(() => { if (active) setCourseAccessLoading(false); });
+    return () => { active = false; };
+  }, [conversation._id, session.actor.admin]);
   const save = async (event) => {
     event.preventDefault(); setSaving(true); setError(''); setSaved('');
     try { const result = await inboxApi(`/conversations/${conversation._id}/contact`, { method: 'PUT', body: { name: fields.name, email: fields.email, source: fields.source, service: fields.service, status: fields.status, revision: fields.revision } }); setFields(result); await onUpdate(); setSaved('Saved'); }
@@ -41,9 +54,31 @@ export default function CustomerDetails({ conversation, session, canEdit, onClos
     try { const ok = await onChange(values); if (!ok) setError('Could not save this change. Check the date or reopen the details to refresh the conversation.'); return ok; }
     finally { setSaving(false); }
   };
+  const openCourseAccess = () => {
+    const first = courseAccess?.courses?.[0];
+    if (!first) return;
+    setSelectedCourseId(first.id); setCourseEmail(first.email || fields.email || ''); setCourseError(''); setCourseModal(true);
+  };
+  const resendCourseAccess = async (event) => {
+    event.preventDefault();
+    const selected = courseAccess?.courses?.find((course) => course.id === selectedCourseId);
+    if (!selected || courseSending) return;
+    const email = String(courseEmail || '').trim().toLowerCase();
+    if (!selected.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setCourseError('Enter the email address to attach to this paid course.'); return; }
+    setCourseSending(true); setCourseError('');
+    try {
+      const result = await inboxApi(`/conversations/${conversation._id}/course-access/${selected.id}/resend`, { method: 'POST', body: selected.email ? {} : { email } });
+      setCourseAccess((prior) => ({ ...prior, courses: prior.courses.map((course) => course.id === selected.id ? { ...course, email: result.email || email } : course) }));
+      if (!selected.email && email) setFields((prior) => ({ ...prior, email }));
+      setSaved('Course access email sent'); setCourseModal(false); await onUpdate();
+    } catch (err) { setCourseError(err.message); }
+    finally { setCourseSending(false); }
+  };
+  const selectedCourse = courseAccess?.courses?.find((course) => course.id === selectedCourseId);
   const content = <>
     <div className={s.contactHero}><span className={s.avatar}>{initials(fields.name || fields.phone)}</span><strong>{fields.name || 'WhatsApp contact'}</strong><span>{session.actor.admin ? <a href={`tel:+${fields.phone}`}>+{fields.phone}</a> : `+${fields.phone}`}</span><span className={s.customerBadge}>{conversation.contact.status}</span></div>
     {error && <div className={s.error} role="alert">{error}</div>}
+    {session.actor.admin && (courseAccessLoading || courseAccess?.courses?.length > 0) && <section className={s.courseAccessCard}><div className={s.courseAccessIcon}><FiMail /></div><div><strong>Course access</strong><span>{courseAccessLoading ? 'Checking verified course payments…' : `${courseAccess.courses.length} verified course ${courseAccess.courses.length === 1 ? 'payment' : 'payments'} found`}</span></div><button className={s.secondary} disabled={courseAccessLoading} onClick={openCourseAccess}><FiSend /> Resend course email</button></section>}
     <details className={s.detailSection}><summary><FiUser />Customer</summary><form className={s.form} onSubmit={save}>{['name', 'email', 'source', 'service'].map((key) => <label key={key}>{({ name: 'Name', email: 'Email', source: 'Lead source', service: 'Interested in' })[key]}<input type={key === 'email' ? 'email' : 'text'} maxLength={key === 'email' ? 254 : 120} disabled={!canEdit} value={fields[key] || ''} placeholder="Not provided" onChange={(event) => setFields({ ...fields, [key]: event.target.value })} /></label>)}<label>Customer status<select disabled={!canEdit} value={fields.status} onChange={(event) => setFields({ ...fields, status: event.target.value })}><option value="lead">Lead</option><option value="customer">Customer</option><option value="inactive">Inactive</option></select></label><div className={s.saveRow}>{canEdit && <button className={s.secondary} disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>}<span role="status" className={s.saved}>{saved}</span></div></form></details>
     <details className={s.detailSection}><summary><FiClock />Conversation{conversation.followUpAt && conversation.status === 'follow_up' && <i className={s.sectionDot} />}</summary><div className={s.sectionBody}><div className={s.mobileAssignment}><label>Assigned representative<select aria-label="Mobile assigned representative" disabled={!session.actor.admin || saving} value={conversation.assignedTo || ''} onChange={(event) => change({ assignedTo: event.target.value || null })}><option value="">Unassigned</option>{session.staff.map((person) => <option key={person._id} value={person._id}>{person.name}</option>)}</select></label>{!session.actor.admin && !conversation.assignedTo && <button className={s.secondary} disabled={saving} onClick={() => change({ assignedTo: session.actor.id })}>Assign to me</button>}</div><dl><dt>Assigned to</dt><dd>{session.staff.find((person) => person._id === conversation.assignedTo)?.name || 'Unassigned'}</dd><dt>Status</dt><dd>{conversation.status.replace('_', ' ')}</dd><dt>First contact</dt><dd>{fullDate(conversation.createdAt)}</dd><dt>Last message</dt><dd>{fullDate(conversation.lastInboundAt)}</dd></dl>{canEdit && <form className={s.form} onSubmit={async (event) => { event.preventDefault(); if (when) await change({ followUpAt: new Date(when).toISOString() }); }}><label>Follow up at<input aria-label="Follow-up date and time" type="datetime-local" required value={when} onChange={(event) => setWhen(event.target.value)} /></label><div className={s.saveRow}><button className={s.secondary}>Schedule</button>{conversation.followUpAt && <button className={s.textButton} type="button" onClick={async () => { if (await change({ followUpAt: null })) setWhen(''); }}>Clear</button>}</div></form>}{conversation.followUpAt && <p className={s.detailHint}>Scheduled: {fullDate(conversation.followUpAt)}</p>}</div></details>
     <details className={s.detailSection}><summary><FiTag />Labels<span className={s.sectionCount}>{conversation.labels.length || ''}</span></summary><div className={s.sectionBody}><div className={s.tags}>{conversation.labels.map((label) => <span key={label}>{label}</span>)}</div>{canEdit && <form className={s.form} onSubmit={async (event) => { event.preventDefault(); await change({ labels: labels.split(',').map((label) => label.trim()).filter(Boolean) }); }}><label>Separate labels with commas<input value={labels} onChange={(event) => setLabels(event.target.value)} placeholder="Hot lead, Payment pending" maxLength={600} /></label><button className={s.secondary}>Save labels</button></form>}</div></details>
@@ -51,5 +86,6 @@ export default function CustomerDetails({ conversation, session, canEdit, onClos
     {editingRecord && <ChatActions conversation={conversation} session={session} initialKind={{Client:'setup',AdsClient:'ads',VerificationClient:'verification'}[editingRecord.kind]} recordId={editingRecord.id} onClose={() => setEditingRecord(null)} onSaved={async () => setRecords(await inboxApi(`/conversations/${conversation._id}/crm`))} />}<details className={s.detailSection}><summary><FiFolder />CRM records<span className={s.sectionCount}>{records.length || ''}</span></summary><div className={s.sectionBody}><p className={s.recordId}>Contact ID · {fields._id}</p>{loading ? <RowsSkeleton count={2} /> : !records.length ? <p className={s.detailHint}>No linked CRM records.</p> : records.filter(record => record.kind !== 'Invoice' || session.actor.admin).map((record) => <div key={`${record.kind}-${record.id}`}><div className={s.record}><b>{record.name || record.kind}</b><span>{record.service || record.kind}{record.amount != null ? ` · ₦${record.amount.toLocaleString()} · ${record.status}` : ''}</span><small>{record.id}</small>{record.createdAt && <time className={s.recordDate}><FiClock /> Created {fullDate(record.createdAt)}</time>}{record.paidAt && <time className={s.recordDate}>Paid {fullDate(record.paidAt)}</time>}</div><button className={s.secondary} onClick={() => setViewingRecord(record)}><FiEye /> View details</button>{canEdit && ['Client','AdsClient','VerificationClient'].includes(record.kind) && <button className={s.secondary} onClick={() => setEditingRecord(record)}>Edit</button>}</div>)}</div></details>
     <Resources id={conversation._id} kind="media" /><Resources id={conversation._id} kind="activity" />
   </>;
-  return inline ? <aside className={s.customerPanel} aria-label="Customer details"><header><span>Contact details</span><button className={s.iconButton} onClick={onClose} aria-label="Hide customer details"><FiX /></button></header><div className={s.customerScroll}>{content}</div></aside> : <Modal title="Contact details" drawer onClose={onClose}>{content}</Modal>;
+  const resendModal = courseModal && <Modal title="Resend course email" onClose={() => { if (!courseSending) setCourseModal(false); }}><form className={s.courseAccessForm} onSubmit={resendCourseAccess}><p className={s.courseAccessLead}>Choose the verified course payment to resend. The original course access instructions will be sent again.</p>{courseAccess?.courses?.map((course) => <label key={course.id} className={`${s.courseChoice} ${selectedCourseId === course.id ? s.courseChoiceSelected : ''}`}><input type="radio" name="course" value={course.id} checked={selectedCourseId === course.id} onChange={() => { setSelectedCourseId(course.id); setCourseEmail(course.email || fields.email || ''); setCourseError(''); }} /><span><b>{course.product === 'whatsapp-course' ? 'WhatsApp Status ads course' : 'TikTok, Facebook & Instagram ads course'}</b><small>₦{Number(course.amount || 0).toLocaleString()} · Verified {fullDate(course.paidAt)}</small><em>{course.email ? `Email: ${course.email}` : 'No email saved on this paid course'}</em></span></label>)}{selectedCourse && !selectedCourse.email && <label>Email address for this course<input type="email" value={courseEmail} required maxLength={254} autoComplete="email" placeholder="buyer@example.com" onChange={(event) => setCourseEmail(event.target.value)} /><small>This will be saved to this paid course record before the access email is sent.</small></label>}{courseError && <p className={s.error} role="alert">{courseError}</p>}<div className={s.courseAccessActions}><button type="button" className={s.secondary} disabled={courseSending} onClick={() => setCourseModal(false)}>Cancel</button><button className={s.primary} disabled={courseSending}>{courseSending ? 'Sending…' : 'Resend course email'}</button></div></form></Modal>;
+  return <>{inline ? <aside className={s.customerPanel} aria-label="Customer details"><header><span>Contact details</span><button className={s.iconButton} onClick={onClose} aria-label="Hide customer details"><FiX /></button></header><div className={s.customerScroll}>{content}</div></aside> : <Modal title="Contact details" drawer onClose={onClose}>{content}</Modal>}{resendModal}</>;
 }

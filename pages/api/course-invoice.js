@@ -12,12 +12,14 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
       const name = String(req.body?.name || "").trim();
       const whatsapp = String(req.body?.whatsapp || "").trim();
+      const email = String(req.body?.email || "").trim();
 
-      if (!name || !whatsapp) {
+      if (!name || !whatsapp || !email) {
         return res.status(400).json({
-          message: "Please enter your name and WhatsApp number.",
+          message: "Please enter your name, WhatsApp number and email address.",
         });
       }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ message: "Please enter a valid email address." });
 
       const response = await fetch(`${BACKEND_URL}/invoice`, {
         method: "POST",
@@ -28,7 +30,7 @@ export default async function handler(req, res) {
           amount: req.body?.product === "whatsapp-course" ? 10000 : COURSE_PRICE,
           customerName: name,
           customerPhone: whatsapp,
-          customerEmail: String(req.body?.email || "").trim(),
+          customerEmail: email,
           product: req.body?.product === "whatsapp-course" ? "whatsapp-course" : "ads-course",
           attribution: {
             source: req.body?.attribution?.source,

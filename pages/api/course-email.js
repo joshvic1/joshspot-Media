@@ -19,6 +19,6 @@ export default async function handler(req, res) {
     });
     return res.status(response.status).json(await response.json());
   } catch {
-    return res.status(502).json({ message: "The email did not send. Please try again, or join the Telegram channels below." });
+    return res.status(502).json({ message: "The email did not send. Please try again. You can also use the Telegram access button on this page." });
   }
 }
