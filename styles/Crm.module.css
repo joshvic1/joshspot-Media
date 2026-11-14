@@ -375,6 +375,72 @@
   font-size: 18px;
 }
 
+.clientNameActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.clientNameActions h3,
+.clientNameLink {
+  margin: 0 0 4px;
+  min-width: 0;
+  color: inherit;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.28;
+  text-align: left;
+}
+
+.clientNameLink {
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clientNameLink:hover,
+.clientNameLink:focus-visible {
+  color: #2563b8;
+  outline: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.clientNameFilter {
+  display: inline-grid;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+  place-items: center;
+  border: 1px solid #dce5f0;
+  border-radius: 7px;
+  background: #f7f9fc;
+  color: #6d7f95;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.clientNameFilter:hover,
+.clientNameFilter:focus-visible {
+  border-color: #9eb7dd;
+  background: #edf4ff;
+  color: #25569d;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.clientNameFilter svg {
+  width: 14px;
+  height: 14px;
+}
+
 .clientDate {
   display: block;
   margin-top: 7px;

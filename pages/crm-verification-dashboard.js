@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
 import DeleteClient from "../components/crm/DeleteClient";
 import CrmLayout from "../components/crm/CrmLayout";
+import ClientNameActions from "../components/crm/ClientNameActions";
+import { canAccessInbox } from "../utils/inboxAccess";
 
 const emptyVerificationForm = {
   name: "",
@@ -42,6 +44,9 @@ export default function CrmVerificationDashboard() {
   const [form, setForm] = useState(emptyVerificationForm);
   const [editingId, setEditingId] = useState("");
   const [saving, setSaving] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
+  const [nameFilter, setNameFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const formRef = useRef(null);
@@ -88,8 +93,26 @@ export default function CrmVerificationDashboard() {
     }
   }, [clients, pendingScrollClientId]);
 
-  const totalPages = Math.max(1, Math.ceil(clients.length / PAGE_SIZE));
-  const paginatedClients = clients.slice(
+  const filteredClients = useMemo(() => {
+    const selectedName = nameFilter.trim().toLowerCase();
+    const search = activeSearch.trim().toLowerCase();
+    if (selectedName) {
+      return clients.filter((client) =>
+        [client.name, client.businessName].some((value) =>
+          String(value || "").toLowerCase().includes(selectedName),
+        ),
+      );
+    }
+    if (!search) return clients;
+    return clients.filter((client) =>
+      ["name", "businessName", "clientNumber", "service", "clientLoginDetails"].some((field) =>
+        String(client[field] || "").toLowerCase().includes(search),
+      ),
+    );
+  }, [activeSearch, clients, nameFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredClients.length / PAGE_SIZE));
+  const paginatedClients = filteredClients.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
@@ -169,6 +192,31 @@ export default function CrmVerificationDashboard() {
     localStorage.removeItem("crmToken");
     localStorage.removeItem("crmStaff");
     router.push("/crm-login");
+  };
+
+  const searchClients = (event) => {
+    event.preventDefault();
+    setNameFilter("");
+    setActiveSearch(searchInput);
+    setCurrentPage(1);
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    setActiveSearch("");
+    setNameFilter("");
+    setCurrentPage(1);
+  };
+
+  const filterByClientName = (name) => {
+    setSearchInput(name);
+    setActiveSearch(name);
+    setNameFilter(name);
+    setCurrentPage(1);
+  };
+
+  const openInbox = (conversationId) => {
+    router.push(`/crm-inbox?conversation=${encodeURIComponent(conversationId)}`);
   };
 
 
@@ -289,8 +337,18 @@ export default function CrmVerificationDashboard() {
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Verification Clients</h2>
-            <span>{clients.length} records</span>
+            <span>{filteredClients.length} of {clients.length} records</span>
           </div>
+
+          <form className={styles.searchBar} onSubmit={searchClients}>
+            <input
+              placeholder="Search by name, business name, number or login details..."
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+            <button type="submit">Search</button>
+            {activeSearch && <button type="button" onClick={clearSearch}>Clear</button>}
+          </form>
 
           <div className={styles.clientList}>
             {paginatedClients.map((client) => (
@@ -305,7 +363,13 @@ export default function CrmVerificationDashboard() {
               >
                 <div className={styles.clientTop}>
                   <div>
-                    <h3>{client.businessName}</h3>
+                    <ClientNameActions
+                      name={client.name || client.businessName}
+                      conversationId={client.inboxConversationId}
+                      canOpenInbox={canAccessInbox(staff)}
+                      onOpenInbox={openInbox}
+                      onFilter={filterByClientName}
+                    />
                     {staff?.admin === true && <DeleteClient kind="verification-clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); if (editingId === client._id) { setEditingId(""); setForm(emptyVerificationForm); } }} />}
                     <span>{client.service || "Verification"}</span>
                     <small className={styles.clientDate}>
@@ -359,7 +423,11 @@ export default function CrmVerificationDashboard() {
               </p>
             )}
 
-            {clients.length > PAGE_SIZE && (
+            {clients.length > 0 && filteredClients.length === 0 && (
+              <p className={styles.emptyState}>No verification client matched your search.</p>
+            )}
+
+            {filteredClients.length > PAGE_SIZE && (
               <div className={styles.pagination}>
                 <button
                   disabled={currentPage === 1}

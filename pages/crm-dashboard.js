@@ -4,6 +4,8 @@ import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
 import DeleteClient from "../components/crm/DeleteClient";
 import CrmLayout from "../components/crm/CrmLayout";
+import ClientNameActions from "../components/crm/ClientNameActions";
+import { canAccessInbox } from "../utils/inboxAccess";
 
 const emptyForm = {
   businessName: "",
@@ -57,6 +59,7 @@ export default function CrmDashboard() {
   const [editingId, setEditingId] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
+  const [nameFilter, setNameFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const [saving, setSaving] = useState(false);
@@ -69,7 +72,16 @@ export default function CrmDashboard() {
   );
 
   const filteredClients = useMemo(() => {
+    const selectedName = nameFilter.trim().toLowerCase();
     const search = activeSearch.trim().toLowerCase();
+
+    if (selectedName) {
+      return clients.filter((client) =>
+        [client.businessName, client.name].some((value) =>
+          String(value || "").toLowerCase().includes(selectedName),
+        ),
+      );
+    }
 
     if (!search) {
       return clients;
@@ -82,7 +94,7 @@ export default function CrmDashboard() {
           .includes(search),
       ),
     );
-  }, [activeSearch, clients]);
+  }, [activeSearch, clients, nameFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredClients.length / PAGE_SIZE));
   const paginatedClients = useMemo(() => {
@@ -156,13 +168,26 @@ export default function CrmDashboard() {
   const searchClients = (event) => {
     event.preventDefault();
     setCurrentPage(1);
+    setNameFilter("");
     setActiveSearch(searchInput);
   };
 
   const clearSearch = () => {
     setSearchInput("");
     setActiveSearch("");
+    setNameFilter("");
     setCurrentPage(1);
+  };
+
+  const filterByClientName = (name) => {
+    setSearchInput(name);
+    setActiveSearch(name);
+    setNameFilter(name);
+    setCurrentPage(1);
+  };
+
+  const openInbox = (conversationId) => {
+    router.push(`/crm-inbox?conversation=${encodeURIComponent(conversationId)}`);
   };
 
   const saveClient = async (event) => {
@@ -291,7 +316,13 @@ export default function CrmDashboard() {
               >
                 <div className={styles.clientTop}>
                   <div>
-                    <h3>{client.businessName}</h3>
+                    <ClientNameActions
+                      name={client.businessName}
+                      conversationId={client.inboxConversationId}
+                      canOpenInbox={canAccessInbox(staff)}
+                      onOpenInbox={openInbox}
+                      onFilter={filterByClientName}
+                    />
                     {staff?.admin === true && <DeleteClient kind="clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); if (editingId === client._id) { setEditingId(""); setForm(emptyForm); } }} />}
                     <span>{client.servicePaidFor}</span>
                     <small className={styles.clientDate}>
