@@ -649,7 +649,7 @@
 .page .searchBar button { background:#eff4e8; color:#627d46; font-size:11px; font-weight:500; border:1px solid #e1e9d7; }
 .page .searchBar button[type=button] { background:#f7f9fc; color:#8b97a8; border-color:#e2e7ef; }
 .page .clientCard { padding:20px; background:#fff; border:1px solid #e4e9f1; border-radius:12px; }
-.page .clientTop h3 { font-size:15px; color:#2d465d; font-weight:600; }
+.page .clientTop h3 { font-size:17px; color:#2d465d; font-weight:700; }
 .page .clientTop .clientNameLink { border:0; border-radius:0; padding:0; background:transparent; color:inherit; }
 .page .clientTop .clientNameFilter { box-sizing:border-box; justify-content:center; align-content:center; padding:0; border:1px solid #dce5f0; border-radius:7px; background:#f7f9fc; color:#6d7f95; line-height:0; }
 .page .clientDate { color:#9aa5b4; font-size:10px; font-weight:400; }
