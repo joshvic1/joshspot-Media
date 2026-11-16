@@ -13,10 +13,10 @@ export default function ChatActions({ conversation, session, onClose, onSent, in
   const [history, setHistory] = useState([]); const [historyNext, setHistoryNext] = useState(null); const [reviewed, setReviewed] = useState(false); const [fieldErrors, setFieldErrors] = useState({});
   const [form, setForm] = useState({}); const key = useRef(null); const locked = useRef(false);
   useEffect(() => { let active = true; inboxApi(`/conversations/${conversation._id}/actions/customer`).then(data => { if (active) setCustomer(data); }).catch(e => { if (active) setError(e.message); }); return () => { active = false; }; }, [conversation._id]);
-  const go = async page => { if (busy) return; setScreen(page); setHistory([]); setHistoryNext(null); setReviewed(false); setFieldErrors({}); setError(''); setResult(null); setForm({ servicePaidFor: services[page]?.[0] || '' }); key.current = null; locked.current = false; setExistingId(null);
+  const go = async (page, options = {}) => { if (busy) return; const selectedRecordId = options.recordId || (page === initialKind ? recordId : null); setScreen(page); setHistory([]); setHistoryNext(null); setReviewed(false); setFieldErrors({}); setError(''); setResult(null); setForm({ servicePaidFor: services[page]?.[0] || '' }); key.current = null; locked.current = false; setExistingId(null);
     if (types[page]) {
       setBusy(true);
-      try { const data = await inboxApi(`/conversations/${conversation._id}/actions/crm/${page}${recordId ? `?recordId=${recordId}` : ''}`); if(page === 'ads' && !recordId){setHistory(data.records || []);setHistoryNext(data.next || null);}else if(data.record){setExistingId(data.record._id);setForm(data.record);} }
+      try { const data = await inboxApi(`/conversations/${conversation._id}/actions/crm/${page}${selectedRecordId ? `?recordId=${selectedRecordId}` : ''}`); if(page === 'ads' && !selectedRecordId){setHistory(data.records || []);setHistoryNext(data.next || null);}else if(data.record){setExistingId(data.record._id);setForm(data.record);} }
       catch(e){setError(e.message);locked.current=true;}finally{setBusy(false);}
     }
   };
@@ -57,11 +57,23 @@ export default function ChatActions({ conversation, session, onClose, onSent, in
     : result ? <div className={s.result} role="status"><FiCheckCircle /><h3>{result.queued ? 'Invoice queued for sending' : existingId ? 'Client details saved' : 'Client added to CRM'}</h3><p>{result.queued ? 'Delivery status will appear in the chat.' : 'The record is available in your CRM dashboard.'}</p><button className={s.primary} onClick={onClose}>Back to chat</button></div>
     : screen === 'ads' && !existingId && history.length > 0 && !reviewed ? <section className={s.history}>
       <div className={s.historyNotice}><FiAlertCircle /><div><b>Previous ads found</b><p>This customer already has ads records. Review them before adding another campaign.</p></div></div>
-      <div className={s.historyCards}>{history.map(item => <article key={item._id} className={s.historyCard}>
-        <strong>{new Date(item.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</strong>
-        <span className={item.adsPublished ? s.published : s.unpublished}>{item.adsPublished ? 'Published' : 'Not published'}</span>
-        <b>{item.businessName}</b><small>{item.servicePaidFor}</small><small>Amount paid: ₦{Number(item.amountPaid || 0).toLocaleString('en-NG')}</small>
-      </article>)}</div>
+      <div className={s.historyTableWrap}>
+        <table className={s.historyTable}>
+          <thead><tr><th>Date added</th><th>Service</th><th>Amount paid</th><th>Ad status</th><th>Funds</th><th><span className={s.srOnly}>Actions</span></th></tr></thead>
+          <tbody>{history.map(item => {
+            const fundsStatus = item.fundsStatus || (item.fundsSent ? 'sent' : 'pending');
+            const fundsLabel = { pending: 'Pending', sent: 'Sent', not_needed: 'Not needed' }[fundsStatus] || 'Pending';
+            return <tr key={item._id}>
+              <td><strong>{new Date(item.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</strong></td>
+              <td><span>{item.servicePaidFor || '—'}</span></td>
+              <td>₦{Number(item.amountPaid || 0).toLocaleString('en-NG')}</td>
+              <td><span className={item.adsPublished ? s.published : s.unpublished}>{item.adsPublished ? 'Published' : 'Not published'}</span></td>
+              <td><span className={fundsStatus === 'sent' ? s.fundsSent : fundsStatus === 'not_needed' ? s.fundsNotNeeded : s.fundsPending}>{fundsLabel}</span></td>
+              <td><button type="button" className={s.historyEdit} disabled={busy} onClick={() => go('ads', { recordId: String(item._id) })}>Edit</button></td>
+            </tr>;
+          })}</tbody>
+        </table>
+      </div>
       {historyNext && <button type="button" className={s.back} disabled={busy} onClick={async()=>{setBusy(true);try{const data=await inboxApi(`/conversations/${conversation._id}/actions/crm/ads?before=${historyNext}`);setHistory(old=>[...old,...data.records]);setHistoryNext(data.next);}catch(e){setError(e.message);}finally{setBusy(false);}}}>Show older ads</button>}
       <p className={s.historyHint}>Paid for a new campaign?</p><button type="button" className={s.primary} disabled={busy} onClick={()=>setReviewed(true)}>Continue — add another ad</button>
     </section> : <form onSubmit={submit} noValidate={Boolean(types[screen])} className={s.form}>
