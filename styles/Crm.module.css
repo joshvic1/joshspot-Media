@@ -656,8 +656,8 @@
 .page .searchBar button { background:#eff4e8; color:#627d46; font-size:11px; font-weight:500; border:1px solid #e1e9d7; }
 .page .searchBar button[type=button] { background:#f7f9fc; color:#8b97a8; border-color:#e2e7ef; }
 .page .clientCard { padding:20px; background:#fff; border:1px solid #e4e9f1; border-radius:12px; }
-.page .clientTop h3 { font-size:17px; color:#2d465d; font-weight:700; }
-.page .clientTop .clientNameLink { border:0; border-radius:0; padding:0; background:transparent; color:inherit; }
+.page .clientTop h3 { font-size:20px; color:#2d465d; font-weight:800; letter-spacing:-.015em; }
+.page .clientTop .clientNameLink { border:0; border-radius:0; padding:0; background:transparent; color:inherit; font-size:inherit; font-weight:inherit; line-height:inherit; }
 .page .clientTop .clientNameFilter { box-sizing:border-box; justify-content:center; align-content:center; padding:0; border:1px solid #dce5f0; border-radius:7px; background:#f7f9fc; color:#6d7f95; line-height:0; }
 .page .clientDate { color:#9aa5b4; font-size:10px; font-weight:400; }
 .page .clientFields { gap:10px; }
@@ -690,4 +690,4 @@
 .page .fundsBadge[aria-busy=true] { opacity:.65; }
 .page .fundsSelect:disabled { cursor:wait; }
 @media(max-width:1200px) { .page .contentGrid { grid-template-columns:1fr; }.page .form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 18px; }.page .form > button { grid-column:1/-1; } }
-@media(max-width:600px) { .page .panel { padding:18px; }.page .form,.page .clientFields { grid-template-columns:minmax(0,1fr); }.page .searchBar { grid-template-columns:minmax(0,1fr) auto auto; }.page .searchBar input { grid-column:1/-1; }.page .clientFilterCard { grid-template-columns:minmax(0,1fr); }.page .pagination { display:flex; flex-wrap:wrap; justify-content:center; }.page .clientCard { padding:15px; } }
+@media(max-width:600px) { .page .panel { padding:18px; }.page .form,.page .clientFields { grid-template-columns:minmax(0,1fr); }.page .searchBar { grid-template-columns:minmax(0,1fr) 38px auto; }.page .searchBar input { grid-column:auto; }.page .clientFilterCard { grid-template-columns:minmax(0,1fr); }.page .pagination { display:flex; flex-wrap:wrap; justify-content:center; }.page .clientCard { padding:15px; } }

@@ -117,8 +117,6 @@ export default function CrmDashboard() {
     setCurrentPage(1);
     setNameFilter("");
     setActiveSearch(searchInput);
-    setServiceFilter(serviceInput);
-    setCategoryFilter(categoryInput);
   };
 
   const clearSearch = () => {
@@ -187,19 +185,29 @@ export default function CrmDashboard() {
 
           {filtersOpen && <div className={styles.clientFilterCard}>
             <label>Category
-              <select value={categoryInput} onChange={(event) => setCategoryInput(event.target.value)}>
+              <select value={categoryInput} onChange={(event) => {
+                const value = event.target.value;
+                setCategoryInput(value);
+                setCategoryFilter(value);
+                setCurrentPage(1);
+              }}>
                 <option value="">All categories</option>
                 <option value="tiktok">TikTok — DM & Landing Page</option>
                 <option value="meta">Meta — all setup records</option>
               </select>
             </label>
             <label>Specific service
-              <select value={serviceInput} onChange={(event) => setServiceInput(event.target.value)}>
+              <select value={serviceInput} onChange={(event) => {
+                const value = event.target.value;
+                setServiceInput(value);
+                setServiceFilter(value);
+                setCurrentPage(1);
+              }}>
                 <option value="">All services</option>
                 {serviceOptions.map((service) => <option key={service} value={service}>{service}</option>)}
               </select>
             </label>
-            <p>Choose one or combine both, then select Search.</p>
+            <p>Choose one or combine both. Your list updates immediately.</p>
           </div>}
 
           <div className={styles.clientList}>
