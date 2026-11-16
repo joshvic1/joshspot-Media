@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
@@ -7,23 +7,7 @@ import CrmLayout from "../components/crm/CrmLayout";
 import FundsBadge from "../components/crm/FundsBadge";
 import ClientNameActions from "../components/crm/ClientNameActions";
 import { canAccessInbox } from "../utils/inboxAccess";
-
-const serviceOptions = [
-  "TikTok Ads Landing Page",
-  "TikTok DM Ads",
-  "Meta Ads Landing Page",
-  "Meta DM Ads",
-];
-
-const emptyForm = {
-  clientNumber: "",
-  businessName: "",
-  amountPaid: "",
-  clientLoginDetails: "",
-  videoLinks: "",
-  servicePaidFor: serviceOptions[0],
-  note: "",
-};
+import { FiSliders } from "react-icons/fi";
 
 const fieldLabels = {
   clientNumber: "Client WhatsApp number",
@@ -34,6 +18,13 @@ const fieldLabels = {
   servicePaidFor: "Service paid for",
   note: "Note",
 };
+
+const serviceOptions = [
+  "TikTok Ads Landing Page",
+  "TikTok DM Ads",
+  "Meta Ads Landing Page",
+  "Meta DM Ads",
+];
 
 const fieldOrder = [
   "businessName",
@@ -62,25 +53,18 @@ export default function CrmAdsDashboard() {
   const router = useRouter();
   const [staff, setStaff] = useState(null);
   const [clients, setClients] = useState([]);
-  const [permissions, setPermissions] = useState({ canCreate: false, fields: [] });
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [nameFilter, setNameFilter] = useState("");
   const [serviceFilter, setServiceFilter] = useState("");
   const [fundsStatusFilter, setFundsStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [serviceInput, setServiceInput] = useState("");
+  const [fundsStatusInput, setFundsStatusInput] = useState("");
+  const [categoryInput, setCategoryInput] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pendingScrollClientId, setPendingScrollClientId] = useState("");
-  const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState("");
-  const formRef = useRef(null);
-  const clientRefs = useRef({});
-
-  const editableFields = useMemo(
-    () => fieldOrder.filter((field) => permissions.fields.includes(field)),
-    [permissions.fields],
-  );
 
   const filteredClients = useMemo(() => {
     const selectedName = nameFilter.trim().toLowerCase();
@@ -94,11 +78,12 @@ export default function CrmAdsDashboard() {
         String(client[field] || "").toLowerCase().includes(search),
       );
       const matchesService = !serviceFilter || client.servicePaidFor === serviceFilter;
+      const matchesCategory = !categoryFilter || String(client.servicePaidFor || "").toLowerCase().includes(categoryFilter);
       const fundsStatus = client.fundsStatus || (client.fundsSent ? "sent" : "pending");
       const matchesFundsStatus = !fundsStatusFilter || fundsStatus === fundsStatusFilter;
-      return matchesName && matchesSearch && matchesService && matchesFundsStatus;
+      return matchesName && matchesSearch && matchesService && matchesCategory && matchesFundsStatus;
     });
-  }, [activeSearch, clients, fundsStatusFilter, nameFilter, serviceFilter]);
+  }, [activeSearch, categoryFilter, clients, fundsStatusFilter, nameFilter, serviceFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredClients.length / PAGE_SIZE));
   const paginatedClients = useMemo(() => {
@@ -111,7 +96,6 @@ export default function CrmAdsDashboard() {
       const res = await API.get("/crm/ads-clients");
 
       setClients(res.data.clients);
-      setPermissions(res.data.permissions);
       setLoadError("");
       setCurrentPage(1);
       return res.data.clients;
@@ -147,50 +131,14 @@ export default function CrmAdsDashboard() {
     fetchClients();
   }, [fetchClients, router]);
 
-  useEffect(() => {
-    if (!pendingScrollClientId) {
-      return;
-    }
-
-    const clientNode = clientRefs.current[pendingScrollClientId];
-
-    if (clientNode) {
-      clientNode.scrollIntoView({ behavior: "smooth", block: "center" });
-      setPendingScrollClientId("");
-    }
-  }, [clients, filteredClients, pendingScrollClientId]);
-
-  const handleChange = (field, value) => {
-    setForm((current) => ({ ...current, [field]: value }));
-  };
-
-
-  const startEdit = (client) => {
-    setEditingId(client._id);
-
-    setForm({
-      ...emptyForm,
-      ...fieldOrder.reduce((values, field) => {
-        values[field] = client[field] === "******" ? "" : client[field] || "";
-        return values;
-      }, {}),
-    });
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
-  };
-
-  const resetForm = () => {
-    setEditingId("");
-    setForm(emptyForm);
-
-  };
-
   const searchClients = (event) => {
     event.preventDefault();
     setCurrentPage(1);
     setNameFilter("");
     setActiveSearch(searchInput);
+    setServiceFilter(serviceInput);
+    setFundsStatusFilter(fundsStatusInput);
+    setCategoryFilter(categoryInput);
   };
 
   const clearSearch = () => {
@@ -199,6 +147,10 @@ export default function CrmAdsDashboard() {
     setNameFilter("");
     setServiceFilter("");
     setFundsStatusFilter("");
+    setCategoryFilter("");
+    setServiceInput("");
+    setFundsStatusInput("");
+    setCategoryInput("");
     setCurrentPage(1);
   };
 
@@ -211,36 +163,6 @@ export default function CrmAdsDashboard() {
 
   const openInbox = (conversationId) => {
     router.push(`/crm-inbox?conversation=${encodeURIComponent(conversationId)}`);
-  };
-
-  const saveClient = async (event) => {
-    event.preventDefault();
-    setSaving(true);
-
-    const payload = editableFields.reduce((values, field) => {
-      values[field] = field === "amountPaid" ? Number(form[field] || 0) : form[field];
-      return values;
-    }, {});
-
-    try {
-      if (editingId) {
-        const response = await API.put(`/crm/ads-clients/${editingId}`, payload);
-        setPendingScrollClientId(response.data._id);
-        await fetchClients();
-      } else {
-        const response = await API.post("/crm/ads-clients", payload);
-        setActiveSearch("");
-        setSearchInput("");
-        setPendingScrollClientId(response.data._id);
-        await fetchClients();
-      }
-
-      resetForm();
-    } catch (error) {
-      alert(error.response?.data?.message || "Unable to save ads client");
-    } finally {
-      setSaving(false);
-    }
   };
 
   const toggleAdsPublished = async (client) => {
@@ -291,72 +213,11 @@ export default function CrmAdsDashboard() {
     router.push("/crm-login");
   };
 
-
-  const canShowForm = Boolean(editingId);
-
   return (
     <CrmLayout active="ads" staff={staff} onLogout={logout}>
     <div className={styles.page}>
 
-      <section className={styles.contentGrid}>
-        <div className={styles.panel} ref={formRef}>
-          <div className={styles.panelHeader}>
-            <h2>Update Ads Client</h2>
-          </div>
-
-          {canShowForm ? (
-            <form className={styles.form} onSubmit={saveClient}>
-              {editableFields.map((field) => (
-                <label key={field}>
-                  <span>{fieldLabels[field]}</span>
-                  {field === "servicePaidFor" ? (
-                    <select
-                      value={form[field]}
-                      onChange={(event) => handleChange(field, event.target.value)}
-                      required
-                    >
-                      {serviceOptions.map((service) => (
-                        <option key={service}>{service}</option>
-                      ))}
-                    </select>
-                  ) : field === "clientLoginDetails" || field === "videoLinks" || field === "note" ? (
-                    <textarea
-                      value={form[field]}
-                      onChange={(event) => handleChange(field, event.target.value)}
-                      required={field !== "note" && field !== "clientLoginDetails"}
-                    />
-                  ) : (
-                    <input
-                      type={field === "amountPaid" ? "number" : field === "clientNumber" ? "tel" : "text"}
-                      value={form[field]}
-                      onChange={(event) => handleChange(field, event.target.value)}
-                      required={field !== "note"}
-                    />
-                  )}
-                </label>
-              ))}
-
-              <button type="submit" disabled={saving}>
-                {saving ? "Saving..." : editingId ? "Save Changes" : "Create Ads Client"}
-              </button>
-
-              {editingId && (
-                <button
-                  className={styles.cancelButton}
-                  onClick={resetForm}
-                  type="button"
-                >
-                  Cancel Update
-                </button>
-              )}
-            </form>
-          ) : (
-            <p className={styles.emptyState}>
-              Select a client below to edit their details. Add new clients from the CRM inbox.
-            </p>
-          )}
-        </div>
-
+      <section className={styles.clientListGrid}>
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Existing Ads Clients</h2>
@@ -367,54 +228,58 @@ export default function CrmAdsDashboard() {
 
           {loadError && <p className={styles.errorState}>{loadError}</p>}
 
-          <form className={`${styles.searchBar} ${styles.searchBarWithFunds}`} onSubmit={searchClients}>
+          <form className={styles.searchBar} onSubmit={searchClients}>
             <input
               placeholder="Search by business name, service, video link, note..."
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
             />
-            <select
-              aria-label="Filter ads clients by service"
-              value={serviceFilter}
-              onChange={(event) => {
-                setServiceFilter(event.target.value);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="">All services</option>
-              {serviceOptions.map((service) => <option key={service} value={service}>{service}</option>)}
-            </select>
-            <select
-              aria-label="Filter ads clients by funds status"
-              value={fundsStatusFilter}
-              onChange={(event) => {
-                setFundsStatusFilter(event.target.value);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="">All funds statuses</option>
-              <option value="pending">Funds pending</option>
-              <option value="sent">Funds sent</option>
-              <option value="not_needed">Funds not needed</option>
-            </select>
+            <button
+              type="button"
+              className={`${styles.searchFilterToggle} ${(serviceFilter || categoryFilter || fundsStatusFilter) ? styles.searchFilterActive : ""}`}
+              aria-label="Show filters"
+              aria-expanded={filtersOpen}
+              title="Filter clients"
+              onClick={() => setFiltersOpen((open) => !open)}
+            ><FiSliders /></button>
             <button type="submit">Search</button>
-            {(activeSearch || serviceFilter || fundsStatusFilter) && (
+            {(activeSearch || serviceFilter || categoryFilter || fundsStatusFilter) && (
               <button type="button" onClick={clearSearch}>
                 Clear
               </button>
             )}
           </form>
 
+          {filtersOpen && <div className={styles.clientFilterCard}>
+            <label>Category
+              <select value={categoryInput} onChange={(event) => setCategoryInput(event.target.value)}>
+                <option value="">All categories</option>
+                <option value="tiktok">TikTok — DM & Landing Page</option>
+                <option value="meta">Meta — DM & Landing Page</option>
+              </select>
+            </label>
+            <label>Specific service
+              <select value={serviceInput} onChange={(event) => setServiceInput(event.target.value)}>
+                <option value="">All services</option>
+                {serviceOptions.map((service) => <option key={service} value={service}>{service}</option>)}
+              </select>
+            </label>
+            <label>Funds status
+              <select value={fundsStatusInput} onChange={(event) => setFundsStatusInput(event.target.value)}>
+                <option value="">All funds statuses</option>
+                <option value="pending">Funds pending</option>
+                <option value="sent">Funds sent</option>
+                <option value="not_needed">Funds not needed</option>
+              </select>
+            </label>
+            <p>Choose one or combine filters, then select Search.</p>
+          </div>}
+
           <div className={styles.clientList}>
             {paginatedClients.map((client) => (
               <article
                 key={client._id}
                 className={styles.clientCard}
-                ref={(node) => {
-                  if (node) {
-                    clientRefs.current[client._id] = node;
-                  }
-                }}
               >
                 <div className={styles.clientTop}>
                   <div>
@@ -425,7 +290,7 @@ export default function CrmAdsDashboard() {
                       onOpenInbox={openInbox}
                       onFilter={filterByClientName}
                     />
-                    {staff?.admin === true && <DeleteClient kind="ads-clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); if (editingId === client._id) { setEditingId(""); setForm(emptyForm); } }} />}
+                    {staff?.admin === true && <DeleteClient kind="ads-clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); }} />}
                     <span>{client.servicePaidFor}</span>
                     <small className={styles.clientDate}>
                       Added {formatAddedDate(client.createdAt)}
@@ -434,7 +299,6 @@ export default function CrmAdsDashboard() {
                       <FundsBadge client={client} editable={Boolean(staff?.admin)} saving={Boolean(fundsSaving[client._id])} onChange={(value) => changeFundsStatus(client, value)} />
                     </div>
                   </div>
-                  <button onClick={() => startEdit(client)}>Update</button>
                 </div>
 
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", alignItems: "center" }}>

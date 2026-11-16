@@ -629,6 +629,7 @@
 .page { padding:0; }
 .page .contentGrid { grid-template-columns:minmax(260px,340px) minmax(0,1fr); gap:22px; }
 .page .contentGrid > * { min-width:0; }
+.page .clientListGrid { display:block; }
 .page .panel,.page .summaryGrid > div { background:#fff; border:1px solid #e1e6ee; border-radius:14px; box-shadow:0 3px 4px #17243d02; padding:24px; }
 .page .panelHeader { align-items:flex-start; gap:12px; flex-wrap:wrap; }
 .page .panelHeader h2 { color:#2b4058; font-size:17px; line-height:1.4; }
@@ -643,9 +644,15 @@
 .page .form button:disabled { opacity:.5; cursor:wait; }
 .page .secondaryBtn,.page .clientTop button,.page .cancelButton { background:#eff4e8; border:1px solid #e1e9d7; color:#648148; font-size:11px; font-weight:500; }
 .page .form .cancelButton { background:#f4f6fa; color:#7e8ca0; border:1px solid #e3e8ef; margin-top:10px; }
-.page .searchBar { grid-template-columns:minmax(0,1fr) minmax(170px,230px) auto auto; gap:8px; padding-bottom:18px; border-bottom:1px solid #edf1f6; }
-.page .searchBarWithFunds { grid-template-columns:minmax(0,1fr) minmax(150px,210px) minmax(145px,190px) auto auto; }
-.page .searchBar select { min-width:0; cursor:pointer; }
+.page .searchBar { grid-template-columns:minmax(0,1fr) auto auto auto; gap:8px; padding-bottom:18px; border-bottom:1px solid #edf1f6; }
+.page .searchFilterToggle { display:grid; width:38px; min-width:38px; height:38px; place-items:center; padding:0; border:1px solid #dfe6ef; border-radius:8px; background:#f7f9fc; color:#718197; cursor:pointer; }
+.page .searchFilterToggle svg { width:15px; height:15px; }
+.page .searchFilterToggle:hover,.page .searchFilterToggle:focus-visible,.page .searchFilterToggle[aria-expanded=true],.page .searchFilterActive { border-color:#bdcde2; background:#edf4ff; color:#2856a2; outline:none; }
+.page .clientFilterCard { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:-4px 0 18px; padding:14px; border:1px solid #dfe7f1; border-radius:12px; background:#f8faff; animation:filterCardIn .16s ease-out; }
+.page .clientFilterCard label { display:grid; gap:6px; color:#718197; font-size:11px; font-weight:600; }
+.page .clientFilterCard select { width:100%; min-width:0; border:1px solid #dfe6ef; border-radius:8px; background:#fff; color:#435a73; padding:10px; font:inherit; cursor:pointer; }
+.page .clientFilterCard p { grid-column:1/-1; margin:0; color:#8a98aa; font-size:11px; }
+@keyframes filterCardIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 .page .searchBar button { background:#eff4e8; color:#627d46; font-size:11px; font-weight:500; border:1px solid #e1e9d7; }
 .page .searchBar button[type=button] { background:#f7f9fc; color:#8b97a8; border-color:#e2e7ef; }
 .page .clientCard { padding:20px; background:#fff; border:1px solid #e4e9f1; border-radius:12px; }
@@ -683,4 +690,4 @@
 .page .fundsBadge[aria-busy=true] { opacity:.65; }
 .page .fundsSelect:disabled { cursor:wait; }
 @media(max-width:1200px) { .page .contentGrid { grid-template-columns:1fr; }.page .form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 18px; }.page .form > button { grid-column:1/-1; } }
-@media(max-width:600px) { .page .panel { padding:18px; }.page .form,.page .clientFields { grid-template-columns:minmax(0,1fr); }.page .searchBar { grid-template-columns:minmax(0,1fr) auto; }.page .searchBar input,.page .searchBar select { grid-column:1/-1; }.page .pagination { display:flex; flex-wrap:wrap; justify-content:center; }.page .clientCard { padding:15px; } }
+@media(max-width:600px) { .page .panel { padding:18px; }.page .form,.page .clientFields { grid-template-columns:minmax(0,1fr); }.page .searchBar { grid-template-columns:minmax(0,1fr) auto auto; }.page .searchBar input { grid-column:1/-1; }.page .clientFilterCard { grid-template-columns:minmax(0,1fr); }.page .pagination { display:flex; flex-wrap:wrap; justify-content:center; }.page .clientCard { padding:15px; } }

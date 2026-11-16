@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
@@ -6,16 +6,7 @@ import DeleteClient from "../components/crm/DeleteClient";
 import CrmLayout from "../components/crm/CrmLayout";
 import ClientNameActions from "../components/crm/ClientNameActions";
 import { canAccessInbox } from "../utils/inboxAccess";
-
-const emptyForm = {
-  businessName: "",
-  amountPaid: "",
-  servicePaidFor: "Meta ads setup",
-  clientLoginDetails: "",
-  landingPageLogins: "",
-  landingPageLink: "",
-  clientNumber: "",
-};
+import { FiSliders } from "react-icons/fi";
 
 const fieldLabels = {
   businessName: "Name / Business name",
@@ -60,24 +51,15 @@ export default function CrmDashboard() {
   const router = useRouter();
   const [staff, setStaff] = useState(null);
   const [clients, setClients] = useState([]);
-  const [permissions, setPermissions] = useState({ canCreate: false, fields: [] });
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [nameFilter, setNameFilter] = useState("");
   const [serviceFilter, setServiceFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [serviceInput, setServiceInput] = useState("");
+  const [categoryInput, setCategoryInput] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pendingScrollClientId, setPendingScrollClientId] = useState("");
-  const [saving, setSaving] = useState(false);
-  const formRef = useRef(null);
-  const clientRefs = useRef({});
-
-  const editableFields = useMemo(
-    () => fieldOrder.filter((field) => permissions.fields.includes(field)),
-    [permissions.fields],
-  );
-
   const filteredClients = useMemo(() => {
     const selectedName = nameFilter.trim().toLowerCase();
     const search = activeSearch.trim().toLowerCase();
@@ -90,9 +72,10 @@ export default function CrmDashboard() {
         String(client[field] || "").toLowerCase().includes(search),
       );
       const matchesService = !serviceFilter || client.servicePaidFor === serviceFilter;
-      return matchesName && matchesSearch && matchesService;
+      const matchesCategory = !categoryFilter || String(client.servicePaidFor || "").toLowerCase().includes(categoryFilter);
+      return matchesName && matchesSearch && matchesService && matchesCategory;
     });
-  }, [activeSearch, clients, nameFilter, serviceFilter]);
+  }, [activeSearch, categoryFilter, clients, nameFilter, serviceFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredClients.length / PAGE_SIZE));
   const paginatedClients = useMemo(() => {
@@ -105,7 +88,6 @@ export default function CrmDashboard() {
       const res = await API.get("/crm/clients");
 
       setClients(res.data.clients);
-      setPermissions(res.data.permissions);
       setCurrentPage(1);
       return res.data.clients;
     } catch {
@@ -130,44 +112,13 @@ export default function CrmDashboard() {
     fetchClients();
   }, [fetchClients, router]);
 
-  useEffect(() => {
-    if (!pendingScrollClientId) {
-      return;
-    }
-
-    const clientNode = clientRefs.current[pendingScrollClientId];
-
-    if (clientNode) {
-      clientNode.scrollIntoView({ behavior: "smooth", block: "center" });
-      setPendingScrollClientId("");
-    }
-  }, [clients, filteredClients, pendingScrollClientId]);
-
-  const handleChange = (field, value) => {
-    setForm((current) => ({ ...current, [field]: value }));
-  };
-
-
-  const startEdit = (client) => {
-    setEditingId(client._id);
-
-    setForm({
-      ...emptyForm,
-      ...fieldOrder.reduce((values, field) => {
-        values[field] = client[field] === "******" ? "" : client[field] || "";
-        return values;
-      }, {}),
-    });
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
-  };
-
   const searchClients = (event) => {
     event.preventDefault();
     setCurrentPage(1);
     setNameFilter("");
     setActiveSearch(searchInput);
+    setServiceFilter(serviceInput);
+    setCategoryFilter(categoryInput);
   };
 
   const clearSearch = () => {
@@ -175,6 +126,9 @@ export default function CrmDashboard() {
     setActiveSearch("");
     setNameFilter("");
     setServiceFilter("");
+    setCategoryFilter("");
+    setServiceInput("");
+    setCategoryInput("");
     setCurrentPage(1);
   };
 
@@ -189,37 +143,6 @@ export default function CrmDashboard() {
     router.push(`/crm-inbox?conversation=${encodeURIComponent(conversationId)}`);
   };
 
-  const saveClient = async (event) => {
-    event.preventDefault();
-    setSaving(true);
-
-    const payload = editableFields.reduce((values, field) => {
-      values[field] = field === "amountPaid" ? Number(form[field] || 0) : form[field];
-      return values;
-    }, {});
-
-    try {
-      if (editingId) {
-        await API.put(`/crm/clients/${editingId}`, payload);
-        await fetchClients();
-      } else {
-        const res = await API.post("/crm/clients", payload);
-        setActiveSearch("");
-        setSearchInput("");
-
-        setPendingScrollClientId(res.data._id);
-        await fetchClients();
-      }
-
-      setForm(emptyForm);
-      setEditingId("");
-    } catch (error) {
-      alert(error.response?.data?.message || "Unable to save client");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const logout = () => {
     if (staff?.admin) { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); return; }
     localStorage.removeItem("crmToken");
@@ -227,57 +150,11 @@ export default function CrmDashboard() {
     router.push("/crm-login");
   };
 
-
-  const canShowForm = Boolean(editingId);
-
   return (
     <CrmLayout active="setup" staff={staff} onLogout={logout}>
     <div className={styles.page}>
 
-      <section className={styles.contentGrid}>
-        <div className={styles.panel} ref={formRef}>
-          <div className={styles.panelHeader}>
-            <h2>Update Client</h2>
-          </div>
-
-          {canShowForm ? (
-            <form className={styles.form} onSubmit={saveClient}>
-              {editableFields.map((field) => (
-                <label key={field}>
-                  <span>{fieldLabels[field]}</span>
-                  {field === "servicePaidFor" ? (
-                    <select
-                      value={form[field]}
-                      onChange={(e) => handleChange(field, e.target.value)}
-                    >
-                      {serviceOptions.map((service) => <option key={service}>{service}</option>)}
-                    </select>
-                  ) : field.includes("Details") || field.includes("Logins") ? (
-                    <textarea
-                      value={form[field]}
-                      onChange={(e) => handleChange(field, e.target.value)}
-                    />
-                  ) : (
-                    <input
-                      type={field === "amountPaid" ? "number" : "text"}
-                      value={form[field]}
-                      onChange={(e) => handleChange(field, e.target.value)}
-                    />
-                  )}
-                </label>
-              ))}
-
-              <button type="submit" disabled={saving}>
-                {saving ? "Saving..." : editingId ? "Save Changes" : "Create Client"}
-              </button>
-            </form>
-          ) : (
-            <p className={styles.emptyState}>
-              Select a client below to edit their details. Add new clients from the CRM inbox.
-            </p>
-          )}
-        </div>
-
+      <section className={styles.clientListGrid}>
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Existing Clients</h2>
@@ -292,35 +169,44 @@ export default function CrmDashboard() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <select
-              aria-label="Filter setup clients by service"
-              value={serviceFilter}
-              onChange={(event) => {
-                setServiceFilter(event.target.value);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="">All services</option>
-              {serviceOptions.map((service) => <option key={service} value={service}>{service}</option>)}
-            </select>
+            <button
+              type="button"
+              className={`${styles.searchFilterToggle} ${(serviceFilter || categoryFilter) ? styles.searchFilterActive : ""}`}
+              aria-label="Show filters"
+              aria-expanded={filtersOpen}
+              title="Filter clients"
+              onClick={() => setFiltersOpen((open) => !open)}
+            ><FiSliders /></button>
             <button type="submit">Search</button>
-            {(activeSearch || serviceFilter) && (
+            {(activeSearch || serviceFilter || categoryFilter) && (
               <button type="button" onClick={clearSearch}>
                 Clear
               </button>
             )}
           </form>
 
+          {filtersOpen && <div className={styles.clientFilterCard}>
+            <label>Category
+              <select value={categoryInput} onChange={(event) => setCategoryInput(event.target.value)}>
+                <option value="">All categories</option>
+                <option value="tiktok">TikTok — DM & Landing Page</option>
+                <option value="meta">Meta — all setup records</option>
+              </select>
+            </label>
+            <label>Specific service
+              <select value={serviceInput} onChange={(event) => setServiceInput(event.target.value)}>
+                <option value="">All services</option>
+                {serviceOptions.map((service) => <option key={service} value={service}>{service}</option>)}
+              </select>
+            </label>
+            <p>Choose one or combine both, then select Search.</p>
+          </div>}
+
           <div className={styles.clientList}>
             {paginatedClients.map((client) => (
               <article
                 key={client._id}
                 className={styles.clientCard}
-                ref={(node) => {
-                  if (node) {
-                    clientRefs.current[client._id] = node;
-                  }
-                }}
               >
                 <div className={styles.clientTop}>
                   <div>
@@ -331,13 +217,12 @@ export default function CrmDashboard() {
                       onOpenInbox={openInbox}
                       onFilter={filterByClientName}
                     />
-                    {staff?.admin === true && <DeleteClient kind="clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); if (editingId === client._id) { setEditingId(""); setForm(emptyForm); } }} />}
+                    {staff?.admin === true && <DeleteClient kind="clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); }} />}
                     <span>{client.servicePaidFor}</span>
                     <small className={styles.clientDate}>
                       Added {formatAddedDate(client.createdAt)}
                     </small>
                   </div>
-                  <button onClick={() => startEdit(client)}>Update</button>
                 </div>
 
                 <div className={styles.clientFields}>
