@@ -12,7 +12,7 @@ export default function ClientNameActions({
   const hasInboxLink = Boolean(canOpenInbox && conversationId);
 
   return <div className={styles.clientNameActions}>
-    {hasInboxLink ? (
+    <h3>{hasInboxLink ? (
       <button
         type="button"
         className={styles.clientNameLink}
@@ -21,7 +21,7 @@ export default function ClientNameActions({
       >
         {clientName}
       </button>
-    ) : <h3>{clientName}</h3>}
+    ) : clientName}</h3>
     <button
       type="button"
       className={styles.clientNameFilter}

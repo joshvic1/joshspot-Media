@@ -68,6 +68,8 @@ export default function CrmAdsDashboard() {
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [nameFilter, setNameFilter] = useState("");
+  const [serviceFilter, setServiceFilter] = useState("");
+  const [fundsStatusFilter, setFundsStatusFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const [saving, setSaving] = useState(false);
@@ -84,26 +86,19 @@ export default function CrmAdsDashboard() {
     const selectedName = nameFilter.trim().toLowerCase();
     const search = activeSearch.trim().toLowerCase();
 
-    if (selectedName) {
-      return clients.filter((client) =>
-        [client.businessName, client.name].some((value) =>
-          String(value || "").toLowerCase().includes(selectedName),
-        ),
+    return clients.filter((client) => {
+      const matchesName = !selectedName || [client.businessName, client.name].some((value) =>
+        String(value || "").toLowerCase().includes(selectedName),
       );
-    }
-
-    if (!search) {
-      return clients;
-    }
-
-    return clients.filter((client) =>
-      fieldOrder.some((field) =>
-        String(client[field] || "")
-          .toLowerCase()
-          .includes(search),
-      ),
-    );
-  }, [activeSearch, clients, nameFilter]);
+      const matchesSearch = !search || fieldOrder.some((field) =>
+        String(client[field] || "").toLowerCase().includes(search),
+      );
+      const matchesService = !serviceFilter || client.servicePaidFor === serviceFilter;
+      const fundsStatus = client.fundsStatus || (client.fundsSent ? "sent" : "pending");
+      const matchesFundsStatus = !fundsStatusFilter || fundsStatus === fundsStatusFilter;
+      return matchesName && matchesSearch && matchesService && matchesFundsStatus;
+    });
+  }, [activeSearch, clients, fundsStatusFilter, nameFilter, serviceFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredClients.length / PAGE_SIZE));
   const paginatedClients = useMemo(() => {
@@ -202,6 +197,8 @@ export default function CrmAdsDashboard() {
     setSearchInput("");
     setActiveSearch("");
     setNameFilter("");
+    setServiceFilter("");
+    setFundsStatusFilter("");
     setCurrentPage(1);
   };
 
@@ -370,14 +367,38 @@ export default function CrmAdsDashboard() {
 
           {loadError && <p className={styles.errorState}>{loadError}</p>}
 
-          <form className={styles.searchBar} onSubmit={searchClients}>
+          <form className={`${styles.searchBar} ${styles.searchBarWithFunds}`} onSubmit={searchClients}>
             <input
               placeholder="Search by business name, service, video link, note..."
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
             />
+            <select
+              aria-label="Filter ads clients by service"
+              value={serviceFilter}
+              onChange={(event) => {
+                setServiceFilter(event.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">All services</option>
+              {serviceOptions.map((service) => <option key={service} value={service}>{service}</option>)}
+            </select>
+            <select
+              aria-label="Filter ads clients by funds status"
+              value={fundsStatusFilter}
+              onChange={(event) => {
+                setFundsStatusFilter(event.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">All funds statuses</option>
+              <option value="pending">Funds pending</option>
+              <option value="sent">Funds sent</option>
+              <option value="not_needed">Funds not needed</option>
+            </select>
             <button type="submit">Search</button>
-            {activeSearch && (
+            {(activeSearch || serviceFilter || fundsStatusFilter) && (
               <button type="button" onClick={clearSearch}>
                 Clear
               </button>

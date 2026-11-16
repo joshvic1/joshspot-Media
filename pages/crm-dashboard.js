@@ -37,6 +37,12 @@ const fieldOrder = [
   "clientNumber",
 ];
 
+const serviceOptions = [
+  "Meta ads setup",
+  "TikTok ads setup - DM",
+  "Tiktok Ads Setup - Landing Page",
+];
+
 const PAGE_SIZE = 20;
 
 const formatAddedDate = (date) => {
@@ -60,6 +66,7 @@ export default function CrmDashboard() {
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [nameFilter, setNameFilter] = useState("");
+  const [serviceFilter, setServiceFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pendingScrollClientId, setPendingScrollClientId] = useState("");
   const [saving, setSaving] = useState(false);
@@ -75,26 +82,17 @@ export default function CrmDashboard() {
     const selectedName = nameFilter.trim().toLowerCase();
     const search = activeSearch.trim().toLowerCase();
 
-    if (selectedName) {
-      return clients.filter((client) =>
-        [client.businessName, client.name].some((value) =>
-          String(value || "").toLowerCase().includes(selectedName),
-        ),
+    return clients.filter((client) => {
+      const matchesName = !selectedName || [client.businessName, client.name].some((value) =>
+        String(value || "").toLowerCase().includes(selectedName),
       );
-    }
-
-    if (!search) {
-      return clients;
-    }
-
-    return clients.filter((client) =>
-      fieldOrder.some((field) =>
-        String(client[field] || "")
-          .toLowerCase()
-          .includes(search),
-      ),
-    );
-  }, [activeSearch, clients, nameFilter]);
+      const matchesSearch = !search || fieldOrder.some((field) =>
+        String(client[field] || "").toLowerCase().includes(search),
+      );
+      const matchesService = !serviceFilter || client.servicePaidFor === serviceFilter;
+      return matchesName && matchesSearch && matchesService;
+    });
+  }, [activeSearch, clients, nameFilter, serviceFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredClients.length / PAGE_SIZE));
   const paginatedClients = useMemo(() => {
@@ -176,6 +174,7 @@ export default function CrmDashboard() {
     setSearchInput("");
     setActiveSearch("");
     setNameFilter("");
+    setServiceFilter("");
     setCurrentPage(1);
   };
 
@@ -251,9 +250,7 @@ export default function CrmDashboard() {
                       value={form[field]}
                       onChange={(e) => handleChange(field, e.target.value)}
                     >
-                      <option>Meta ads setup</option>
-                      <option>TikTok ads setup - DM</option>
-                      <option>Tiktok Ads Setup - Landing Page</option>
+                      {serviceOptions.map((service) => <option key={service}>{service}</option>)}
                     </select>
                   ) : field.includes("Details") || field.includes("Logins") ? (
                     <textarea
@@ -295,8 +292,19 @@ export default function CrmDashboard() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
+            <select
+              aria-label="Filter setup clients by service"
+              value={serviceFilter}
+              onChange={(event) => {
+                setServiceFilter(event.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">All services</option>
+              {serviceOptions.map((service) => <option key={service} value={service}>{service}</option>)}
+            </select>
             <button type="submit">Search</button>
-            {activeSearch && (
+            {(activeSearch || serviceFilter) && (
               <button type="button" onClick={clearSearch}>
                 Clear
               </button>
