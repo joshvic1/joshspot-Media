@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import API from "../utils/api";
 import styles from "../styles/Crm.module.css";
@@ -6,7 +6,7 @@ import DeleteClient from "../components/crm/DeleteClient";
 import CrmLayout from "../components/crm/CrmLayout";
 import ClientNameActions from "../components/crm/ClientNameActions";
 import { canAccessInbox } from "../utils/inboxAccess";
-import { FiSliders } from "react-icons/fi";
+import { FiCheck, FiCheckCircle, FiEdit3, FiSliders, FiX } from "react-icons/fi";
 
 const fieldLabels = {
   businessName: "Name / Business name",
@@ -34,6 +34,19 @@ const serviceOptions = [
   "Tiktok Ads Setup - Landing Page",
 ];
 
+const reviewEditableFields = [
+  "amountPaid",
+  "servicePaidFor",
+  "clientLoginDetails",
+  "landingPageLogins",
+  "landingPageLink",
+];
+
+const reviewFormFor = (client) => fieldOrder.reduce((values, field) => {
+  values[field] = client?.[field] === "******" ? "" : client?.[field] || "";
+  return values;
+}, {});
+
 const PAGE_SIZE = 20;
 
 const formatAddedDate = (date) => {
@@ -60,6 +73,16 @@ export default function CrmDashboard() {
   const [categoryInput, setCategoryInput] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [reviewClient, setReviewClient] = useState(null);
+  const [reviewMode, setReviewMode] = useState("edit");
+  const [reviewForm, setReviewForm] = useState({});
+  const [reviewSaving, setReviewSaving] = useState(false);
+  const reviewDialog = useRef(null);
+  const canManageSetup = Boolean(
+    (staff?.admin === true || staff?.role === "SES")
+    && staff?.permissions?.["setup.edit"] !== false,
+  );
+  const completedClientCount = clients.filter((client) => Boolean(client.setupCompletedAt)).length;
   const filteredClients = useMemo(() => {
     const selectedName = nameFilter.trim().toLowerCase();
     const search = activeSearch.trim().toLowerCase();
@@ -112,6 +135,14 @@ export default function CrmDashboard() {
     fetchClients();
   }, [fetchClients, router]);
 
+  useEffect(() => {
+    const dialog = reviewDialog.current;
+    if (!dialog) return;
+
+    if (reviewClient && !dialog.open) dialog.showModal();
+    if (!reviewClient && dialog.open) dialog.close();
+  }, [reviewClient]);
+
   const searchClients = (event) => {
     event.preventDefault();
     setCurrentPage(1);
@@ -141,6 +172,45 @@ export default function CrmDashboard() {
     router.push(`/crm-inbox?conversation=${encodeURIComponent(conversationId)}`);
   };
 
+  const openReview = (client, mode) => {
+    setReviewClient(client);
+    setReviewMode(mode);
+    setReviewForm(reviewFormFor(client));
+  };
+
+  const closeReview = (force = false) => {
+    if (reviewSaving && !force) return;
+    reviewDialog.current?.close();
+    setReviewClient(null);
+  };
+
+  const saveReview = async (event) => {
+    event.preventDefault();
+    if (!reviewClient) return;
+
+    setReviewSaving(true);
+    const payload = reviewEditableFields.reduce((values, field) => {
+      values[field] = field === "amountPaid"
+        ? Number(reviewForm[field] || 0)
+        : reviewForm[field] || "";
+      return values;
+    }, {});
+
+    if (reviewMode === "complete") payload.setupCompleted = true;
+
+    try {
+      const { data } = await API.put(`/crm/clients/${reviewClient._id}`, payload);
+      setClients((items) => items.map((client) => (
+        client._id === reviewClient._id ? { ...client, ...data } : client
+      )));
+      closeReview(true);
+    } catch (error) {
+      alert(error.response?.data?.message || "Unable to save client details");
+    } finally {
+      setReviewSaving(false);
+    }
+  };
+
   const logout = () => {
     if (staff?.admin) { localStorage.removeItem("adminToken"); router.push("/admin-login-0tT6Yc1"); return; }
     localStorage.removeItem("crmToken");
@@ -157,7 +227,7 @@ export default function CrmDashboard() {
           <div className={styles.panelHeader}>
             <h2>Existing Clients</h2>
             <span>
-              {filteredClients.length} of {clients.length} records
+              {completedClientCount} setup done · {filteredClients.length} of {clients.length} records
             </span>
           </div>
 
@@ -224,12 +294,35 @@ export default function CrmDashboard() {
                       canOpenInbox={canAccessInbox(staff)}
                       onOpenInbox={openInbox}
                       onFilter={filterByClientName}
+                      actions={canManageSetup && <>
+                        <button
+                          className={`${styles.clientSetupAction} ${client.setupCompletedAt ? styles.clientSetupDone : ""}`}
+                          type="button"
+                          onClick={() => openReview(client, "complete")}
+                          aria-label={client.setupCompletedAt ? `Review completed setup for ${client.businessName}` : `Mark ${client.businessName} setup as done`}
+                          title={client.setupCompletedAt ? "Review completed setup" : "Review and mark setup as done"}
+                        >
+                          <FiCheck aria-hidden="true" />
+                        </button>
+                        <button
+                          className={styles.clientSetupAction}
+                          type="button"
+                          onClick={() => openReview(client, "edit")}
+                          aria-label={`Edit ${client.businessName} setup details`}
+                          title="Edit setup details"
+                        >
+                          <FiEdit3 aria-hidden="true" />
+                        </button>
+                      </>}
                     />
                     {staff?.admin === true && <DeleteClient kind="clients" client={client} onDeleted={() => { setClients((items) => items.filter((item) => item._id !== client._id)); setCurrentPage(1); }} />}
                     <span>{client.servicePaidFor}</span>
                     <small className={styles.clientDate}>
                       Added {formatAddedDate(client.createdAt)}
                     </small>
+                    {client.setupCompletedAt && <small className={styles.setupCompletedBadge}>
+                      <FiCheckCircle aria-hidden="true" /> Setup done
+                    </small>}
                   </div>
                 </div>
 
@@ -282,6 +375,81 @@ export default function CrmDashboard() {
           </div>
         </div>
       </section>
+
+      <dialog
+        ref={reviewDialog}
+        className={styles.clientReviewDialog}
+        aria-labelledby="setup-review-title"
+        onCancel={(event) => {
+          event.preventDefault();
+          closeReview();
+        }}
+        onClose={() => setReviewClient(null)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) closeReview();
+        }}
+      >
+        {reviewClient && <div className={styles.clientReviewSheet}>
+          <header className={styles.clientReviewHeader}>
+            <div>
+              <span>{reviewMode === "complete" ? "SETUP COMPLETION" : "SETUP DETAILS"}</span>
+              <h2 id="setup-review-title">
+                {reviewMode === "complete" ? "Review before marking done" : "Edit client details"}
+              </h2>
+              <p>{reviewClient.businessName || "Client"}</p>
+            </div>
+            <button type="button" onClick={closeReview} aria-label="Close setup details">
+              <FiX aria-hidden="true" />
+            </button>
+          </header>
+
+          <form className={styles.clientReviewForm} onSubmit={saveReview}>
+            <div className={styles.clientReviewBody}>
+              <p className={styles.clientReviewHint}>
+                Check the saved setup details before continuing. The client name and number stay protected from edits here.
+              </p>
+              <div className={styles.clientReviewLocked}>
+                <label>
+                  <span>{fieldLabels.businessName}</span>
+                  <input value={reviewForm.businessName || ""} readOnly />
+                </label>
+                <label>
+                  <span>{fieldLabels.clientNumber}</span>
+                  <input value={reviewForm.clientNumber || "Protected contact number"} readOnly />
+                </label>
+              </div>
+              <div className={styles.clientReviewFields}>
+                {reviewEditableFields.map((field) => (
+                  <label key={field} className={field === "clientLoginDetails" || field === "landingPageLogins" ? styles.clientReviewWide : ""}>
+                    <span>{fieldLabels[field]}</span>
+                    {field === "servicePaidFor" ? (
+                      <select value={reviewForm[field] || ""} onChange={(event) => setReviewForm((current) => ({ ...current, [field]: event.target.value }))}>
+                        {serviceOptions.map((service) => <option key={service} value={service}>{service}</option>)}
+                      </select>
+                    ) : field === "clientLoginDetails" || field === "landingPageLogins" ? (
+                      <textarea value={reviewForm[field] || ""} onChange={(event) => setReviewForm((current) => ({ ...current, [field]: event.target.value }))} />
+                    ) : (
+                      <input
+                        type={field === "amountPaid" ? "number" : "text"}
+                        min={field === "amountPaid" ? "0" : undefined}
+                        step={field === "amountPaid" ? "1" : undefined}
+                        value={reviewForm[field] || ""}
+                        onChange={(event) => setReviewForm((current) => ({ ...current, [field]: event.target.value }))}
+                      />
+                    )}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <footer className={styles.clientReviewFooter}>
+              <button type="button" onClick={closeReview} disabled={reviewSaving}>Cancel</button>
+              <button type="submit" disabled={reviewSaving}>
+                {reviewSaving ? "Saving changes..." : reviewMode === "complete" ? "Save Changes & Mark Done" : "Save Changes"}
+              </button>
+            </footer>
+          </form>
+        </div>}
+      </dialog>
     </div>
     </CrmLayout>
   );

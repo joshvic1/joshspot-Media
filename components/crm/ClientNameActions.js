@@ -7,6 +7,7 @@ export default function ClientNameActions({
   canOpenInbox,
   onOpenInbox,
   onFilter,
+  actions,
 }) {
   const clientName = String(name || 'Unnamed client');
   const hasInboxLink = Boolean(canOpenInbox && conversationId);
@@ -31,5 +32,6 @@ export default function ClientNameActions({
     >
       <FiSearch aria-hidden="true" />
     </button>
+    {actions}
   </div>;
 }

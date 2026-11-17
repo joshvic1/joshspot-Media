@@ -659,7 +659,13 @@
 .page .clientTop h3 { font-size:20px; color:#2d465d; font-weight:800; letter-spacing:-.015em; }
 .page .clientTop .clientNameLink { border:0; border-radius:0; padding:0; background:transparent; color:inherit; font-size:inherit; font-weight:inherit; line-height:inherit; }
 .page .clientTop .clientNameFilter { box-sizing:border-box; justify-content:center; align-content:center; padding:0; border:1px solid #dce5f0; border-radius:7px; background:#f7f9fc; color:#6d7f95; line-height:0; }
+.page .clientSetupAction { display:inline-grid; width:25px; height:25px; flex:0 0 25px; place-items:center; box-sizing:border-box; padding:0; border:1px solid #dce5f0; border-radius:7px; background:#f7f9fc; color:#6d7f95; line-height:0; transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease; }
+.page .clientSetupAction svg { width:14px; height:14px; }
+.page .clientSetupAction:hover,.page .clientSetupAction:focus-visible { border-color:#a9bd95; background:#eff6e9; color:#55783d; outline:none; transform:translateY(-1px); }
+.page .clientSetupAction.clientSetupDone { border-color:#c3dfab; background:#eff8e7; color:#609043; }
 .page .clientDate { color:#9aa5b4; font-size:10px; font-weight:400; }
+.page .setupCompletedBadge { display:inline-flex; align-items:center; gap:4px; margin-top:8px; color:#5f8b45; font-size:10px; font-weight:600; }
+.page .setupCompletedBadge svg { width:12px; height:12px; }
 .page .clientFields { gap:10px; }
 .page .clientFields p { background:#f8fafc; padding:12px; border-radius:8px; color:#4f667e; font-size:12px; line-height:1.7; }
 .page .clientFields strong { display:block; color:#98a4b3; font-size:10px; font-weight:500; margin-bottom:4px; }
@@ -689,5 +695,32 @@
 .page .fundsBadge:focus-within { outline:3px solid #9c88d2; outline-offset:3px; }
 .page .fundsBadge[aria-busy=true] { opacity:.65; }
 .page .fundsSelect:disabled { cursor:wait; }
+.clientReviewDialog { position:fixed; inset:0; width:100vw; max-width:none; height:100dvh; max-height:none; margin:0; padding:0; border:0; background:transparent; display:flex; align-items:flex-end; justify-content:center; color:#31465d; }
+.clientReviewDialog:not([open]) { display:none; }
+.clientReviewDialog::backdrop { background:#10203c80; backdrop-filter:blur(5px); }
+.clientReviewSheet { display:flex; flex-direction:column; width:min(860px,100%); max-height:min(88dvh,760px); overflow:hidden; border:1px solid #e0e7ef; border-bottom:0; border-radius:22px 22px 0 0; background:#fff; box-shadow:0 -12px 50px #12244124; animation:clientReviewSheetIn .2s ease-out; }
+.clientReviewHeader { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding:22px 26px 18px; border-bottom:1px solid #edf1f5; }
+.clientReviewHeader span { color:#769363; font-size:9px; font-weight:700; letter-spacing:1.2px; }
+.clientReviewHeader h2 { margin:5px 0 4px; color:#29415a; font-size:20px; letter-spacing:-.4px; }
+.clientReviewHeader p { margin:0; color:#8b99aa; font-size:12px; }
+.clientReviewHeader button { display:grid; width:34px; height:34px; flex:0 0 34px; place-items:center; padding:0; border:1px solid #e2e8ef; border-radius:50%; background:#f7f9fb; color:#718196; cursor:pointer; }
+.clientReviewHeader button:hover,.clientReviewHeader button:focus-visible { border-color:#b5c9df; background:#edf4fb; color:#315a84; outline:none; }
+.clientReviewHeader button svg { width:16px; height:16px; }
+.clientReviewForm { display:flex; min-height:0; flex:1; flex-direction:column; }
+.clientReviewBody { overflow-y:auto; padding:20px 26px 26px; }
+.clientReviewHint { margin:0 0 18px; color:#718197; font-size:12px; line-height:1.6; }
+.clientReviewLocked,.clientReviewFields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.clientReviewLocked { margin-bottom:20px; padding:14px; border:1px solid #e7ecf2; border-radius:12px; background:#f8fafc; }
+.clientReviewFields label,.clientReviewLocked label { display:grid; gap:7px; min-width:0; color:#6f8196; font-size:11px; font-weight:600; }
+.clientReviewFields input,.clientReviewFields select,.clientReviewFields textarea,.clientReviewLocked input { width:100%; min-width:0; box-sizing:border-box; border:1px solid #dce5ee; border-radius:9px; background:#fff; color:#364f69; padding:11px; font:inherit; font-size:12px; }
+.clientReviewLocked input { border-color:#e4e9ef; background:#f1f4f7; color:#8b98a7; cursor:not-allowed; }
+.clientReviewFields textarea { min-height:92px; resize:vertical; line-height:1.6; }
+.clientReviewWide { grid-column:span 2; }
+.clientReviewFooter { display:flex; gap:10px; padding:15px 26px calc(15px + env(safe-area-inset-bottom)); border-top:1px solid #e9eef3; background:#fff; box-shadow:0 -5px 18px #15283b06; }
+.clientReviewFooter button { min-height:44px; border-radius:10px; cursor:pointer; font:inherit; font-size:12px; font-weight:600; }
+.clientReviewFooter button:first-child { min-width:96px; border:1px solid #e0e6ed; background:#f7f9fb; color:#77869a; }
+.clientReviewFooter button:last-child { flex:1; border:1px solid #244631; background:#284835; color:#e5f4bd; }
+.clientReviewFooter button:disabled { cursor:wait; opacity:.55; }
+@keyframes clientReviewSheetIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 @media(max-width:1200px) { .page .contentGrid { grid-template-columns:1fr; }.page .form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 18px; }.page .form > button { grid-column:1/-1; } }
-@media(max-width:600px) { .page .panel { padding:18px; }.page .form,.page .clientFields { grid-template-columns:minmax(0,1fr); }.page .searchBar { grid-template-columns:minmax(0,1fr) 38px auto; }.page .searchBar input { grid-column:auto; }.page .clientFilterCard { grid-template-columns:minmax(0,1fr); }.page .pagination { display:flex; flex-wrap:wrap; justify-content:center; }.page .clientCard { padding:15px; } }
+@media(max-width:600px) { .page .panel { padding:18px; }.page .form,.page .clientFields { grid-template-columns:minmax(0,1fr); }.page .searchBar { grid-template-columns:minmax(0,1fr) 38px auto; }.page .searchBar input { grid-column:auto; }.page .clientFilterCard { grid-template-columns:minmax(0,1fr); }.page .pagination { display:flex; flex-wrap:wrap; justify-content:center; }.page .clientCard { padding:15px; }.clientReviewSheet { max-height:92dvh; }.clientReviewHeader { padding:19px 18px 16px; }.clientReviewHeader h2 { font-size:18px; }.clientReviewBody { padding:16px 18px 20px; }.clientReviewLocked,.clientReviewFields { grid-template-columns:minmax(0,1fr); }.clientReviewWide { grid-column:auto; }.clientReviewFooter { padding:13px 18px calc(13px + env(safe-area-inset-bottom)); }.clientReviewFooter button:first-child { min-width:82px; } }
