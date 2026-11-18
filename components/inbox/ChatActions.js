@@ -13,7 +13,7 @@ export default function ChatActions({ conversation, session, onClose, onSent, in
   const [history, setHistory] = useState([]); const [historyNext, setHistoryNext] = useState(null); const [reviewed, setReviewed] = useState(false); const [fieldErrors, setFieldErrors] = useState({});
   const [form, setForm] = useState({}); const key = useRef(null); const locked = useRef(false);
   useEffect(() => { let active = true; inboxApi(`/conversations/${conversation._id}/actions/customer`).then(data => { if (active) setCustomer(data); }).catch(e => { if (active) setError(e.message); }); return () => { active = false; }; }, [conversation._id]);
-  const go = async (page, options = {}) => { if (busy) return; const selectedRecordId = options.recordId || (page === initialKind ? recordId : null); setScreen(page); setHistory([]); setHistoryNext(null); setReviewed(false); setFieldErrors({}); setError(''); setResult(null); setForm({ servicePaidFor: services[page]?.[0] || '' }); key.current = null; locked.current = false; setExistingId(null);
+  const go = async (page, options = {}) => { if (busy) return; const selectedRecordId = options.recordId || (page === initialKind ? recordId : null); setScreen(page); setHistory([]); setHistoryNext(null); setReviewed(false); setFieldErrors({}); setError(''); setResult(null); setForm({ servicePaidFor: services[page]?.[0] || '', ...(page === 'invoice' ? { paymentProvider: 'paystack' } : {}) }); key.current = null; locked.current = false; setExistingId(null);
     if (types[page]) {
       setBusy(true);
       try { const data = await inboxApi(`/conversations/${conversation._id}/actions/crm/${page}${selectedRecordId ? `?recordId=${selectedRecordId}` : ''}`); if(page === 'ads' && !selectedRecordId){setHistory(data.records || []);setHistoryNext(data.next || null);}else if(data.record){setExistingId(data.record._id);setForm(data.record);} }
@@ -79,7 +79,7 @@ export default function ChatActions({ conversation, session, onClose, onSent, in
     </section> : <form onSubmit={submit} noValidate={Boolean(types[screen])} className={s.form}>
       <div className={s.identity}><FiLock /><div>{customer ? <><b>{customer.name}</b><span>{customer.phone}</span></> : <span className={s.skeleton} />}</div><small>Chat customer</small></div>
       <fieldset disabled={busy || locked.current}>
-      {screen === 'invoice' ? <label className={s.field}>Invoice amount (NGN)<input autoFocus type="number" inputMode="numeric" min="100" max="100000000" step="1" value={form.amount || ''} onChange={e => change('amount', e.target.value)} placeholder="Enter amount" required /></label> : <>
+      {screen === 'invoice' ? <><label className={s.field}>Payment method<select value={form.paymentProvider || 'paystack'} onChange={e => change('paymentProvider', e.target.value)}><option value="paystack">Paystack</option><option value="moniepoint">Moniepoint</option></select></label><label className={s.field}>Invoice amount (NGN)<input autoFocus type="number" inputMode="numeric" min="100" max="100000000" step="1" value={form.amount || ''} onChange={e => change('amount', e.target.value)} placeholder="Enter amount" required /></label></> : <>
         {screen === 'verification' && field('businessName', 'Business name', { required: true })}
         {(!existingId || screen === 'ads' || session.actor.admin || session.actor.role !== 'CSS') && field('amountPaid', 'Amount paid (NGN)', { number: true, required: true })}
         {services[screen] && field('servicePaidFor', 'Service paid for', { choices: services[screen] })}

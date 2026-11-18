@@ -23,11 +23,11 @@ export default function RecordDetails({ conversationId, record, onClose }) {
   const invoice = record.kind === 'Invoice';
   const groups = [
     { title: 'Customer & service', icon: FiUser, keys: ['name','customerName','businessName','clientNumber','customerPhone','customerEmail','servicePaidFor','service','product'] },
-    { title: invoice ? 'Payment references' : 'Record information', icon: FiCreditCard, keys: invoice ? ['_id','reference','paymentProvider','flutterwaveTransactionId','flutterwaveOrderRef'] : ['_id','adsPublished','fundsStatus','landingPageLink','videoLinks'] },
-    { title: 'Timeline', icon: FiClock, keys: ['createdAt','paidAt','expiresAt'] },
+    { title: invoice ? 'Payment references' : 'Record information', icon: FiCreditCard, keys: invoice ? ['_id','reference','paymentProvider','providerStatus','flutterwaveTransactionId','flutterwaveOrderRef'] : ['_id','adsPublished','fundsStatus','landingPageLink','videoLinks'] },
+    { title: 'Timeline', icon: FiClock, keys: ['createdAt','paidAt','manualPaymentConfirmedAt','manualPaymentConfirmedBy','expiresAt'] },
     { title: 'Notes', icon: FiFileText, keys: ['note'] }
   ];
-  const fieldLabels = { ...labels, _id: invoice ? 'Invoice ID' : 'Record ID', reference: 'Payment reference', paymentProvider: 'Payment provider', flutterwaveTransactionId: 'Transaction ID', flutterwaveOrderRef: 'Order reference' };
+  const fieldLabels = { ...labels, _id: invoice ? 'Invoice ID' : 'Record ID', reference: 'Payment reference', paymentProvider: 'Payment provider', providerStatus: 'Payment status', manualPaymentConfirmedAt: 'Manually confirmed', manualPaymentConfirmedBy: 'Confirmed by', flutterwaveTransactionId: 'Transaction ID', flutterwaveOrderRef: 'Order reference' };
   const has = key => data && data[key] !== undefined && data[key] !== null && data[key] !== '';
   return <Modal title={titles[record.kind] || 'Record details'} onClose={onClose}>
     {error ? <p className={s.error} role="alert">{error}</p> : !data ? <RowsSkeleton count={3} /> : <div className={s.recordDetailLayout}>
