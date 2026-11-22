@@ -6,10 +6,12 @@ export default async function handler(req, res) {
   const path = (req.query.path || []).join("/");
   const settings = path === "general-settings";
   if(settings && !["GET","PUT"].includes(req.method)){res.setHeader("Allow","GET, PUT");return res.status(405).end();}
-  const read = /^(course-payments|paid-invoices|overview|source-analytics)$/.test(path);
+  const read = /^(course-payments|paid-invoices|overview|source-analytics)$/.test(path) || /^paid-invoices\/[a-f\d]{24}\/refund-preview$/.test(path);
   const receipt = /^paid-invoices\/[a-f\d]{24}\/receipt$/.test(path);
   const contact = /^paid-invoices\/[a-f\d]{24}\/contact$/.test(path);
-  const action = receipt || /^course-payments\/[a-f\d]{24}\/(check|remind|resend)$/.test(path) || path === "sync-payments";
+  const refund = /^paid-invoices\/[a-f\d]{24}\/refunds$/.test(path);
+  const refundRefresh = /^refunds\/[a-f\d]{24}\/refresh$/.test(path);
+  const action = receipt || refund || refundRefresh || /^course-payments\/[a-f\d]{24}\/(check|remind|resend)$/.test(path) || path === "sync-payments";
   const record = /^records\/(bookings|leads|invoices)\/[a-f\d]{24}(\/restore)?$/.test(path);
   const telegramRead = path === "telegram-access";
   const telegramSetup = path === "telegram-access/setup";
@@ -26,7 +28,7 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(`${BACKEND_URL}/admin/${path}?${query}`, {
       method, headers: { authorization: req.headers.authorization, "Content-Type": "application/json" },
-      ...(settings && method === "PUT" ? {body:JSON.stringify({courseGateway:req.body?.courseGateway})} : contact ? {body:JSON.stringify({email:req.body?.email,phone:req.body?.phone})} : (telegramSetup || telegramCreateChannel || telegramChannel || telegramAction) ? { body: JSON.stringify(req.body || {}) } : method === "POST" ? { body: receipt ? JSON.stringify({email:req.body?.email,name:req.body?.name}) : "{}" } : {}),
+      ...(settings && method === "PUT" ? {body:JSON.stringify({courseGateway:req.body?.courseGateway})} : contact ? {body:JSON.stringify({email:req.body?.email,phone:req.body?.phone})} : (telegramSetup || telegramCreateChannel || telegramChannel || telegramAction || refund || refundRefresh) ? { body: JSON.stringify(req.body || {}) } : method === "POST" ? { body: receipt ? JSON.stringify({email:req.body?.email,name:req.body?.name}) : "{}" } : {}),
     });
     const data = await response.json();
     return res.status(response.status).json(data);

@@ -6,6 +6,7 @@ import Pagination, { pageRows } from "./Pagination";
 import { DeleteButton } from "./RecordDeletion";
 import SendReceipt from "./SendReceipt";
 import EditInvoiceContact from "./EditInvoiceContact";
+import RefundInvoice from "./RefundInvoice";
 import styles from "../../styles/AdminReports.module.css";
 const money = (value) => `₦${Number(value || 0).toLocaleString("en-NG")}`;
 const date = (value) => value ? new Date(value).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Lagos" }) : "Date not available";
@@ -113,7 +114,7 @@ export default function Reports({ mode = "overview" }) {
         <label>Minimum amount (₦)<input type="number" min="0" value={query.min} onChange={(event) => update("min",event.target.value)} /></label>
         <label>Maximum amount (₦)<input type="number" min="0" value={query.max} onChange={(event) => update("max",event.target.value)} /></label>
       </div>
-      <p className={styles.hint}>Revenue uses the payment date in Lagos time and includes gross payments before fees or refunds. Totals cover all matching records, not just this page.{!invoicesOnly && " Booking and lead counts use their creation date; lead counts follow the date filter only. Search and amount filters apply to revenue and payment records."}</p>
+      <p className={styles.hint}>Revenue uses the payment date in Lagos time and excludes confirmed refund amounts. Pending refund requests do not change totals until their gateway confirms them. Totals cover all matching records, not just this page.{!invoicesOnly && " Booking and lead counts use their creation date; lead counts follow the date filter only. Search and amount filters apply to revenue and payment records."}</p>
     </section>
     {notice && <p className={styles.notice} role="status">{notice}</p>}{error && <p className={styles.error} role="alert">{error}</p>}
     {data?.unverifiedBookings > 0 && <p className={styles.notice}>{data.unverifiedBookings} older bookings have an unverified paid flag and are excluded from confirmed revenue. Sync Paystack to verify those with saved references. Missing references must be recovered from Paystack.</p>}
@@ -129,8 +130,8 @@ export default function Reports({ mode = "overview" }) {
       <div className={styles.tableWrap}><table><thead><tr><th>Customer</th><th>Contact details</th><th>Service</th><th>Amount paid</th><th>Date paid</th><th>Reference / details</th><th>Action</th></tr></thead><tbody>
         {loading ? <tr><td colSpan={7} className={styles.empty}>Loading payments…</td></tr> : payments?.records?.length ? payments.records.map((row) => <tr key={`${row.kind}-${row.id}`}>
           <td><strong>{row.name || "Unnamed customer"}</strong><small>{row.source === "bookings" ? "Service booking" : "Invoice"}</small></td>
-          <td>{row.email}<small>{row.phone}</small></td><td><ServiceLabel service={row.service} /></td><td className={styles.amount}>{money(row.amount)}</td><td>{date(row.paidAt)}</td>
-          <td className={styles.reference}>{row.reference || "—"}{row.note && <small>{row.note}</small>}</td><td>{row.kind === "invoices" && <><EditInvoiceContact record={row} demo={demo} onSaved={message=>{setNotice(message);reload();}} /><SendReceipt record={row} demo={demo} onSent={message=>{setNotice(message);reload();}} />{["Ads course", "WhatsApp Status ads course"].includes(row.service) && <button disabled={!row.email || syncing} onClick={()=>resendCourse(row)}>Resend course email</button>}</>}<DeleteButton kind={row.kind} id={row.id} label={row.name || "payment"} onChange={reload} /></td>
+          <td>{row.email}<small>{row.phone}</small></td><td><ServiceLabel service={row.service} /></td><td className={styles.amount}>{money(row.amount)}{row.refundedAmount > 0 && <small>Net after refund: {money(row.netAmount)}</small>}{row.refundStatus && row.refundStatus !== "none" && <small>Refund: {row.refundStatus.replaceAll("_", " ")}</small>}</td><td>{date(row.paidAt)}</td>
+          <td className={styles.reference}>{row.reference || "—"}{row.note && <small>{row.note}</small>}</td><td>{row.kind === "invoices" && <><EditInvoiceContact record={row} demo={demo} onSaved={message=>{setNotice(message);reload();}} /><SendReceipt record={row} demo={demo} onSent={message=>{setNotice(message);reload();}} /><RefundInvoice record={row} demo={demo} onChange={message=>{setNotice(message);reload();}} />{["Ads course", "WhatsApp Status ads course"].includes(row.service) && <button disabled={!row.email || syncing} onClick={()=>resendCourse(row)}>Resend course email</button>}</>}<DeleteButton kind={row.kind} id={row.id} label={row.name || "payment"} onChange={reload} /></td>
         </tr>) : <tr><td colSpan={7} className={styles.empty}>No successful payments match your filters.</td></tr>}
       </tbody></table></div>
       <Pagination page={payments?.page || 1} pages={payments?.pages || 1} total={payments?.total || 0} size={query.pageSize} onSize={(value) => update("pageSize",value)} onPage={(value) => update("page",value)} disabled={loading} />
